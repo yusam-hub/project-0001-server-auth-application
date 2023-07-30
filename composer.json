@@ -58,6 +58,10 @@
     "yusam-hub/app-ext": {
       "type": "git",
       "url": "https://github.com/yusam-hub/app-ext.git"
+    },
+    "yusam-hub/project-0001-client-auth-sdk": {
+      "type": "git",
+      "url": "https://github.com/yusam-hub/project-0001-client-auth-sdk.git"
     }
   },
   "require": {
@@ -81,7 +85,10 @@
     "yusam-hub/web-socket": "dev-master",
     "yusam-hub/helpers": "dev-master",
     "yusam-hub/model-ext": "dev-master",
-    "yusam-hub/app-ext": "dev-master"
+    "yusam-hub/app-ext": "dev-master",
+
+    "firebase/php-jwt": "^6.0",
+    "yusam-hub/project-0001-client-auth-sdk": "dev-master"
   },
   "require-dev": {
     "phpunit/phpunit": "^9.5"
