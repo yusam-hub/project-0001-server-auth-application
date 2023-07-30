@@ -11,7 +11,8 @@ class ApiSwaggerController extends \YusamHub\AppExt\SymfonyExt\Http\Controllers\
         return [
             'front',
             'back',
-            'debug'
+            'debug',
+            'v1'
         ];
     }
 

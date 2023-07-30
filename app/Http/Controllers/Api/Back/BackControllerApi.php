@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Api\Back;
 
-use App\Http\Controllers\Api\ApiBaseHttpController;
+use App\Http\Controllers\Api\BaseApiHttpController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
-class ApiBackController extends ApiBaseHttpController
+class BackControllerApi extends BaseApiHttpController
 {
     public static function routesRegister(RoutingConfigurator $routes): void
     {

@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Api\Back\BackControllerApi;
+use App\Http\Controllers\Api\V1\V1ControllerApi;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use YusamHub\AppExt\SymfonyExt\Http\Controllers\BaseHttpController;
 
-class ApiBackRoutes extends BaseHttpController
+class ApiV1Routes extends BaseHttpController
 {
     public static function routesRegister(RoutingConfigurator $routes): void
     {
-        BackControllerApi::routesRegister($routes);
+        V1ControllerApi::routesRegister($routes);
     }
 
 }
