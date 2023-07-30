@@ -15,12 +15,6 @@ return [
                 'lineFormat' => \YusamHub\AppExt\Logger\FileLogger::LINE_FORMAT_NORMAL,
             ]
         ],
-        'queue-logging' => [
-            'class' => \App\Queue\QueueLogger::class,
-            'config' => [
-
-            ]
-        ],
         'react-http-server-0' => [
             'class' => \YusamHub\AppExt\Logger\FileLogger::class,
             'config' => [

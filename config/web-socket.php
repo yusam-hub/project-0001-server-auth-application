@@ -5,7 +5,7 @@ return [
 
     'servers' => [
         'default' => [
-            'class' =>  App\WebSocket\WebSocketServer::class,
+            'class' =>  \YusamHub\WebSocket\WebSocketServer::class,
             'connection' => [
                 'bindAddress' => app_ext_env('WS_SERVER_BIND_ADDRESS', '0.0.0.0'),
                 'bindPort' => app_ext_env('WS_SERVER_BIND_PORT', '9111'),
@@ -14,7 +14,6 @@ return [
             ],
             'incomingMessagesClass' => [
                 \YusamHub\WebSocket\WsServer\IncomingMessages\PingPongIncomingMessage::class,
-                \App\WebSocket\IncomingMessages\JsRtcPeerIncomingMessage::class,
             ],
             'externalMessagesClass' => [
                 \YusamHub\WebSocket\WsServer\ExternalMessages\PingPongExternalMessage::class,
