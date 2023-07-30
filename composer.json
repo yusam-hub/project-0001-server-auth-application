@@ -1,0 +1,105 @@
+{
+  "name": "yusam-hub/project-0001-server-auth-application",
+  "description": "yusam-hub/project-0001-server-auth-application",
+  "minimum-stability": "stable",
+  "repositories": {
+    "yusam-hub/php-compatibility": {
+      "type": "git",
+      "url": "https://github.com/yusam-hub/php-compatibility.git"
+    },
+    "yusam-hub/debug": {
+      "type": "git",
+      "url": "https://github.com/yusam-hub/debug.git"
+    },
+    "yusam-hub/curl-ext": {
+      "type": "git",
+      "url": "https://github.com/yusam-hub/curl-ext"
+    },
+    "yusam-hub/db-ext": {
+      "type": "git",
+      "url": "https://github.com/yusam-hub/db-ext.git"
+    },
+    "yusam-hub/json-ext": {
+      "type": "git",
+      "url": "https://github.com/yusam-hub/json-ext.git"
+    },
+    "yusam-hub/captcha": {
+      "type": "git",
+      "url": "https://github.com/yusam-hub/captcha.git"
+    },
+    "yusam-hub/daemon": {
+      "type": "git",
+      "url": "https://github.com/yusam-hub/daemon.git"
+    },
+    "yusam-hub/redis-ext": {
+      "type": "git",
+      "url": "https://github.com/yusam-hub/redis-ext.git"
+    },
+    "yusam-hub/validator": {
+      "type": "git",
+      "url": "https://github.com/yusam-hub/validator.git"
+    },
+    "yusam-hub/smarty-ext": {
+      "type": "git",
+      "url": "https://github.com/yusam-hub/smarty-ext.git"
+    },
+    "yusam-hub/web-socket": {
+      "type": "git",
+      "url": "https://github.com/yusam-hub/web-socket.git"
+    },
+    "yusam-hub/helpers": {
+      "type": "git",
+      "url": "https://github.com/yusam-hub/helpers.git"
+    },
+    "yusam-hub/model-ext": {
+      "type": "git",
+      "url": "https://github.com/yusam-hub/model-ext.git"
+    },
+    "yusam-hub/app-ext": {
+      "type": "git",
+      "url": "https://github.com/yusam-hub/app-ext.git"
+    }
+  },
+  "require": {
+    "php": "^8.1",
+    "ext-gd": "*",
+    "ext-pdo": "*",
+    "ext-pcntl": "*",
+    "ext-json": "*",
+    "ext-redis": "*",
+
+    "yusam-hub/php-compatibility": "dev-master",
+    "yusam-hub/debug": "dev-master",
+    "yusam-hub/curl-ext": "dev-master",
+    "yusam-hub/db-ext": "dev-master",
+    "yusam-hub/json-ext": "dev-master",
+    "yusam-hub/captcha": "dev-master",
+    "yusam-hub/daemon": "dev-master",
+    "yusam-hub/redis-ext": "dev-master",
+    "yusam-hub/validator": "dev-master",
+    "yusam-hub/smarty-ext": "dev-master",
+    "yusam-hub/web-socket": "dev-master",
+    "yusam-hub/helpers": "dev-master",
+    "yusam-hub/model-ext": "dev-master",
+    "yusam-hub/app-ext": "dev-master"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/"
+    },
+    "files": [
+      "app/functions.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "App\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+
+  }
+}
