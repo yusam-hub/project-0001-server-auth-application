@@ -9,11 +9,9 @@ class ApiSwaggerController extends \YusamHub\AppExt\SymfonyExt\Http\Controllers\
     protected static function getSwaggerModules(): array
     {
         return [
-            'front',
-            'back',
             'debug',
-            'v1'
-        ];
+            'v1',
+         ];
     }
 
     protected function getOpenApiScanPaths(Request $request, string $module): array
