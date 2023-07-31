@@ -1,15 +1,15 @@
 <?php
 
 return [
-    'connectionDefault' => 'app',
+    'connectionDefault' => DB_CONNECTION_DEFAULT,
 
     'connections' => [
-        'app' => [
+        'default' => [
             'user' => app_ext_env('DATABASE_USER'),
             'password' => app_ext_env('DATABASE_PASSWORD'),
             'host' => app_ext_env('DATABASE_HOST'),
             'port' => app_ext_env('DATABASE_PORT'),
-            'dbName' => app_ext_env('DATABASE_DBNAME'),
+            'dbName' => DB_NAME_DEFAULT,
         ],
     ],
 

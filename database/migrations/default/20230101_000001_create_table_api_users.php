@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `:database`.`:table` (
 MYSQL;
 
         return strtr($query, [
-            ':database' => DB_NAME_LOCALHOST,
+            ':database' => DB_NAME_DEFAULT,
             ':table' => TABLE_API_USERS
         ]);
     }
