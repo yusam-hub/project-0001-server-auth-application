@@ -5,11 +5,11 @@ return [
 
     'connections' => [
         'default' => [
-            'user' => app_ext_env('DATABASE_USER'),
-            'password' => app_ext_env('DATABASE_PASSWORD'),
-            'host' => app_ext_env('DATABASE_HOST'),
-            'port' => app_ext_env('DATABASE_PORT'),
-            'dbName' => DB_NAME_DEFAULT,
+            'user' => app_ext_env('DATABASE_DEFAULT_USER'),
+            'password' => app_ext_env('DATABASE_DEFAULT_PASSWORD'),
+            'host' => app_ext_env('DATABASE_DEFAULT_HOST'),
+            'port' => app_ext_env('DATABASE_DEFAULT_PORT'),
+            'dbName' => app_ext_env('DATABASE_DEFAULT_NAME'),
         ],
     ],
 

@@ -1,6 +1,14 @@
 <?php
 
 return new class {
+
+    protected ?string $connectionName = DB_CONNECTION_DEFAULT;
+    protected string $tableName = TABLE_API_USERS;
+    protected function getDatabaseName(): string
+    {
+        return app_ext_config('database.connections.'.$this->connectionName.'.dbName');
+    }
+
     public function getQuery(): string
     {
         $query = <<<MYSQL
@@ -22,8 +30,8 @@ CREATE TABLE IF NOT EXISTS `:database`.`:table` (
 MYSQL;
 
         return strtr($query, [
-            ':database' => DB_NAME_DEFAULT,
-            ':table' => TABLE_API_USERS
+            ':database' => $this->getDatabaseName(),
+            ':table' => $this->tableName
         ]);
     }
 
