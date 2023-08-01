@@ -27,6 +27,8 @@ INSERT INTO `:database`.`:table_users_emails` (`id`,`userId`,`emailId`) VALUES(1
 
 INSERT INTO `:database`.`:table_users_mobiles` (`id`,`userId`,`mobileId`) VALUES(1,1,1);
 
+INSERT INTO `:database`.`:table_apps` (`id`,`userId`,`title`) VALUES(1,1,'yusam@yandex.ru');
+
 COMMIT;
 MYSQL;
 
@@ -38,6 +40,7 @@ MYSQL;
             ':table_users' => TABLE_USERS,
             ':table_users_emails' => TABLE_USERS_EMAILS,
             ':table_users_mobiles' => TABLE_USERS_MOBILES,
+            ':table_apps' => TABLE_APPS,
         ]);
     }
 

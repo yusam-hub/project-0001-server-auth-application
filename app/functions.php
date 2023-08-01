@@ -7,3 +7,4 @@ const TABLE_MOBILES = 'mobiles';
 const TABLE_USERS = 'users';
 const TABLE_USERS_MOBILES = 'users_mobiles';
 const TABLE_USERS_EMAILS = 'users_emails';
+const TABLE_APPS = 'apps';
