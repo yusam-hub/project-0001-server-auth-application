@@ -11,6 +11,10 @@ return new class {
     public function getQuery(): string
     {
         $query = <<<MYSQL
+SET autocommit = 0;
+
+START TRANSACTION;
+
 INSERT INTO `:database`.`:table_emails` (`id`,`email`,`verifiedAt`) VALUES(1,'yusam@yandex.ru',NOW());
 
 INSERT INTO `:database`.`:table_country_mobile_prefixes` (`id`,`countryCode2`,`countryCode3`,`mobilePrefix`) VALUES(1,'RU','RUS','+7'),(2,'IN','IND','+91'),(3,'UA','UKR','+380');
@@ -22,6 +26,8 @@ INSERT INTO `:database`.`:table_users` (`id`) VALUES(1);
 INSERT INTO `:database`.`:table_users_emails` (`id`,`userId`,`emailId`) VALUES(1,1,1);
 
 INSERT INTO `:database`.`:table_users_mobiles` (`id`,`userId`,`mobileId`) VALUES(1,1,1);
+
+COMMIT;
 MYSQL;
 
         return strtr($query, [
