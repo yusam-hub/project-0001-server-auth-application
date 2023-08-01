@@ -19,7 +19,7 @@ START TRANSACTION;
 
 TRUNCATE `:database`.`:table_emails`;
 
-INSERT INTO `:database`.`:table_emails` (`id`,`email`,`verifiedAt`) VALUES(1,'yusam@yandex.ru',NOW());
+INSERT INTO `:database`.`:table_emails` (`id`,`email`,`verifiedAt`) VALUES(1,'root@root',NOW());
 
 TRUNCATE `:database`.`:table_country_mobile_prefixes`;
 
@@ -43,7 +43,7 @@ INSERT INTO `:database`.`:table_users_mobiles` (`id`,`userId`,`mobileId`) VALUES
 
 TRUNCATE `:database`.`:table_apps`;
 
-INSERT INTO `:database`.`:table_apps` (`id`,`userId`,`title`) VALUES(1,1,'yusam@yandex.ru');
+INSERT INTO `:database`.`:table_apps` (`id`,`userId`,`title`) VALUES(1,1,'Root');
 
 COMMIT;
 
