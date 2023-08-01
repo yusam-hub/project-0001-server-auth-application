@@ -13,7 +13,7 @@ class ApiUserModel
     ApiUserModelInterface
 {
     protected ?string $connectionName = DB_CONNECTION_DEFAULT;
-    protected string $tableName = TABLE_API_USERS;
+    protected string $tableName = TABLE_USERS;
 
     protected function getDatabaseName(): string
     {

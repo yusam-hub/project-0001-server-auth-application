@@ -26,3 +26,4 @@
 
     curl --unix-socket /tmp/react-http-server-socks/server.worker0.sock -vvv -X GET http://localhost.loc
     curl --unix-socket /tmp/react-http-server-socks/server.worker0.sock -vvv -X GET http://mini-app-example-react-8074.loc/api/debug
+
