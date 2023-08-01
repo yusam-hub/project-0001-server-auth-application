@@ -8,3 +8,4 @@ const TABLE_USERS = 'users';
 const TABLE_USERS_MOBILES = 'users_mobiles';
 const TABLE_USERS_EMAILS = 'users_emails';
 const TABLE_APPS = 'apps';
+const TABLE_APPS_USERS_KEYS = 'apps_users_keys';
