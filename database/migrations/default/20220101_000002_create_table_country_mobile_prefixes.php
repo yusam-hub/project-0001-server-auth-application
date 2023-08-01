@@ -28,8 +28,6 @@ CREATE TABLE IF NOT EXISTS `:database`.`:table` (
     UNIQUE KEY `idx_countryCode3` (`countryCode3`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Справочник мобильные префиксы стран';
 
-INSERT INTO `:database`.`:table` (`countryCode2`,`countryCode3`,`mobilePrefix`) VALUES('RU','RUS','+7'),('IN','IND','+91'),('UA','UKR','+380');
-
 SET FOREIGN_KEY_CHECKS=1;
 MYSQL;
 
