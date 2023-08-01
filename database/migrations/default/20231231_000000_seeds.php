@@ -27,7 +27,7 @@ INSERT INTO `:database`.`:table_country_mobile_prefixes` (`id`,`countryCode2`,`c
 
 TRUNCATE `:database`.`:table_mobiles`;
 
-INSERT INTO `:database`.`:table_mobiles` (`id`,`countryMobilePrefixId`,`num`,`verifiedAt`) VALUES(1,1,'9376448660',NOW());
+INSERT INTO `:database`.`:table_mobiles` (`id`,`countryMobilePrefixId`,`num`,`verifiedAt`) VALUES(1,1,'0000000000',NOW());
 
 TRUNCATE `:database`.`:table_users`;
 
