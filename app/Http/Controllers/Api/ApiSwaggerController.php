@@ -6,12 +6,17 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ApiSwaggerController extends \YusamHub\AppExt\SymfonyExt\Http\Controllers\ApiSwaggerController
 {
+    const MODULE_DEBUG = 'debug';
+    const MODULE_FRONT = 'front';
+
+    const MODULES = [
+        self::MODULE_DEBUG,
+        self::MODULE_FRONT,
+    ];
+
     protected static function getSwaggerModules(): array
     {
-        return [
-            'debug',
-            'v1',
-         ];
+        return self::MODULES;
     }
 
     protected function getOpenApiScanPaths(Request $request, string $module): array
