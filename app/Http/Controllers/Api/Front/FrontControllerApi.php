@@ -225,7 +225,6 @@ class FrontControllerApi extends BaseApiHttpController
                 return [
                     'userId' => 0,
                     'privateKey' => $openSsl->getPrivateKey(),
-                    'publicKey' => $openSsl->getPublicKey(),
                 ];
             }
 
