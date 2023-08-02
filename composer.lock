@@ -3925,7 +3925,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yusam-hub/app-ext.git",
-                "reference": "ff11474af3ffa9d54db16508b301ba548ef5570e"
+                "reference": "653531ff361c23850071fd315c4ac0bf45c9e3c0"
             },
             "require": {
                 "bunny/bunny": "@dev",
@@ -3982,7 +3982,7 @@
                 "files": []
             },
             "description": "yusam-hub/app-ext",
-            "time": "2023-08-02T20:20:45+00:00"
+            "time": "2023-08-02T21:01:38+00:00"
         },
         {
             "name": "yusam-hub/captcha",

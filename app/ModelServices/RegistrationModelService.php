@@ -82,6 +82,11 @@ MYSQL;
         try {
             $emailModel = static::findOrCreateEmail($pdoExtKernel, $email);
 
+            if (is_null($emailModel->verifiedAt)) {
+                $emailModel->verifiedAt = app_ext_date();
+                $emailModel->save();
+            }
+
             $userModel = new UserModel();
             $userModel->setPdoExtKernel($pdoExtKernel);
             $userModel->publicKey = $publicKey;
@@ -93,7 +98,7 @@ MYSQL;
             $userEmailModel->emailId = $emailModel->id;
             $userEmailModel->saveOrFail();
 
-            $pdoExtKernel->pdoExt()->commitTransaction();
+            $pdoExtKernel->pdoExt()->commitTransactionDepth();
 
         } catch (\Throwable $e) {
             $pdoExtKernel->pdoExt()->rollBackTransactionDepth();
