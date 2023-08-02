@@ -15,6 +15,17 @@ return [
                 'lineFormat' => \YusamHub\AppExt\Logger\FileLogger::LINE_FORMAT_NORMAL,
             ]
         ],
+        'email' => [
+            'class' => \YusamHub\AppExt\Logger\FileLogger::class,
+            'config' => [
+                'logDir' => app_ext()->getStorageDir('/logs'),
+                'name' => 'email',
+                'fileMaxSize' => 10 * 1024 * 1024,
+                'fileRotatorCount' => 10,
+                'level' => app_ext_env('LOGGING_LEVEL', \Psr\Log\LogLevel::ERROR),
+                'lineFormat' => \YusamHub\AppExt\Logger\FileLogger::LINE_FORMAT_NORMAL,
+            ]
+        ],
         'react-http-server-0' => [
             'class' => \YusamHub\AppExt\Logger\FileLogger::class,
             'config' => [

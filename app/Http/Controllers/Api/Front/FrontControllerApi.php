@@ -111,15 +111,14 @@ class FrontControllerApi extends BaseApiHttpController
 
             $this->getRedisKernel()->redisExt()->put($hash, $savedData, self::DEFAULT_TOO_MANY_REQUESTS_TTL);
 
+            app_ext_logger('email')->debug(__METHOD__, $savedData);
+
             /**
              * todo: send email otp throw queue
              */
 
-            $this->debug(__METHOD__, $savedData);
-
             return [
                 'hash' => $hash,
-                'otp' => $savedData['otp'], //todo: remove after develop testing
             ];
         } catch (\Throwable $e) {
 
