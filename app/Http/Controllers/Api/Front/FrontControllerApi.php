@@ -6,6 +6,7 @@ use App\Helpers\HttpHelper;
 use App\Http\Controllers\Api\ApiSwaggerController;
 use App\Http\Controllers\Api\BaseApiHttpController;
 use App\Model\Database\EmailModel;
+use App\ModelServices\RegistrationModelService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use YusamHub\AppExt\Exceptions\HttpBadRequestAppExtRuntimeException;
@@ -66,7 +67,7 @@ class FrontControllerApi extends BaseApiHttpController
     {
         $uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
 
-        HttpHelper::checkTooManyRequestsOrFail($this->getLogger(), $uniqueUserDevice,self::DEFAULT_TOO_MANY_REQUESTS_TTL, __METHOD__);
+        //HttpHelper::checkTooManyRequestsOrFail($this->getLogger(), $uniqueUserDevice,self::DEFAULT_TOO_MANY_REQUESTS_TTL, __METHOD__);
 
         try {
             $validator = new Validator();
@@ -98,14 +99,14 @@ class FrontControllerApi extends BaseApiHttpController
 
         try {
             $savedData = [
-                'email' => $validator->getAttribute('email'),
+                'email' => strtolower($validator->getAttribute('email')),
                 'uniqueUserDevice' => $uniqueUserDevice,
                 'otp' => random_int(10000, 99999)
             ];
 
             $hash = md5(microtime(true) . json_encode($savedData));
 
-            app_ext_redis_global()->redisExt()->put($hash, $savedData, self::DEFAULT_TOO_MANY_REQUESTS_TTL);
+            $this->getRedisKernel()->redisExt()->put($hash, $savedData, self::DEFAULT_TOO_MANY_REQUESTS_TTL);
 
             /**
              * todo: send email otp throw queue
@@ -164,7 +165,7 @@ class FrontControllerApi extends BaseApiHttpController
     {
         $uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
 
-        HttpHelper::checkTooManyRequestsOrFail($this->getLogger(), $uniqueUserDevice, self::DEFAULT_TOO_MANY_REQUESTS_TTL, __METHOD__);
+        //HttpHelper::checkTooManyRequestsOrFail($this->getLogger(), $uniqueUserDevice, self::DEFAULT_TOO_MANY_REQUESTS_TTL, __METHOD__);
 
         try {
             $validator = new Validator();
@@ -204,26 +205,31 @@ class FrontControllerApi extends BaseApiHttpController
 
             $savedData = app_ext_redis_global()->redisExt()->get($validator->getAttribute('hash'));
 
-            app_ext_redis_global()->redisExt()->del($validator->getAttribute('hash'));
+            $this->getRedisKernel()->redisExt()->del($validator->getAttribute('hash'));
 
             if (
                 isset($savedData['uniqueUserDevice']) && $savedData['uniqueUserDevice'] === $uniqueUserDevice
                 &&
-                isset($savedData['email']) && $savedData['email'] === $validator->getAttribute('email')
+                isset($savedData['email']) && $savedData['email'] === strtolower($validator->getAttribute('email'))
                 &&
                 isset($savedData['otp']) && $savedData['otp'] == $validator->getAttribute('otp')
             ) {
+                if (RegistrationModelService::findUserByEmail($this->getPdoExtKernel(), $validator->getAttribute('email'))) {
+                    throw new HttpBadRequestAppExtRuntimeException([
+                        'email' => 'Registration fail, email with user is exists',
+                    ]);
+                }
+
                 $openSsl = (new OpenSsl())->newPrivatePublicKeys();
-                /**
-                 * todo: если пользователь с почтой такой есть, то вернуть ошибку и отправть на восстановление
-                 *
-                 * todo: создать ключи, сохранить публичный, приватный отдать пользователю
-                 *       добавить пользователя,
-                 *       добавить почту
-                 *       вернуть userId, privateKey
-                 */
+
+                $userModel = RegistrationModelService::addUserByEmailOrFail(
+                    $this->getPdoExtKernel(),
+                    $validator->getAttribute('email'),
+                    $openSsl->getPublicKey(),
+                );
+
                 return [
-                    'userId' => 0,
+                    'userId' => $userModel->id,
                     'privateKey' => $openSsl->getPrivateKey(),
                 ];
             }

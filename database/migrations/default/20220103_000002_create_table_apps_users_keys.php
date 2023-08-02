@@ -17,6 +17,7 @@ SET FOREIGN_KEY_CHECKS=0;
 DROP TABLE IF EXISTS `:database`.`:table`;
 
 CREATE TABLE IF NOT EXISTS `:database`.`:table` (
+    `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
     `appId` bigint(20) unsigned NOT NULL COMMENT 'Приложение',
     `userId` bigint(20) unsigned NOT NULL COMMENT 'Пользователь',
     `deviceUuid` varchar(36) NOT NULL COMMENT 'Uuid устройства пользователя'
@@ -28,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `:database`.`:table` (
     UNIQUE KEY `idx_appId_userId_deviceUuid` (`appId`,`userId`,`deviceUuid`) USING BTREE,
     CONSTRAINT `fkAppId_:table` FOREIGN KEY (`appId`) REFERENCES `apps` (`id`),
     CONSTRAINT `fkUserId_:table` FOREIGN KEY (`userId`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Ключи на устройства пользователей для приложений';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Ключи на устройства пользователей для приложений';
 
 SET FOREIGN_KEY_CHECKS=1;
 MYSQL;
