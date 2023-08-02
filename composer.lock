@@ -4161,10 +4161,11 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yusam-hub/helpers.git",
-                "reference": "aba0752693db79fbc6def70c17824c8320f70bfa"
+                "reference": "2d8f2b589d38ecb983f2638933dd41d332e988d5"
             },
             "require": {
                 "ext-json": "*",
+                "ext-openssl": "*",
                 "php": "^7.4|^8.0|^8.1|^8.2"
             },
             "require-dev": {
@@ -4187,7 +4188,7 @@
                 "files": []
             },
             "description": "yusam-hub/helpers",
-            "time": "2023-03-16T15:03:34+00:00"
+            "time": "2023-08-02T10:19:25+00:00"
         },
         {
             "name": "yusam-hub/json-ext",
@@ -5764,16 +5765,16 @@
         },
         {
             "name": "sebastian/global-state",
-            "version": "5.0.5",
+            "version": "5.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/global-state.git",
-                "reference": "0ca8db5a5fc9c8646244e629625ac486fa286bf2"
+                "reference": "bde739e7565280bda77be70044ac1047bc007e34"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/global-state/zipball/0ca8db5a5fc9c8646244e629625ac486fa286bf2",
-                "reference": "0ca8db5a5fc9c8646244e629625ac486fa286bf2",
+                "url": "https://api.github.com/repos/sebastianbergmann/global-state/zipball/bde739e7565280bda77be70044ac1047bc007e34",
+                "reference": "bde739e7565280bda77be70044ac1047bc007e34",
                 "shasum": ""
             },
             "require": {
@@ -5816,7 +5817,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/global-state/issues",
-                "source": "https://github.com/sebastianbergmann/global-state/tree/5.0.5"
+                "source": "https://github.com/sebastianbergmann/global-state/tree/5.0.6"
             },
             "funding": [
                 {
@@ -5824,7 +5825,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-02-14T08:28:10+00:00"
+            "time": "2023-08-02T09:26:13+00:00"
         },
         {
             "name": "sebastian/lines-of-code",

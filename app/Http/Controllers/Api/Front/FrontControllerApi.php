@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use YusamHub\AppExt\Exceptions\HttpBadRequestAppExtRuntimeException;
 use YusamHub\AppExt\Exceptions\HttpInternalServerErrorAppExtRuntimeException;
+use YusamHub\Helper\OpenSsl;
 use YusamHub\Validator\Validator;
 use YusamHub\Validator\ValidatorException;
 
@@ -212,7 +213,7 @@ class FrontControllerApi extends BaseApiHttpController
                 &&
                 isset($savedData['otp']) && $savedData['otp'] == $validator->getAttribute('otp')
             ) {
-
+                $openSsl = (new OpenSsl())->newPrivatePublicKeys();
                 /**
                  * todo: если пользователь с почтой такой есть, то вернуть ошибку и отправть на восстановление
                  *
@@ -223,7 +224,8 @@ class FrontControllerApi extends BaseApiHttpController
                  */
                 return [
                     'userId' => 0,
-                    'privateKey' => '',
+                    'privateKey' => $openSsl->getPrivateKey(),
+                    'publicKey' => $openSsl->getPublicKey(),
                 ];
             }
 
