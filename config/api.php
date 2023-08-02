@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'infoTitle' => 'Auth Api %s Server',
+    'infoTitle' => 'Auth Server %s Api',
     //'infoVersion' => '1.0.0',
     'publicSwaggerUiDir' => app_ext()->getPublicDir('/swagger-ui'),
     'publicSwaggerUiUri' => '/swagger-ui',
