@@ -18,6 +18,7 @@ class FrontControllerApi extends BaseApiHttpController
     {
         static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s', self::MODULE_CURRENT), 'getApiHome');
         static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/user/register-by-email', self::MODULE_CURRENT), 'postUserRegisterByEmail');
+        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/user/confirm-by-email', self::MODULE_CURRENT), 'postUserConfirmByEmail');
     }
 
     /**
@@ -29,12 +30,11 @@ class FrontControllerApi extends BaseApiHttpController
         return [];
     }
 
-
     /**
      * @OA\Post(
      *   tags={"User"},
      *   path="/user/register-by-email",
-     *   summary="User register",
+     *   summary="User register by e-mail",
      *   deprecated=false,
      *   @OA\RequestBody(description="Properties", required=true,
      *        @OA\JsonContent(type="object",
@@ -55,7 +55,6 @@ class FrontControllerApi extends BaseApiHttpController
     /**
      * @param Request $request
      * @return array
-     * @throws ValidatorException
      */
     public function postUserRegisterByEmail(Request $request): array
     {
@@ -77,7 +76,65 @@ class FrontControllerApi extends BaseApiHttpController
         }
 
         return [
-            'email' => $validator->getAttribute('email')
+            'email' => $validator->getAttribute('email'),
+            'hash' => md5('result of sending')
+        ];
+    }
+
+    /**
+     * @OA\Post(
+     *   tags={"User"},
+     *   path="/user/confirm-by-email",
+     *   summary="User confirm registation by email",
+     *   deprecated=false,
+     *   @OA\RequestBody(description="Properties", required=true,
+     *        @OA\JsonContent(type="object",
+     *            @OA\Property(property="email", type="string", example="example@domain.zone", description="E-mail of new user registration"),
+     *            @OA\Property(property="otp", type="string", example="", description="One time password"),
+     *            @OA\Property(property="hash", type="string", example="", description="Hash string returned on registered user"),
+     *        ),
+     *   ),
+     *   @OA\Response(response=200, description="OK", @OA\MediaType(mediaType="application/json", @OA\Schema(
+     *        @OA\Property(property="status", type="string", example="ok"),
+     *        @OA\Property(property="data", type="array", example="array", @OA\Items(
+     *        )),
+     *        example={"status":"ok","data":{}},
+     *   ))),
+     *   @OA\Response(response=400, description="Bad Request", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
+     *   @OA\Response(response=401, description="Unauthorized", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
+     * );
+     */
+
+    /**
+     * @param Request $request
+     * @return array
+     */
+    public function postUserConfirmOtpByEmail(Request $request): array
+    {
+        try {
+            $validator = new Validator();
+            $validator->setAttributes(
+                $request->request->all()
+            );
+            $validator->setRules([
+                'email' => ['require','string','min:6','email'],
+                'otp' => ['require','string','min:6'],
+                'hash' => ['require','string','min:6'],
+            ]);
+            $validator->setRuleMessages([
+                'email' => 'Invalid value, require string, min 6 chars, valid email',
+                'otp' => 'Invalid value, require string, min 6 chars',
+                'hash' => 'Invalid value, require string, min 6 chars',
+            ]);
+
+            $validator->validateOrFail();
+        } catch (ValidatorException $e) {
+            throw new HttpBadRequestAppExtRuntimeException($e->getValidatorErrors(), 'Invalid request');
+        }
+
+        return [
+            'email' => $validator->getAttribute('email'),
+            'otp' => $validator->getAttribute('otp')
         ];
     }
 }
