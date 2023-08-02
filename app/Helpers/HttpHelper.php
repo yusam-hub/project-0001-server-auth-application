@@ -6,7 +6,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use YusamHub\AppExt\Exceptions\HttpInternalServerErrorAppExtRuntimeException;
 use YusamHub\AppExt\Exceptions\HttpTooManyRequestsAppExtRuntimeException;
-use YusamHub\AppExt\Traits\Interfaces\GetSetLoggerInterface;
+use YusamHub\AppExt\Redis\RedisKernel;
 
 class HttpHelper
 {
@@ -21,6 +21,7 @@ class HttpHelper
     }
 
     /**
+     * @param RedisKernel $redisKernel
      * @param LoggerInterface $logger
      * @param string $unique
      * @param int $ttl
@@ -28,6 +29,7 @@ class HttpHelper
      * @return void
      */
     public static function checkTooManyRequestsOrFail(
+        RedisKernel $redisKernel,
         LoggerInterface $logger,
         string $unique,
         int $ttl,
@@ -35,7 +37,7 @@ class HttpHelper
     ): void
     {
         try {
-            $redisExt = app_ext_redis_global()->redisExt();
+            $redisExt = $redisKernel->redisExt();
             $redisKey = md5($unique . $ttl . $method);
             if ($redisExt->has($redisKey)) {
                 $timeFinished = $redisExt->get($redisKey);

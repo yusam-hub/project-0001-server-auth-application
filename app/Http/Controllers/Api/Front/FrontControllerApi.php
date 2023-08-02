@@ -67,7 +67,10 @@ class FrontControllerApi extends BaseApiHttpController
     {
         $uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
 
-        //HttpHelper::checkTooManyRequestsOrFail($this->getLogger(), $uniqueUserDevice,self::DEFAULT_TOO_MANY_REQUESTS_TTL, __METHOD__);
+        HttpHelper::checkTooManyRequestsOrFail(
+            $this->getRedisKernel(),
+            $this->getLogger(),
+            $uniqueUserDevice,self::DEFAULT_TOO_MANY_REQUESTS_TTL, __METHOD__);
 
         try {
             $validator = new Validator();
@@ -165,7 +168,10 @@ class FrontControllerApi extends BaseApiHttpController
     {
         $uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
 
-        //HttpHelper::checkTooManyRequestsOrFail($this->getLogger(), $uniqueUserDevice, self::DEFAULT_TOO_MANY_REQUESTS_TTL, __METHOD__);
+        HttpHelper::checkTooManyRequestsOrFail(
+            $this->getRedisKernel(),
+            $this->getLogger(),
+            $uniqueUserDevice, self::DEFAULT_TOO_MANY_REQUESTS_TTL, __METHOD__);
 
         try {
             $validator = new Validator();
@@ -176,7 +182,7 @@ class FrontControllerApi extends BaseApiHttpController
                 'email' => ['require','string','min:6','email'],
                 'otp' => ['require','string','size:5'],
                 'hash' => ['require','string','size:32', function($v) {
-                    return app_ext_redis_global()->redisExt()->has($v);
+                    return $this->getRedisKernel()->redisExt()->has($v);
                 }],
             ]);
             $validator->setRuleMessages([
@@ -203,7 +209,7 @@ class FrontControllerApi extends BaseApiHttpController
 
         try {
 
-            $savedData = app_ext_redis_global()->redisExt()->get($validator->getAttribute('hash'));
+            $savedData = $this->getRedisKernel()->redisExt()->get($validator->getAttribute('hash'));
 
             $this->getRedisKernel()->redisExt()->del($validator->getAttribute('hash'));
 
