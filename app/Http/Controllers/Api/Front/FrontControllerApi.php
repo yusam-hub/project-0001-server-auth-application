@@ -49,7 +49,7 @@ class FrontControllerApi extends BaseApiHttpController
      *        @OA\Property(property="status", type="string", example="ok"),
      *        @OA\Property(property="data", type="array", example="array", @OA\Items(
      *        )),
-     *        example={"status":"ok","data":{}},
+     *        example={"status":"ok","data":{"hash":"string"}},
      *   ))),
      *   @OA\Response(response=400, description="Bad Request", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
      *   @OA\Response(response=429, description="Too Many Requests", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
@@ -147,7 +147,7 @@ class FrontControllerApi extends BaseApiHttpController
      *        @OA\Property(property="status", type="string", example="ok"),
      *        @OA\Property(property="data", type="array", example="array", @OA\Items(
      *        )),
-     *        example={"status":"ok","data":{}},
+     *        example={"status":"ok","data":{"userId":"integer","privateKey":"string"}},
      *   ))),
      *   @OA\Response(response=400, description="Bad Request", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
      *   @OA\Response(response=429, description="Too Many Requests", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
@@ -221,7 +221,8 @@ class FrontControllerApi extends BaseApiHttpController
                  *       вернуть userId, privateKey
                  */
                 return [
-
+                    'userId' => 0,
+                    'privateKey' => '',
                 ];
             }
 
