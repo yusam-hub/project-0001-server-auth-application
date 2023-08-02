@@ -114,6 +114,7 @@ class FrontControllerApi extends BaseApiHttpController
 
             return [
                 'hash' => $hash,
+                'otp' => $savedData['otp'], //todo: remove after develop testing
             ];
         } catch (\Throwable $e) {
 
