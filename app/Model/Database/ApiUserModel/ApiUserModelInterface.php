@@ -21,10 +21,7 @@ use YusamHub\DbExt\Interfaces\PdoExtModelInterface;
  * @method static ApiUserModel|null findModelByAttributes(PdoExtKernelInterface $pdoExtKernel, array $attributes)
  * @method static ApiUserModel findModelByAttributesOrFail(PdoExtKernelInterface $pdoExtKernel, array $attributes)
  */
-interface ApiUserModelInterface
-    extends
-    GetSetPdoExtKernelInterface,
-    PdoExtModelInterface
+interface ApiUserModelInterface extends GetSetPdoExtKernelInterface, PdoExtModelInterface
 {
     const ATTRIBUTE_NAME_ID = 'id';
     const ATTRIBUTE_NAME_API_TOKEN = 'apiToken';

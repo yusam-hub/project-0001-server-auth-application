@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Front;
 use App\Helpers\HttpHelper;
 use App\Http\Controllers\Api\ApiSwaggerController;
 use App\Http\Controllers\Api\BaseApiHttpController;
+use App\Model\Database\EmailModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use YusamHub\AppExt\Exceptions\HttpBadRequestAppExtRuntimeException;
