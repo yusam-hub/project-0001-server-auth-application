@@ -12,12 +12,12 @@ class RegistrationModelService
     /**
      * @param PdoExtKernelInterface $pdoExtKernel
      * @param string $email
-     * @return bool
+     * @return int|null
      */
     public static function findUserByEmail(
         PdoExtKernelInterface $pdoExtKernel,
         string $email
-    ): bool
+    ): ?int
     {
         $email = strtolower($email);
 
@@ -30,15 +30,13 @@ where
     and e.email = ?
 limit 0,1
 MYSQL;
-        $id = $pdoExtKernel
+        return $pdoExtKernel
             ->pdoExt()
             ->fetchOneColumn(strtr($sqlRow, [
                 ':users' => TABLE_USERS
             ]), 'id', [
                 $email
             ]);
-
-        return !is_null($id);
     }
 
     /**
