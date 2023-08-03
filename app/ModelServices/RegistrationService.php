@@ -2,13 +2,17 @@
 
 namespace App\ModelServices;
 
+use App\Helpers\EmailMobileHelper;
 use App\Model\Database\EmailModel;
 use App\Model\Database\UserEmailModel;
 use App\Model\Database\UserModel;
 use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
 
-class RegistrationModelService
+class RegistrationService
 {
+    const REGISTRATION_BY_EMAIL = 1;
+    const REGISTRATION_BY_MOBILE = 2;
+
     /**
      * @param PdoExtKernelInterface $pdoExtKernel
      * @param string $email
@@ -23,8 +27,8 @@ class RegistrationModelService
 
         $sqlRow = <<<MYSQL
 select 
-    ue.id
-from :users_emails ue, users u, emails e
+    u.id
+from users_emails ue, users u, emails e
 where
     ue.userId = u.id and ue.emailId = e.id
     and e.email = ?
@@ -33,7 +37,6 @@ MYSQL;
         return $pdoExtKernel
             ->pdoExt()
             ->fetchOneColumn(strtr($sqlRow, [
-                ':users' => TABLE_USERS
             ]), 'id', [
                 $email
             ]);
@@ -103,5 +106,51 @@ MYSQL;
             throw $e;
         }
         return $userModel;
+    }
+
+    /**
+     * @param string $emailOrMobile
+     * @return int|null
+     */
+    public static function getRegistrationType(string $emailOrMobile): ?int
+    {
+        if (EmailMobileHelper::isEmail($emailOrMobile)) {
+            return self::REGISTRATION_BY_EMAIL;
+        } elseif (EmailMobileHelper::isMobile($emailOrMobile)) {
+            return self::REGISTRATION_BY_MOBILE;
+        }
+        return null;
+    }
+
+    /**
+     * @param PdoExtKernelInterface $pdoExtKernel
+     * @param string $mobilePrefix
+     * @param string $num
+     * @return int|null
+     */
+    public static function findUserByMobile(
+        PdoExtKernelInterface $pdoExtKernel,
+        string $mobilePrefix,
+        string $num
+    ): ?int
+    {
+        $sqlRow = <<<MYSQL
+select 
+    u.id
+from users_mobiles um, users u, mobiles m, country_mobile_prefixes cmp
+where
+    um.userId = u.id and um.mobileId = m.id and m.countryMobilePrefixId = cmp.id
+    and cmp.mobilePrefix = ?
+    and m.num = ?
+limit 0,1
+MYSQL;
+        return $pdoExtKernel
+            ->pdoExt()
+            ->fetchOneColumn(strtr($sqlRow, [
+
+            ]), 'id', [
+                $mobilePrefix,
+                $num
+            ]);
     }
 }

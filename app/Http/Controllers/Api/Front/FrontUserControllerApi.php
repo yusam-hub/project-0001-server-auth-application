@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Api\Front;
 
 use App\Helpers\HttpHelper;
-use App\Helpers\StringHelper;
+use App\Helpers\EmailMobileHelper;
 use App\Http\Controllers\Api\ApiSwaggerController;
 use App\Http\Controllers\Api\BaseApiHttpController;
 use App\Model\Database\EmailModel;
 use App\Model\Database\UserModel;
-use App\ModelServices\RegistrationModelService;
+use App\ModelServices\RegistrationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use YusamHub\AppExt\Exceptions\HttpBadRequestAppExtRuntimeException;
@@ -45,6 +45,8 @@ class FrontUserControllerApi extends BaseApiHttpController
     {
         $uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
 
+        $registrationType = null;
+
         HttpHelper::checkTooManyRequestsOrFail(
             $this->getRedisKernel(),
             $this->getLogger(),
@@ -56,8 +58,8 @@ class FrontUserControllerApi extends BaseApiHttpController
                 $request->request->all()
             );
             $validator->setRules([
-                'emailOrMobile' => ['require','string', function($v) {
-                    return StringHelper::isEmail($v);
+                'emailOrMobile' => ['require','string', function($v)  {
+                    return !is_null(RegistrationService::getRegistrationType($v));
                 }],
             ]);
             $validator->setRuleMessages([
@@ -92,11 +94,20 @@ class FrontUserControllerApi extends BaseApiHttpController
 
             $this->getRedisKernel()->redisExt()->put($hash, $redisData, self::DEFAULT_TOO_MANY_REQUESTS_TTL);
 
-            app_ext_logger('otp')->debug(__METHOD__, $redisData);
+            app_ext_logger('otp')->debug(__METHOD__, $redisData);//todo: remove
 
-            /**
-             * todo: send email or mobile otp throw queue
-             */
+            $registrationType = RegistrationService::getRegistrationType($validator->getAttribute('emailOrMobile'));
+
+            if ($registrationType === RegistrationService::REGISTRATION_BY_EMAIL) {
+                /**
+                 * todo: send email otp throw queue
+                 */
+
+            } else {
+                /**
+                 * todo: send mobile otp throw queue
+                 */
+            }
 
             return [
                 'hash' => $hash,
@@ -139,7 +150,7 @@ class FrontUserControllerApi extends BaseApiHttpController
             );
             $validator->setRules([
                 'emailOrMobile' => ['require','string', function($v) {
-                    return StringHelper::isEmail($v);
+                    return !is_null(RegistrationService::getRegistrationType($v));
                 }],
                 'hash' => ['require','string','size:32', function($v) {
                     return $this->getRedisKernel()->redisExt()->has($v);
@@ -267,20 +278,40 @@ class FrontUserControllerApi extends BaseApiHttpController
      */
     public function postUserConfirmRegistration(Request $request): array
     {
-        return $this->confirmOtpForAction($request, self::OTP_ACTION_USER_REGISTER, __METHOD__, function(Validator $validator) {
-            if (RegistrationModelService::findUserByEmail($this->getPdoExtKernel(), $validator->getAttribute('emailOrMobile'))) {
-                throw new HttpBadRequestAppExtRuntimeException([
-                    'emailOrMobile' => 'Registration fail, email with user is exists',
-                ]);
+        return $this->confirmOtpForAction($request, self::OTP_ACTION_USER_REGISTER, __METHOD__, function(Validator $validator)
+        {
+            $registrationType = RegistrationService::getRegistrationType($validator->getAttribute('emailOrMobile'));
+
+            if ($registrationType === RegistrationService::REGISTRATION_BY_EMAIL) {
+                if (RegistrationService::findUserByEmail($this->getPdoExtKernel(), $validator->getAttribute('emailOrMobile'))) {
+                    throw new HttpBadRequestAppExtRuntimeException([
+                        'emailOrMobile' => 'Registration fail, user is exists',
+                    ]);
+                }
+
+                $openSsl = (new OpenSsl())->newPrivatePublicKeys();
+
+                $userModel = RegistrationService::addUserByEmailOrFail(
+                    $this->getPdoExtKernel(),
+                    $validator->getAttribute('emailOrMobile'),
+                    $openSsl->getPublicKey(),
+                );
+
+            } else {
+                if (RegistrationService::findUserByMobile($this->getPdoExtKernel(), '', $validator->getAttribute('emailOrMobile'))) {
+                    throw new HttpBadRequestAppExtRuntimeException([
+                        'emailOrMobile' => 'Registration fail, user is exists',
+                    ]);
+                }
+
+                $openSsl = (new OpenSsl())->newPrivatePublicKeys();
+
+                /*$userModel = RegistrationService::addUserByMobileOrFail(
+                    $this->getPdoExtKernel(),
+                    $validator->getAttribute('emailOrMobile'),
+                    $openSsl->getPublicKey(),
+                );*/
             }
-
-            $openSsl = (new OpenSsl())->newPrivatePublicKeys();
-
-            $userModel = RegistrationModelService::addUserByEmailOrFail(
-                $this->getPdoExtKernel(),
-                $validator->getAttribute('emailOrMobile'),
-                $openSsl->getPublicKey(),
-            );
 
             return [
                 'userId' => $userModel->id,
@@ -352,23 +383,25 @@ class FrontUserControllerApi extends BaseApiHttpController
      */
     public function postUserConfirmRestoreRegistration(Request $request): array
     {
-        return $this->confirmOtpForAction($request, self::OTP_ACTION_USER_RESTORE_REGISTER, __METHOD__, function(Validator $validator) {
-            $userId = RegistrationModelService::findUserByEmail($this->getPdoExtKernel(), $validator->getAttribute('emailOrMobile'));
-            if (is_null($userId)) {
-                throw new HttpBadRequestAppExtRuntimeException([
-                    'emailOrMobile' => 'Restore registration fail, email with user is not exists',
-                ]);
+        return $this->confirmOtpForAction($request, self::OTP_ACTION_USER_RESTORE_REGISTER, __METHOD__, function(Validator $validator)
+        {
+            $registrationType = RegistrationService::getRegistrationType($validator->getAttribute('emailOrMobile'));
+
+            if ($registrationType === RegistrationService::REGISTRATION_BY_EMAIL) {
+                $userId = RegistrationService::findUserByEmail($this->getPdoExtKernel(), $validator->getAttribute('emailOrMobile'));
+            } else {
+                $userId = RegistrationService::findUserByMobile($this->getPdoExtKernel(), '', $validator->getAttribute('emailOrMobile'));
             }
 
-            $openSsl = (new OpenSsl())->newPrivatePublicKeys();
-
-            $userModel = UserModel::findModel($this->getPdoExtKernel(), $userId);
-            if (is_null($userModel)) {
+            if (is_null($userId)) {
                 throw new HttpBadRequestAppExtRuntimeException([
                     'emailOrMobile' => 'Restore registration fail, user is not exists',
                 ]);
             }
 
+            $openSsl = (new OpenSsl())->newPrivatePublicKeys();
+
+            $userModel = UserModel::findModelOrFail($this->getPdoExtKernel(), $userId);
             $userModel->publicKey = $openSsl->getPrivateKey();
             $userModel->saveOrFail();
 
