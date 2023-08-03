@@ -1,6 +1,6 @@
 <?php
 
-namespace App\ModelServices;
+namespace App\Services;
 
 use App\Helpers\EmailMobileHelper;
 use App\Model\Database\CountryMobilePrefixModel;
@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface;
 use YusamHub\AppExt\Redis\RedisKernel;
 use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
 
-class RegistrationService
+class UserRegistrationService
 {
     const REGISTRATION_BY_EMAIL = 1;
     const REGISTRATION_BY_MOBILE = 2;
@@ -96,6 +96,7 @@ MYSQL;
 
             $userModel = new UserModel();
             $userModel->setPdoExtKernel($pdoExtKernel);
+            $userModel->keyHash = md5($publicKey);
             $userModel->publicKey = $publicKey;
             $userModel->saveOrFail();
 
@@ -231,6 +232,7 @@ MYSQL;
 
             $userModel = new UserModel();
             $userModel->setPdoExtKernel($pdoExtKernel);
+            $userModel->keyHash = md5($publicKey);
             $userModel->publicKey = $publicKey;
             $userModel->saveOrFail();
 

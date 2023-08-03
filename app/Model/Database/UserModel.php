@@ -7,7 +7,8 @@ use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
 
 /**
  * @property int $id
- * @property string $publicKey
+ * @property string|null $keyHash
+ * @property string|null $publicKey
  * @property string $createdAt
  * @property string|null $modifiedAt
  *
@@ -22,6 +23,7 @@ class UserModel extends PdoExtModel
     protected string $tableName = TABLE_USERS;
 
     const ATTRIBUTE_NAME_ID = 'id';
+    const ATTRIBUTE_NAME_KEY_HASH = 'keyHash';
     const ATTRIBUTE_NAME_PUBLIC_KEY = 'publicKey';
     const ATTRIBUTE_NAME_CREATED_AT = 'createdAt';
     const ATTRIBUTE_NAME_MODIFIED_AT = 'modifiedAt';

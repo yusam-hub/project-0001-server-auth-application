@@ -9,7 +9,8 @@ use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
  * @property int $id
  * @property int $userId
  * @property string $title
- * @property string $publicKey
+ * @property string|null $keyHash
+ * @property string|null $publicKey
  * @property string $createdAt
  * @property string|null $modifiedAt
  *
@@ -26,6 +27,7 @@ class AppModel extends PdoExtModel
     const ATTRIBUTE_NAME_ID = 'id';
     const ATTRIBUTE_NAME_USER_ID = 'userId';
     const ATTRIBUTE_NAME_TITLE = 'title';
+    const ATTRIBUTE_NAME_KEY_HASH = 'keyHash';
     const ATTRIBUTE_NAME_PUBLIC_KEY = 'publicKey';
     const ATTRIBUTE_NAME_CREATED_AT = 'createdAt';
     const ATTRIBUTE_NAME_MODIFIED_AT = 'modifiedAt';

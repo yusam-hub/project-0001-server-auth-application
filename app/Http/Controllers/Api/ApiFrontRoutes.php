@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Front\FrontAppControllerApi;
 use App\Http\Controllers\Api\Front\FrontControllerApi;
 use App\Http\Controllers\Api\Front\FrontUserControllerApi;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
@@ -13,6 +14,7 @@ class ApiFrontRoutes extends BaseHttpController
     {
         FrontControllerApi::routesRegister($routes);
         FrontUserControllerApi::routesRegister($routes);
+        FrontAppControllerApi::routesRegister($routes);
     }
 
 }
