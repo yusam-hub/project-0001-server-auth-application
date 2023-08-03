@@ -19,6 +19,7 @@ use YusamHub\Validator\ValidatorException;
 
 class FrontUserControllerApi extends BaseApiHttpController
 {
+    const TO_MANY_REQUESTS_CHECK_ENABLED = true;
     const MODULE_CURRENT = ApiSwaggerController::MODULE_FRONT;
     const DEFAULT_TOO_MANY_REQUESTS_TTL = 600;
 
@@ -45,10 +46,12 @@ class FrontUserControllerApi extends BaseApiHttpController
     {
         $uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
 
-        HttpHelper::checkTooManyRequestsOrFail(
-            $this->getRedisKernel(),
-            $this->getLogger(),
-            $uniqueUserDevice,self::DEFAULT_TOO_MANY_REQUESTS_TTL, $method);
+        if (self::TO_MANY_REQUESTS_CHECK_ENABLED) {
+            HttpHelper::checkTooManyRequestsOrFail(
+                $this->getRedisKernel(),
+                $this->getLogger(),
+                $uniqueUserDevice, self::DEFAULT_TOO_MANY_REQUESTS_TTL, $method);
+        }
 
         try {
             $validator = new Validator();
@@ -127,10 +130,12 @@ class FrontUserControllerApi extends BaseApiHttpController
     {
         $uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
 
-        HttpHelper::checkTooManyRequestsOrFail(
-            $this->getRedisKernel(),
-            $this->getLogger(),
-            $uniqueUserDevice, self::DEFAULT_TOO_MANY_REQUESTS_TTL, $method);
+        if (self::TO_MANY_REQUESTS_CHECK_ENABLED) {
+            HttpHelper::checkTooManyRequestsOrFail(
+                $this->getRedisKernel(),
+                $this->getLogger(),
+                $uniqueUserDevice, self::DEFAULT_TOO_MANY_REQUESTS_TTL, $method);
+        }
 
         try {
             $validator = new Validator();
