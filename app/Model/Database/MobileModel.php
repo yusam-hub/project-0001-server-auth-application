@@ -9,7 +9,7 @@ use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
  * @property int $id
  * @property int $countryMobilePrefixId
  * @property string $num
- * @property string $verifiedAt
+ * @property string|null $verifiedAt
  * @property string $createdAt
  * @property string|null $modifiedAt
  *
@@ -22,6 +22,13 @@ class MobileModel extends PdoExtModel
 {
     protected ?string $connectionName = DB_CONNECTION_DEFAULT;
     protected string $tableName = TABLE_MOBILES;
+
+    const ATTRIBUTE_NAME_ID = 'id';
+    const ATTRIBUTE_NAME_COUNTRY_MOBILE_PREFIX_ID = 'countryMobilePrefixId';
+    const ATTRIBUTE_NAME_NUM = 'num';
+    const ATTRIBUTE_NAME_VERIFIED_AT = 'verifiedAt';
+    const ATTRIBUTE_NAME_CREATED_AT = 'createdAt';
+    const ATTRIBUTE_NAME_MODIFIED_AT = 'modifiedAt';
 
     protected function getDatabaseName(): string
     {
