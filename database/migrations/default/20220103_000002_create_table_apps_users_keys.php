@@ -20,9 +20,9 @@ CREATE TABLE IF NOT EXISTS `:database`.`:table` (
     `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
     `appId` bigint(20) unsigned NOT NULL COMMENT 'Приложение',
     `userId` bigint(20) unsigned NOT NULL COMMENT 'Пользователь',
-    `deviceUuid` varchar(36) NOT NULL COMMENT 'Uuid устройства пользователя'
-    `publicKey` text DEFAULT NULL COMMENT 'Публичный ключ',
-    `lastUsedAt` datetime NULL  DEFAULT NULL COMMENT 'Дата последнего использования ключа',
+    `deviceUuid` varchar(36) NOT NULL COMMENT 'Uuid устройства пользователя',
+    `publicKey` text NULL DEFAULT NULL COMMENT 'Публичный ключ',
+    `lastUsedAt` datetime NULL DEFAULT NULL COMMENT 'Дата последнего использования ключа',
     `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата создания записи',
     `modifiedAt` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Дата изменения записи',
     PRIMARY KEY (`id`),

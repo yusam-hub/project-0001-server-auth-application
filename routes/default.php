@@ -9,5 +9,5 @@ return function (RoutingConfigurator $routes) {
 
     \YusamHub\AppExt\SymfonyExt\Http\Controllers\Api\Debug\DebugController::routesRegister($routes);
 
-    \App\Http\Controllers\Api\ApiUsersRoutes::routesRegister($routes);
+    \App\Http\Controllers\Api\ApiFrontRoutes::routesRegister($routes);
 };
