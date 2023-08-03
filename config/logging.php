@@ -15,11 +15,11 @@ return [
                 'lineFormat' => \YusamHub\AppExt\Logger\FileLogger::LINE_FORMAT_NORMAL,
             ]
         ],
-        'email' => [
+        'otp' => [
             'class' => \YusamHub\AppExt\Logger\FileLogger::class,
             'config' => [
                 'logDir' => app_ext()->getStorageDir('/logs'),
-                'name' => 'email',
+                'name' => 'otp',
                 'fileMaxSize' => 10 * 1024 * 1024,
                 'fileRotatorCount' => 10,
                 'level' => app_ext_env('LOGGING_LEVEL', \Psr\Log\LogLevel::ERROR),
