@@ -45,8 +45,6 @@ class FrontUserControllerApi extends BaseApiHttpController
     {
         $uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
 
-        $registrationType = null;
-
         HttpHelper::checkTooManyRequestsOrFail(
             $this->getRedisKernel(),
             $this->getLogger(),
@@ -59,7 +57,7 @@ class FrontUserControllerApi extends BaseApiHttpController
             );
             $validator->setRules([
                 'emailOrMobile' => ['require','string', function($v)  {
-                    return !is_null(RegistrationService::getRegistrationType($v));
+                    return !is_null(RegistrationService::getRegistrationType($this->getRedisKernel(), $this->getPdoExtKernel(), $this->getLogger(), $v, $mobilePrefix, $num));
                 }],
             ]);
             $validator->setRuleMessages([
@@ -96,18 +94,9 @@ class FrontUserControllerApi extends BaseApiHttpController
 
             app_ext_logger('otp')->debug(__METHOD__, $redisData);//todo: remove
 
-            $registrationType = RegistrationService::getRegistrationType($validator->getAttribute('emailOrMobile'));
-
-            if ($registrationType === RegistrationService::REGISTRATION_BY_EMAIL) {
-                /**
-                 * todo: send email otp throw queue
-                 */
-
-            } else {
-                /**
-                 * todo: send mobile otp throw queue
-                 */
-            }
+            /**
+             * todo: send email or mobile otp throw queue
+             */
 
             return [
                 'hash' => $hash,
@@ -150,7 +139,7 @@ class FrontUserControllerApi extends BaseApiHttpController
             );
             $validator->setRules([
                 'emailOrMobile' => ['require','string', function($v) {
-                    return !is_null(RegistrationService::getRegistrationType($v));
+                    return !is_null(RegistrationService::getRegistrationType($this->getRedisKernel(), $this->getPdoExtKernel(), $this->getLogger(), $v, $mobilePrefix, $num));
                 }],
                 'hash' => ['require','string','size:32', function($v) {
                     return $this->getRedisKernel()->redisExt()->has($v);
@@ -280,7 +269,12 @@ class FrontUserControllerApi extends BaseApiHttpController
     {
         return $this->confirmOtpForAction($request, self::OTP_ACTION_USER_REGISTER, __METHOD__, function(Validator $validator)
         {
-            $registrationType = RegistrationService::getRegistrationType($validator->getAttribute('emailOrMobile'));
+            $registrationType = RegistrationService::getRegistrationType(
+                $this->getRedisKernel(), $this->getPdoExtKernel(), $this->getLogger(),
+                $validator->getAttribute('emailOrMobile'),
+                $mobilePrefix,
+                $num
+            );
 
             if ($registrationType === RegistrationService::REGISTRATION_BY_EMAIL) {
                 if (RegistrationService::findUserByEmail($this->getPdoExtKernel(), $validator->getAttribute('emailOrMobile'))) {
@@ -306,11 +300,12 @@ class FrontUserControllerApi extends BaseApiHttpController
 
                 $openSsl = (new OpenSsl())->newPrivatePublicKeys();
 
-                /*$userModel = RegistrationService::addUserByMobileOrFail(
+                $userModel = RegistrationService::addUserByMobileOrFail(
                     $this->getPdoExtKernel(),
-                    $validator->getAttribute('emailOrMobile'),
+                    $mobilePrefix,
+                    $num,
                     $openSsl->getPublicKey(),
-                );*/
+                );
             }
 
             return [
@@ -385,12 +380,17 @@ class FrontUserControllerApi extends BaseApiHttpController
     {
         return $this->confirmOtpForAction($request, self::OTP_ACTION_USER_RESTORE_REGISTER, __METHOD__, function(Validator $validator)
         {
-            $registrationType = RegistrationService::getRegistrationType($validator->getAttribute('emailOrMobile'));
+            $registrationType = RegistrationService::getRegistrationType(
+                $this->getRedisKernel(), $this->getPdoExtKernel(), $this->getLogger(),
+                $validator->getAttribute('emailOrMobile'),
+                $mobilePrefix,
+                $num
+            );
 
             if ($registrationType === RegistrationService::REGISTRATION_BY_EMAIL) {
                 $userId = RegistrationService::findUserByEmail($this->getPdoExtKernel(), $validator->getAttribute('emailOrMobile'));
             } else {
-                $userId = RegistrationService::findUserByMobile($this->getPdoExtKernel(), '', $validator->getAttribute('emailOrMobile'));
+                $userId = RegistrationService::findUserByMobile($this->getPdoExtKernel(), $mobilePrefix, $num);
             }
 
             if (is_null($userId)) {

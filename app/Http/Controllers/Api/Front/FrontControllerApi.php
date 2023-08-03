@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Front;
 
+use App\Helpers\EmailMobileHelper;
 use App\Http\Controllers\Api\ApiSwaggerController;
 use App\Http\Controllers\Api\BaseApiHttpController;
 use Symfony\Component\HttpFoundation\Request;
