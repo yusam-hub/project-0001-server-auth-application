@@ -17,6 +17,15 @@ use YusamHub\Helper\OpenSsl;
 use YusamHub\Validator\Validator;
 use YusamHub\Validator\ValidatorException;
 
+/**
+ * @OA\SecurityScheme(
+ *      securityScheme="XUserTokenScheme",
+ *      type="apiKey",
+ *      in="header",
+ *      name="__OA_SECURITY_SCHEME_USER_TOKEN_HEADER_NAME__"
+ * )
+ */
+
 class FrontAppControllerApi extends BaseApiHttpController
 {
     const MODULE_CURRENT = ApiSwaggerController::MODULE_FRONT;
@@ -38,7 +47,7 @@ class FrontAppControllerApi extends BaseApiHttpController
      *   path="/app/list",
      *   summary="Applications list",
      *   deprecated=false,
-     *   security={{"XTokenScheme":{}}},
+     *   security={{"XUserTokenScheme":{}}},
      *   @OA\Response(response=200, description="OK", @OA\MediaType(mediaType="application/json", @OA\Schema(
      *        @OA\Property(property="status", type="string", example="ok"),
      *        @OA\Property(property="data", type="array", example="array", @OA\Items(
@@ -67,7 +76,7 @@ class FrontAppControllerApi extends BaseApiHttpController
      *   path="/app/add",
      *   summary="Application add",
      *   deprecated=false,
-     *   security={{"XTokenScheme":{}}},
+     *   security={{"XUserTokenScheme":{}}},
      *   @OA\RequestBody(description="Properties", required=true,
      *        @OA\JsonContent(type="object",
      *            @OA\Property(property="title", type="string", example="My first test application", description="Title for new application"),
@@ -101,7 +110,7 @@ class FrontAppControllerApi extends BaseApiHttpController
      *   path="/app/id/{appId}",
      *   summary="Get app information",
      *   deprecated=false,
-     *   security={{"XTokenScheme":{}}},
+     *   security={{"XUserTokenScheme":{}}},
      *   @OA\Response(response=200, description="OK", @OA\MediaType(mediaType="application/json", @OA\Schema(
      *        @OA\Property(property="status", type="string", example="ok"),
      *        @OA\Property(property="data", type="array", example="array", @OA\Items(
@@ -130,7 +139,7 @@ class FrontAppControllerApi extends BaseApiHttpController
      *   path="/app/id/{appId}/change",
      *   summary="Application change by id",
      *   deprecated=false,
-     *   security={{"XTokenScheme":{}}},
+     *   security={{"XUserTokenScheme":{}}},
      *   @OA\RequestBody(description="Properties", required=true,
      *        @OA\JsonContent(type="object",
      *            @OA\Property(property="title", type="string", example="My changed title application", description="Title for application"),
@@ -164,7 +173,7 @@ class FrontAppControllerApi extends BaseApiHttpController
      *   path="/app/id/{appId}/change-keys",
      *   summary="Application change by id private/public keys",
      *   deprecated=false,
-     *   security={{"XTokenScheme":{}}},
+     *   security={{"XUserTokenScheme":{}}},
      *   @OA\Response(response=200, description="OK", @OA\MediaType(mediaType="application/json", @OA\Schema(
      *        @OA\Property(property="status", type="string", example="ok"),
      *        @OA\Property(property="data", type="array", example="array", @OA\Items(
