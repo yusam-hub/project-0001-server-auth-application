@@ -71,7 +71,7 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
             return;
         }
 
-        $jwtToken = '';
+        $jwtToken = $request->headers->get(self::USER_TOKEN_KEY_NAME,'');
 
         try {
 
@@ -102,7 +102,12 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40105], self::AUTH_ERROR_CODE_40105);
             }
 
-            if (md5($request->getContent()) !== $userTokenPayload->hb) {
+            if (strtoupper($request->getMethod()) === 'GET') {
+                $content = $request->getQueryString();
+            } else {
+                $content = $request->getContent();
+            }
+            if (md5($content) !== $userTokenPayload->hb) {
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40106], self::AUTH_ERROR_CODE_40106);
             }
 
