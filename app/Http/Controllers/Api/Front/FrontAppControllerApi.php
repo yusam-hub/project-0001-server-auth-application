@@ -58,6 +58,11 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
          * todo: нужно реализовать доступ пользователя к методам,
          *       у пользователя есть приватный ключ,
          *       у сервера есть публичный ключ
+         *       Для расшифровки токена, нам нужен userId + publicKey, userId -> uid - будет передаваться в header JWT токена,
+         *       далее по userId достаем publicKey и расшифровываем весь JWT токен, нам нужна нагрузка,
+         *       в которой будет зашито uid, createTime-60, expireSeconds и md5 хеш боди тела
+         *       проверяем createTime, синхронизируем время клиента с временем сервера, проверяем expiredEnd
+         *       проверяем хеш тела и тогда пускаем к методу
          */
 
         throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
