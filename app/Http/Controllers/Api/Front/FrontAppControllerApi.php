@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api\Front;
 
 use App\Http\Controllers\Api\ApiSwaggerController;
 use App\Http\Controllers\Api\BaseApiHttpController;
+use App\Model\Database\UserModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use YusamHub\AppExt\SymfonyExt\Http\Interfaces\ControllerMiddlewareInterface;
 use YusamHub\AppExt\SymfonyExt\Http\Traits\ControllerMiddlewareTrait;
+use YusamHub\Project0001ClientAuthSdk\Tokens\JwtAuthUserTokenHelper;
 
 /**
  * @OA\SecurityScheme(
@@ -54,20 +56,44 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
             return;
         }
 
-        /**
-         * todo: нужно реализовать доступ пользователя к методам,
-         *       у пользователя есть приватный ключ,
-         *       у сервера есть публичный ключ
-         *       Для расшифровки токена, нам нужен userId + publicKey, userId -> uid - будет передаваться в header JWT токена,
-         *       далее по userId достаем publicKey и расшифровываем весь JWT токен, нам нужна нагрузка,
-         *       в которой будет зашито uid, createTime-60, expireSeconds и md5 хеш боди тела
-         *       проверяем createTime, синхронизируем время клиента с временем сервера, проверяем expiredEnd
-         *       проверяем хеш тела и тогда пускаем к методу
-         */
+        $jwtToken = '';
 
-        throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
-            'detail' => 'Invalid token value'
-        ]);
+        try {
+
+            $userId = JwtAuthUserTokenHelper::getUserFromJwtHeads($jwtToken);
+
+            if (is_null($userId)) {
+                throw new \Exception("Invalid user identifier in head");
+            }
+
+            $userModel = UserModel::findModel($this->getPdoExtKernel(), $userId);
+            if (is_null($userModel)) {
+                throw new \Exception("Fail load user by identifier");
+            }
+
+            $userTokenPayload = JwtAuthUserTokenHelper::fromJwtAsPayload($jwtToken, $userModel->publicKey);
+
+            if (is_null($userTokenPayload->uid) || is_null($userTokenPayload->iat) || is_null($userTokenPayload->exp) || is_null($userTokenPayload->hb)) {
+                throw new \Exception("Fail load payload data");
+            }
+
+            if ($userTokenPayload->uid != $userId) {
+                throw new \Exception("Fail use payload data as user identifier");
+            }
+
+            //todo: проверка срока действия токена
+
+            //todo: проверка хеша тела
+
+
+        } catch (\Throwable $e) {
+
+            throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
+                'token' => 'Invalid value',
+                'detail' => $e->getMessage()
+            ]);
+
+        }
     }
 
     /**
