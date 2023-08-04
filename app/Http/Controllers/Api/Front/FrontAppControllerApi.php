@@ -2,43 +2,67 @@
 
 namespace App\Http\Controllers\Api\Front;
 
-use App\Helpers\HttpHelper;
-use App\Helpers\EmailMobileHelper;
 use App\Http\Controllers\Api\ApiSwaggerController;
 use App\Http\Controllers\Api\BaseApiHttpController;
-use App\Model\Database\EmailModel;
-use App\Model\Database\UserModel;
-use App\Services\UserRegistrationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
-use YusamHub\AppExt\Exceptions\HttpBadRequestAppExtRuntimeException;
-use YusamHub\AppExt\Exceptions\HttpInternalServerErrorAppExtRuntimeException;
-use YusamHub\Helper\OpenSsl;
-use YusamHub\Validator\Validator;
-use YusamHub\Validator\ValidatorException;
+use YusamHub\AppExt\SymfonyExt\Http\Interfaces\ControllerMiddlewareInterface;
+use YusamHub\AppExt\SymfonyExt\Http\Traits\ControllerMiddlewareTrait;
 
 /**
  * @OA\SecurityScheme(
  *      securityScheme="XUserTokenScheme",
  *      type="apiKey",
  *      in="header",
- *      name="__OA_SECURITY_SCHEME_USER_TOKEN_HEADER_NAME__"
+ *      name="X-User-Token"
  * )
  */
 
-class FrontAppControllerApi extends BaseApiHttpController
+class FrontAppControllerApi extends BaseApiHttpController implements ControllerMiddlewareInterface
 {
+    use ControllerMiddlewareTrait;
+
     const MODULE_CURRENT = ApiSwaggerController::MODULE_FRONT;
+
+    const USER_TOKEN_KEY_NAME = 'X-User-Token';
+
     const TO_MANY_REQUESTS_CHECK_ENABLED = true;
     const DEFAULT_TOO_MANY_REQUESTS_TTL = 600;
 
     public static function routesRegister(RoutingConfigurator $routes): void
     {
+        static::controllerMiddlewareRegister(static::class, 'apiAuthorizeHandle');
+
         static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s/app/list', self::MODULE_CURRENT), 'getAppList');
         static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/app/add', self::MODULE_CURRENT), 'postAppAdd');
         static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s/app/id/{appId}', self::MODULE_CURRENT), 'getAppId');
         static::routesAdd($routes, ['OPTIONS', 'PUT'],sprintf('/api/%s/app/id/{appId}/change', self::MODULE_CURRENT), 'putAppIdChange');
         static::routesAdd($routes, ['OPTIONS', 'PUT'],sprintf('/api/%s/app/id/{appId}/change-keys', self::MODULE_CURRENT), 'putAppIdChangeKeys');
+    }
+
+    protected array $apiAuthorizePathExcludes = [
+
+    ];
+
+    /**
+     * @param Request $request
+     * @return void
+     */
+    protected function apiAuthorizeHandle(Request $request): void
+    {
+        if (in_array($request->getRequestUri(), $this->apiAuthorizePathExcludes)) {
+            return;
+        }
+
+        /**
+         * todo: нужно реализовать доступ пользователя к методам,
+         *       у пользователя есть приватный ключ,
+         *       у сервера есть публичный ключ
+         */
+
+        throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
+            'detail' => 'Invalid token value'
+        ]);
     }
 
     /**
