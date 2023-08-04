@@ -98,7 +98,7 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
 
             $serverTime = time();
 
-            if ($serverTime < $userTokenPayload->iat and $serverTime > $userTokenPayload->iat + $userTokenPayload->exp) {
+            if ($serverTime < $userTokenPayload->iat and $serverTime > $userTokenPayload->exp) {
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40105], self::AUTH_ERROR_CODE_40105);
             }
 
