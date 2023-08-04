@@ -31,6 +31,21 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
     const TO_MANY_REQUESTS_CHECK_ENABLED = true;
     const DEFAULT_TOO_MANY_REQUESTS_TTL = 600;
 
+    const AUTH_ERROR_CODE_40101 = 40101;
+    const AUTH_ERROR_CODE_40102 = 40102;
+    const AUTH_ERROR_CODE_40103 = 40103;
+    const AUTH_ERROR_CODE_40104 = 40104;
+    const AUTH_ERROR_CODE_40105 = 40105;
+    const AUTH_ERROR_CODE_40106 = 40106;
+    const AUTH_ERROR_MESSAGES = [
+        self::AUTH_ERROR_CODE_40101 => 'Invalid user identifier in head',
+        self::AUTH_ERROR_CODE_40102 => 'Fail load user by identifier',
+        self::AUTH_ERROR_CODE_40103 => 'Fail load payload data',
+        self::AUTH_ERROR_CODE_40104 => 'IFail use payload data as user identifier',
+        self::AUTH_ERROR_CODE_40105 => 'Token expired',
+        self::AUTH_ERROR_CODE_40106 => 'Invalid hash body',
+    ];
+
     public static function routesRegister(RoutingConfigurator $routes): void
     {
         static::controllerMiddlewareRegister(static::class, 'apiAuthorizeHandle');
@@ -63,28 +78,33 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
             $userId = JwtAuthUserTokenHelper::getUserFromJwtHeads($jwtToken);
 
             if (is_null($userId)) {
-                throw new \Exception("Invalid user identifier in head");
+                throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40101], self::AUTH_ERROR_CODE_40101);
             }
 
             $userModel = UserModel::findModel($this->getPdoExtKernel(), $userId);
             if (is_null($userModel)) {
-                throw new \Exception("Fail load user by identifier");
+                throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40102], self::AUTH_ERROR_CODE_40102);
             }
 
             $userTokenPayload = JwtAuthUserTokenHelper::fromJwtAsPayload($jwtToken, $userModel->publicKey);
 
             if (is_null($userTokenPayload->uid) || is_null($userTokenPayload->iat) || is_null($userTokenPayload->exp) || is_null($userTokenPayload->hb)) {
-                throw new \Exception("Fail load payload data");
+                throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40103], self::AUTH_ERROR_CODE_40103);
             }
 
             if ($userTokenPayload->uid != $userId) {
-                throw new \Exception("Fail use payload data as user identifier");
+                throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40104], self::AUTH_ERROR_CODE_40104);
             }
 
-            //todo: проверка срока действия токена
+            $serverTime = time();
 
-            //todo: проверка хеша тела
+            if ($serverTime < $userTokenPayload->iat and $serverTime > $userTokenPayload->iat + $userTokenPayload->exp) {
+                throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40105], self::AUTH_ERROR_CODE_40105);
+            }
 
+            if (md5($request->getContent()) !== $userTokenPayload->hb) {
+                throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40106], self::AUTH_ERROR_CODE_40106);
+            }
 
         } catch (\Throwable $e) {
 
