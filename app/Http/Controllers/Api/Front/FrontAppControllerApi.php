@@ -2,14 +2,22 @@
 
 namespace App\Http\Controllers\Api\Front;
 
+use App\Helpers\HttpHelper;
 use App\Http\Controllers\Api\ApiSwaggerController;
 use App\Http\Controllers\Api\BaseApiHttpController;
+use App\Model\Authorize\AppUserAuthorizeModel;
 use App\Model\Database\UserModel;
+use App\Services\AppService;
+use App\Services\UserRegistrationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+use YusamHub\AppExt\Exceptions\HttpBadRequestAppExtRuntimeException;
+use YusamHub\AppExt\Exceptions\HttpInternalServerErrorAppExtRuntimeException;
 use YusamHub\AppExt\SymfonyExt\Http\Interfaces\ControllerMiddlewareInterface;
 use YusamHub\AppExt\SymfonyExt\Http\Traits\ControllerMiddlewareTrait;
 use YusamHub\Project0001ClientAuthSdk\Tokens\JwtAuthUserTokenHelper;
+use YusamHub\Validator\Validator;
+use YusamHub\Validator\ValidatorException;
 
 /**
  * @OA\SecurityScheme(
@@ -28,8 +36,8 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
 
     const USER_TOKEN_KEY_NAME = 'X-User-Token';
 
-    const TO_MANY_REQUESTS_CHECK_ENABLED = true;
-    const DEFAULT_TOO_MANY_REQUESTS_TTL = 600;
+    const TO_MANY_REQUESTS_CHECK_ENABLED = false;//todo: del
+    const DEFAULT_TOO_MANY_REQUESTS_TTL = 60;
 
     const AUTH_ERROR_CODE_40101 = 40101;
     const AUTH_ERROR_CODE_40102 = 40102;
@@ -53,7 +61,7 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
         static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s/app/list', self::MODULE_CURRENT), 'getAppList');
         static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/app/add', self::MODULE_CURRENT), 'postAppAdd');
         static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s/app/id/{appId}', self::MODULE_CURRENT), 'getAppId');
-        static::routesAdd($routes, ['OPTIONS', 'PUT'],sprintf('/api/%s/app/id/{appId}/change', self::MODULE_CURRENT), 'putAppIdChange');
+        static::routesAdd($routes, ['OPTIONS', 'PUT'],sprintf('/api/%s/app/id/{appId}/change-title', self::MODULE_CURRENT), 'putAppIdChangeTitle');
         static::routesAdd($routes, ['OPTIONS', 'PUT'],sprintf('/api/%s/app/id/{appId}/change-keys', self::MODULE_CURRENT), 'putAppIdChangeKeys');
     }
 
@@ -111,6 +119,8 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40106], self::AUTH_ERROR_CODE_40106);
             }
 
+            AppUserAuthorizeModel::Instance()->userId = $userId;
+
         } catch (\Throwable $e) {
 
             throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
@@ -148,7 +158,19 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
      */
     public function getAppList(Request $request): array
     {
-        return [];
+        $uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
+
+        if (self::TO_MANY_REQUESTS_CHECK_ENABLED) {
+            HttpHelper::checkTooManyRequestsOrFail(
+                $this->getRedisKernel(),
+                $this->getLogger(),
+                $uniqueUserDevice, self::DEFAULT_TOO_MANY_REQUESTS_TTL, __METHOD__);
+        }
+
+        return AppService::getAppList(
+            $this->getPdoExtKernel(),
+            AppUserAuthorizeModel::Instance()->userId
+        );
     }
 
     /**
@@ -182,7 +204,48 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
      */
     public function postAppAdd(Request $request): array
     {
-        return [];
+        $uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
+
+        if (self::TO_MANY_REQUESTS_CHECK_ENABLED) {
+            HttpHelper::checkTooManyRequestsOrFail(
+                $this->getRedisKernel(),
+                $this->getLogger(),
+                $uniqueUserDevice, self::DEFAULT_TOO_MANY_REQUESTS_TTL, __METHOD__);
+        }
+
+        try {
+            $validator = new Validator();
+            $validator->setAttributes(
+                $request->request->all()
+            );
+            $validator->setRules([
+                'title' => ['require','string','min:3','max:64'],
+            ]);
+            $validator->setRuleMessages([
+                'title' => 'Invalid value, require string min(3), max(64)',
+            ]);
+
+            $validator->validateOrFail();
+
+        } catch (\Throwable $e) {
+
+            if ($e instanceof ValidatorException) {
+                throw new HttpBadRequestAppExtRuntimeException($e->getValidatorErrors());
+            }
+
+            $this->error($e->getMessage(), [
+                'errorFile' => $e->getFile() . ':' . $e->getLine(),
+                'errorTrace' => $e->getTrace()
+            ]);
+
+            throw new HttpInternalServerErrorAppExtRuntimeException();
+        }
+
+        return AppService::postAppAdd(
+            $this->getPdoExtKernel(),
+            AppUserAuthorizeModel::Instance()->userId,
+            $validator->getAttribute('title')
+        );
     }
 
     /**
@@ -217,8 +280,8 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
     /**
      * @OA\Put(
      *   tags={"App"},
-     *   path="/app/id/{appId}/change",
-     *   summary="Application change by id",
+     *   path="/app/id/{appId}/change-title",
+     *   summary="Application change by id title",
      *   deprecated=false,
      *   security={{"XUserTokenScheme":{}}},
      *   @OA\RequestBody(description="Properties", required=true,
