@@ -90,7 +90,8 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
 
             throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
                 'token' => 'Invalid value',
-                'detail' => $e->getMessage()
+                'detail' => $e->getMessage(),
+                'code' => $e->getCode()
             ]);
 
         }
