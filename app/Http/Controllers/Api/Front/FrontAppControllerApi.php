@@ -56,7 +56,7 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
 
     public static function routesRegister(RoutingConfigurator $routes): void
     {
-        //static::controllerMiddlewareRegister(static::class, 'apiAuthorizeHandle');
+        static::controllerMiddlewareRegister(static::class, 'apiAuthorizeHandle');
 
         static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s/app/list', self::MODULE_CURRENT), 'getAppList');
         static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/app/add', self::MODULE_CURRENT), 'postAppAdd');
