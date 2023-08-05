@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Front;
+namespace App\Http\Controllers\Api\User;
 
 use App\Helpers\HttpHelper;
 use App\Helpers\EmailMobileHelper;
@@ -17,9 +17,9 @@ use YusamHub\Helper\OpenSsl;
 use YusamHub\Validator\Validator;
 use YusamHub\Validator\ValidatorException;
 
-class FrontUserControllerApi extends BaseApiHttpController
+class UserAccountControllerApi extends BaseApiHttpController
 {
-    const MODULE_CURRENT = ApiSwaggerController::MODULE_FRONT;
+    const MODULE_CURRENT = ApiSwaggerController::MODULE_USER;
     const TO_MANY_REQUESTS_CHECK_ENABLED = true;
     const DEFAULT_TOO_MANY_REQUESTS_TTL = 600;
     const OTP_ACTION_USER_REGISTER = 1;
@@ -27,11 +27,11 @@ class FrontUserControllerApi extends BaseApiHttpController
 
     public static function routesRegister(RoutingConfigurator $routes): void
     {
-        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/user/init-registration', self::MODULE_CURRENT), 'postUserInitRegistration');
-        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/user/confirm-registration', self::MODULE_CURRENT), 'postUserConfirmRegistration');
+        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/account/init-registration', self::MODULE_CURRENT), 'postUserInitRegistration');
+        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/account/confirm-registration', self::MODULE_CURRENT), 'postUserConfirmRegistration');
 
-        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/user/init-restore-registration', self::MODULE_CURRENT), 'postUserInitRestoreRegistration');
-        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/user/confirm-restore-registration', self::MODULE_CURRENT), 'postUserConfirmRestoreRegistration');
+        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/account/init-restore-registration', self::MODULE_CURRENT), 'postUserInitRestoreRegistration');
+        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/account/confirm-restore-registration', self::MODULE_CURRENT), 'postUserConfirmRestoreRegistration');
 
     }
 
@@ -211,9 +211,9 @@ class FrontUserControllerApi extends BaseApiHttpController
 
     /**
      * @OA\Post(
-     *   tags={"User"},
-     *   path="/user/init-registration",
-     *   summary="User init registration",
+     *   tags={"Account"},
+     *   path="/account/init-registration",
+     *   summary="Account init registration",
      *   deprecated=false,
      *   @OA\RequestBody(description="Properties", required=true,
      *        @OA\JsonContent(type="object",
@@ -243,9 +243,9 @@ class FrontUserControllerApi extends BaseApiHttpController
 
     /**
      * @OA\Post(
-     *   tags={"User"},
-     *   path="/user/confirm-registration",
-     *   summary="User confirm registation",
+     *   tags={"Account"},
+     *   path="/account/confirm-registration",
+     *   summary="Account confirm registation",
      *   deprecated=false,
      *   @OA\RequestBody(description="Properties", required=true,
      *        @OA\JsonContent(type="object",
@@ -323,9 +323,9 @@ class FrontUserControllerApi extends BaseApiHttpController
 
     /**
      * @OA\Post(
-     *   tags={"User"},
-     *   path="/user/init-restore-registration",
-     *   summary="User init restore registration",
+     *   tags={"Account"},
+     *   path="/account/init-restore-registration",
+     *   summary="Account init restore registration",
      *   deprecated=false,
      *   @OA\RequestBody(description="Properties", required=true,
      *        @OA\JsonContent(type="object",
@@ -355,9 +355,9 @@ class FrontUserControllerApi extends BaseApiHttpController
 
     /**
      * @OA\Post(
-     *   tags={"User"},
-     *   path="/user/confirm-restore-registration",
-     *   summary="User confirm restore registation",
+     *   tags={"Account"},
+     *   path="/account/confirm-restore-registration",
+     *   summary="Account confirm restore registation",
      *   deprecated=false,
      *   @OA\RequestBody(description="Properties", required=true,
      *        @OA\JsonContent(type="object",

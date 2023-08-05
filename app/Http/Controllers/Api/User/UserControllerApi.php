@@ -1,16 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Api\Front;
+namespace App\Http\Controllers\Api\User;
 
-use App\Helpers\EmailMobileHelper;
 use App\Http\Controllers\Api\ApiSwaggerController;
 use App\Http\Controllers\Api\BaseApiHttpController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
-class FrontControllerApi extends BaseApiHttpController
+class UserControllerApi extends BaseApiHttpController
 {
-    const MODULE_CURRENT = ApiSwaggerController::MODULE_FRONT;
+    const MODULE_CURRENT = ApiSwaggerController::MODULE_USER;
 
     public static function routesRegister(RoutingConfigurator $routes): void
     {
