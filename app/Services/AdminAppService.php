@@ -6,7 +6,7 @@ use App\Model\Database\AppModel;
 use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
 use YusamHub\Helper\OpenSsl;
 
-class AppService
+class AdminAppService
 {
     /**
      * @param PdoExtKernelInterface $pdoExtKernel

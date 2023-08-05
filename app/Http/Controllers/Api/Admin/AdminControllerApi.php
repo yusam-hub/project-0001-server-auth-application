@@ -8,7 +8,7 @@ use App\Http\Controllers\Api\BaseApiHttpController;
 use App\Http\Controllers\Api\BaseUserTokenApiHttpController;
 use App\Model\Authorize\FrontAppAuthorizeModel;
 use App\Model\Database\AppModel;
-use App\Services\AppService;
+use App\Services\AdminAppService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use YusamHub\AppExt\Exceptions\HttpBadRequestAppExtRuntimeException;

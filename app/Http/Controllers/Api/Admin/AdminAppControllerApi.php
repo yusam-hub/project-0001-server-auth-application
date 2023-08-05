@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\ApiSwaggerController;
 use App\Http\Controllers\Api\BaseUserTokenApiHttpController;
 use App\Model\Authorize\FrontAppAuthorizeModel;
 use App\Model\Database\AppModel;
-use App\Services\AppService;
+use App\Services\AdminAppService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use YusamHub\AppExt\Exceptions\HttpBadRequestAppExtRuntimeException;
@@ -22,7 +22,6 @@ class AdminAppControllerApi extends BaseUserTokenApiHttpController
     const DEFAULT_TOO_MANY_REQUESTS_TTL = 60;
 
     protected array $apiAuthorizePathExcludes = [
-        '/api/' . ApiSwaggerController::MODULE_ADMIN
     ];
 
     public static function routesRegister(RoutingConfigurator $routes): void
@@ -71,7 +70,7 @@ class AdminAppControllerApi extends BaseUserTokenApiHttpController
                 $uniqueUserDevice, self::DEFAULT_TOO_MANY_REQUESTS_TTL, __METHOD__);
         }
 
-        return AppService::getAppList(
+        return AdminAppService::getAppList(
             $this->getPdoExtKernel(),
             FrontAppAuthorizeModel::Instance()->userId
         );
@@ -145,7 +144,7 @@ class AdminAppControllerApi extends BaseUserTokenApiHttpController
             throw new HttpInternalServerErrorAppExtRuntimeException();
         }
 
-        return AppService::postAppAdd(
+        return AdminAppService::postAppAdd(
             $this->getPdoExtKernel(),
             FrontAppAuthorizeModel::Instance()->userId,
             $validator->getAttribute('title')
@@ -228,7 +227,7 @@ class AdminAppControllerApi extends BaseUserTokenApiHttpController
             throw new HttpInternalServerErrorAppExtRuntimeException();
         }
 
-        return AppService::getAppId(
+        return AdminAppService::getAppId(
             $this->getPdoExtKernel(),
             FrontAppAuthorizeModel::Instance()->userId,
             $validator->getAttribute('appId')
@@ -242,6 +241,12 @@ class AdminAppControllerApi extends BaseUserTokenApiHttpController
      *   summary="Application change by id title",
      *   deprecated=false,
      *   security={{"XTokenScheme":{}}},
+     *   @OA\Parameter(name="appId",
+     *     in="path",
+     *     required=true,
+     *     example="",
+     *     @OA\Schema(type="integer")
+     *   ),
      *   @OA\RequestBody(description="Properties", required=true,
      *        @OA\JsonContent(type="object",
      *            @OA\Property(property="title", type="string", example="My changed title application", description="Title for application"),
@@ -312,7 +317,7 @@ class AdminAppControllerApi extends BaseUserTokenApiHttpController
             throw new HttpInternalServerErrorAppExtRuntimeException();
         }
 
-        return AppService::putAppIdChangeTitle(
+        return AdminAppService::putAppIdChangeTitle(
             $this->getPdoExtKernel(),
             FrontAppAuthorizeModel::Instance()->userId,
             $validator->getAttribute('appId'),
@@ -327,6 +332,12 @@ class AdminAppControllerApi extends BaseUserTokenApiHttpController
      *   summary="Application change by id private/public keys",
      *   deprecated=false,
      *   security={{"XTokenScheme":{}}},
+     *   @OA\Parameter(name="appId",
+     *     in="path",
+     *     required=true,
+     *     example="",
+     *     @OA\Schema(type="integer")
+     *   ),
      *   @OA\Response(response=200, description="OK", @OA\MediaType(mediaType="application/json", @OA\Schema(
      *        @OA\Property(property="status", type="string", example="ok"),
      *        @OA\Property(property="data", type="array", example="array", @OA\Items(
@@ -390,7 +401,7 @@ class AdminAppControllerApi extends BaseUserTokenApiHttpController
             throw new HttpInternalServerErrorAppExtRuntimeException();
         }
 
-        return AppService::putAppIdChangeKeys(
+        return AdminAppService::putAppIdChangeKeys(
             $this->getPdoExtKernel(),
             FrontAppAuthorizeModel::Instance()->userId,
             $validator->getAttribute('appId')
