@@ -73,7 +73,7 @@ abstract class BaseAppApiHttpController extends BaseApiHttpController implements
             }
 
             if (strtoupper($request->getMethod()) === 'GET') {
-                $content = $request->getQueryString();
+                $content = http_build_query($request->query->all());
             } else {
                 $content = $request->getContent();
             }

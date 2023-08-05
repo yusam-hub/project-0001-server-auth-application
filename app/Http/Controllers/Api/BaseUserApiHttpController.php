@@ -73,11 +73,19 @@ abstract class BaseUserApiHttpController extends BaseApiHttpController implement
             }
 
             if (strtoupper($request->getMethod()) === 'GET') {
-                $content = $request->getQueryString();
+                $content = http_build_query($request->query->all());
             } else {
                 $content = $request->getContent();
             }
-            if (md5($content) !== $userTokenPayload->hb) {
+            $hb = md5($content);
+            if ($hb !== $userTokenPayload->hb) {
+                $this->debug(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40106], [
+                    'method' => $request->getMethod(),
+                    'content' => $content,
+                    'serverHash' => $hb,
+                    'clientHash' => $userTokenPayload->hb,
+                ]);
+
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40106], self::AUTH_ERROR_CODE_40106);
             }
 
