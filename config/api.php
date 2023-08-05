@@ -6,5 +6,6 @@ return [
     'publicSwaggerUiDir' => app_ext()->getPublicDir('/swagger-ui'),
     'publicSwaggerUiUri' => '/swagger-ui',
     'apiBaseUri' => '/api',
-    'userTokenKeyName' => 'X-User-Token',
+    'tokenKeyName' => 'X-Token',
+    'signKeyName' => 'X-Sign',
 ];
