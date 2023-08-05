@@ -23,7 +23,7 @@ select
     id as appId,
     title,
     keyHash,
-    createAt,
+    createdAt,
     modifiedAt
 from 
     apps
@@ -83,7 +83,7 @@ select
     id as appId,
     title,
     keyHash,
-    createAt,
+    createdAt,
     modifiedAt
 from 
     apps
