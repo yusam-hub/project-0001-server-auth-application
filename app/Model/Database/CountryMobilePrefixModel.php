@@ -18,7 +18,7 @@ use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
  * @method static CountryMobilePrefixModel|null findModelByAttributes(PdoExtKernelInterface $pdoExtKernel, array $attributes)
  * @method static CountryMobilePrefixModel findModelByAttributesOrFail(PdoExtKernelInterface $pdoExtKernel, array $attributes)
  */
-class CountryMobilePrefixModel extends PdoExtModel
+class CountryMobilePrefixModel extends BasePdoExtModel
 {
     protected ?string $connectionName = DB_CONNECTION_DEFAULT;
     protected string $tableName = TABLE_COUNTRY_MOBILE_PREFIXES;

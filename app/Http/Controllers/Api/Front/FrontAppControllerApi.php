@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Api\Front;
 use App\Helpers\HttpHelper;
 use App\Http\Controllers\Api\ApiSwaggerController;
 use App\Http\Controllers\Api\BaseApiHttpController;
-use App\Model\Authorize\AppUserAuthorizeModel;
+use App\Model\Authorize\FrontAppAuthorizeModel;
+use App\Model\Database\AppModel;
 use App\Model\Database\UserModel;
 use App\Services\AppService;
-use App\Services\UserRegistrationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use YusamHub\AppExt\Exceptions\HttpBadRequestAppExtRuntimeException;
@@ -36,7 +36,7 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
 
     const USER_TOKEN_KEY_NAME = 'X-User-Token';
 
-    const TO_MANY_REQUESTS_CHECK_ENABLED = false;//todo: del
+    const TO_MANY_REQUESTS_CHECK_ENABLED = true;
     const DEFAULT_TOO_MANY_REQUESTS_TTL = 60;
 
     const AUTH_ERROR_CODE_40101 = 40101;
@@ -56,7 +56,7 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
 
     public static function routesRegister(RoutingConfigurator $routes): void
     {
-        static::controllerMiddlewareRegister(static::class, 'apiAuthorizeHandle');
+        //static::controllerMiddlewareRegister(static::class, 'apiAuthorizeHandle');
 
         static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s/app/list', self::MODULE_CURRENT), 'getAppList');
         static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/app/add', self::MODULE_CURRENT), 'postAppAdd');
@@ -119,7 +119,7 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40106], self::AUTH_ERROR_CODE_40106);
             }
 
-            AppUserAuthorizeModel::Instance()->userId = $userId;
+            FrontAppAuthorizeModel::Instance()->userId = $userId;
 
         } catch (\Throwable $e) {
 
@@ -169,7 +169,7 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
 
         return AppService::getAppList(
             $this->getPdoExtKernel(),
-            AppUserAuthorizeModel::Instance()->userId
+            FrontAppAuthorizeModel::Instance()->userId
         );
     }
 
@@ -243,7 +243,7 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
 
         return AppService::postAppAdd(
             $this->getPdoExtKernel(),
-            AppUserAuthorizeModel::Instance()->userId,
+            FrontAppAuthorizeModel::Instance()->userId,
             $validator->getAttribute('title')
         );
     }
@@ -255,6 +255,12 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
      *   summary="Get app information",
      *   deprecated=false,
      *   security={{"XUserTokenScheme":{}}},
+     *   @OA\Parameter(name="appId",
+     *     in="path",
+     *     required=true,
+     *     example="",
+     *     @OA\Schema(type="integer")
+     *   ),
      *   @OA\Response(response=200, description="OK", @OA\MediaType(mediaType="application/json", @OA\Schema(
      *        @OA\Property(property="status", type="string", example="ok"),
      *        @OA\Property(property="data", type="array", example="array", @OA\Items(
@@ -269,12 +275,60 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
 
     /**
      * @param Request $request
+     * @param int $appId
      * @return array
-     * @throws \Exception
      */
-    public function getAppId(Request $request): array
+    public function getAppId(Request $request, int $appId): array
     {
-        return [];
+        $uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
+
+        if (self::TO_MANY_REQUESTS_CHECK_ENABLED) {
+            HttpHelper::checkTooManyRequestsOrFail(
+                $this->getRedisKernel(),
+                $this->getLogger(),
+                $uniqueUserDevice, self::DEFAULT_TOO_MANY_REQUESTS_TTL, __METHOD__);
+        }
+
+        try {
+            $validator = new Validator();
+            $validator->setAttributes(
+                 array_merge(
+                    $request->request->all(),
+                    [
+                        'appId' => $appId
+                    ]
+                )
+            );
+            $validator->setRules([
+                'appId' => ['require','int', function($v){
+                    return AppModel::exists($this->getRedisKernel(), $this->pdoExtKernel, $this->getLogger(), $v);
+                }],
+            ]);
+            $validator->setRuleMessages([
+                'appId' => 'Invalid value',
+            ]);
+
+            $validator->validateOrFail();
+
+        } catch (\Throwable $e) {
+
+            if ($e instanceof ValidatorException) {
+                throw new HttpBadRequestAppExtRuntimeException($e->getValidatorErrors());
+            }
+
+            $this->error($e->getMessage(), [
+                'errorFile' => $e->getFile() . ':' . $e->getLine(),
+                'errorTrace' => $e->getTrace()
+            ]);
+
+            throw new HttpInternalServerErrorAppExtRuntimeException();
+        }
+
+        return AppService::getAppId(
+            $this->getPdoExtKernel(),
+            FrontAppAuthorizeModel::Instance()->userId,
+            $validator->getAttribute('appId')
+        );
     }
 
     /**
@@ -303,12 +357,63 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
 
     /**
      * @param Request $request
+     * @param int $appId
      * @return array
-     * @throws \Exception
      */
-    public function putAppIdChange(Request $request): array
+    public function putAppIdChangeTitle(Request $request, int $appId): array
     {
-        return [];
+        $uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
+
+        if (self::TO_MANY_REQUESTS_CHECK_ENABLED) {
+            HttpHelper::checkTooManyRequestsOrFail(
+                $this->getRedisKernel(),
+                $this->getLogger(),
+                $uniqueUserDevice, self::DEFAULT_TOO_MANY_REQUESTS_TTL, __METHOD__);
+        }
+
+        try {
+            $validator = new Validator();
+            $validator->setAttributes(
+                array_merge(
+                    $request->request->all(),
+                    [
+                        'appId' => $appId
+                    ]
+                )
+            );
+            $validator->setRules([
+                'appId' => ['require','int', function($v){
+                    return AppModel::exists($this->getRedisKernel(), $this->pdoExtKernel, $this->getLogger(), $v);
+                }],
+                'title' => ['require','string','min:3','max:64'],
+            ]);
+            $validator->setRuleMessages([
+                'appId' => 'Invalid value',
+                'title' => 'Invalid value, require string min(3), max(64)',
+            ]);
+
+            $validator->validateOrFail();
+
+        } catch (\Throwable $e) {
+
+            if ($e instanceof ValidatorException) {
+                throw new HttpBadRequestAppExtRuntimeException($e->getValidatorErrors());
+            }
+
+            $this->error($e->getMessage(), [
+                'errorFile' => $e->getFile() . ':' . $e->getLine(),
+                'errorTrace' => $e->getTrace()
+            ]);
+
+            throw new HttpInternalServerErrorAppExtRuntimeException();
+        }
+
+        return AppService::putAppIdChangeTitle(
+            $this->getPdoExtKernel(),
+            FrontAppAuthorizeModel::Instance()->userId,
+            $validator->getAttribute('appId'),
+            $validator->getAttribute('title')
+        );
     }
 
     /**
@@ -332,11 +437,59 @@ class FrontAppControllerApi extends BaseApiHttpController implements ControllerM
 
     /**
      * @param Request $request
+     * @param int $appId
      * @return array
-     * @throws \Exception
      */
-    public function putAppIdChangeKeys(Request $request): array
+    public function putAppIdChangeKeys(Request $request, int $appId): array
     {
-        return [];
+        $uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
+
+        if (self::TO_MANY_REQUESTS_CHECK_ENABLED) {
+            HttpHelper::checkTooManyRequestsOrFail(
+                $this->getRedisKernel(),
+                $this->getLogger(),
+                $uniqueUserDevice, self::DEFAULT_TOO_MANY_REQUESTS_TTL, __METHOD__);
+        }
+
+        try {
+            $validator = new Validator();
+            $validator->setAttributes(
+                array_merge(
+                    $request->request->all(),
+                    [
+                        'appId' => $appId
+                    ]
+                )
+            );
+            $validator->setRules([
+                'appId' => ['require','int', function($v){
+                    return AppModel::exists($this->getRedisKernel(), $this->pdoExtKernel, $this->getLogger(), $v);
+                }],
+            ]);
+            $validator->setRuleMessages([
+                'appId' => 'Invalid value',
+            ]);
+
+            $validator->validateOrFail();
+
+        } catch (\Throwable $e) {
+
+            if ($e instanceof ValidatorException) {
+                throw new HttpBadRequestAppExtRuntimeException($e->getValidatorErrors());
+            }
+
+            $this->error($e->getMessage(), [
+                'errorFile' => $e->getFile() . ':' . $e->getLine(),
+                'errorTrace' => $e->getTrace()
+            ]);
+
+            throw new HttpInternalServerErrorAppExtRuntimeException();
+        }
+
+        return AppService::putAppIdChangeKeys(
+            $this->getPdoExtKernel(),
+            FrontAppAuthorizeModel::Instance()->userId,
+            $validator->getAttribute('appId')
+        );
     }
 }

@@ -17,7 +17,7 @@ use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
  * @method static EmailModel|null findModelByAttributes(PdoExtKernelInterface $pdoExtKernel, array $attributes)
  * @method static EmailModel findModelByAttributesOrFail(PdoExtKernelInterface $pdoExtKernel, array $attributes)
  */
-class EmailModel extends PdoExtModel
+class EmailModel extends BasePdoExtModel
 {
     protected ?string $connectionName = DB_CONNECTION_DEFAULT;
     protected string $tableName = TABLE_EMAILS;

@@ -19,7 +19,7 @@ use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
  * @method static AppModel|null findModelByAttributes(PdoExtKernelInterface $pdoExtKernel, array $attributes)
  * @method static AppModel findModelByAttributesOrFail(PdoExtKernelInterface $pdoExtKernel, array $attributes)
  */
-class AppModel extends PdoExtModel
+class AppModel extends BasePdoExtModel
 {
     protected ?string $connectionName = DB_CONNECTION_DEFAULT;
     protected string $tableName = TABLE_APPS;

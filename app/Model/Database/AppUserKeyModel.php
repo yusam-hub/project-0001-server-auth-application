@@ -21,7 +21,7 @@ use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
  * @method static AppUserKeyModel|null findModelByAttributes(PdoExtKernelInterface $pdoExtKernel, array $attributes)
  * @method static AppUserKeyModel findModelByAttributesOrFail(PdoExtKernelInterface $pdoExtKernel, array $attributes)
  */
-class AppUserKeyModel extends PdoExtModel
+class AppUserKeyModel extends BasePdoExtModel
 {
     protected ?string $connectionName = DB_CONNECTION_DEFAULT;
     protected string $tableName = TABLE_APPS_USERS_KEYS;

@@ -18,7 +18,7 @@ use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
  * @method static MobileModel|null findModelByAttributes(PdoExtKernelInterface $pdoExtKernel, array $attributes)
  * @method static MobileModel findModelByAttributesOrFail(PdoExtKernelInterface $pdoExtKernel, array $attributes)
  */
-class MobileModel extends PdoExtModel
+class MobileModel extends BasePdoExtModel
 {
     protected ?string $connectionName = DB_CONNECTION_DEFAULT;
     protected string $tableName = TABLE_MOBILES;
