@@ -30,7 +30,7 @@ class UserAppControllerApi extends BaseUserTokenApiHttpController
         static::controllerMiddlewareRegister(static::class, 'apiAuthorizeHandle');
 
         static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/app/id/{appId}/key-refresh', self::MODULE_CURRENT), 'postAppIdRefresh');
-        static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s/app/key/list', self::MODULE_CURRENT), 'getAppKeyList');
+        static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s/app/id/{appId}/key-list', self::MODULE_CURRENT), 'getAppIdKeyList');
     }
 
     /**
@@ -127,10 +127,16 @@ class UserAppControllerApi extends BaseUserTokenApiHttpController
     /**
      * @OA\Get(
      *   tags={"App"},
-     *   path="/app/key/list",
-     *   summary="Applications key list for user",
+     *   path="/app/id/{appId}/key-list",
+     *   summary="Application id key list for user",
      *   deprecated=false,
      *   security={{"XTokenScheme":{}}},
+     *   @OA\Parameter(name="appId",
+     *     in="path",
+     *     required=true,
+     *     example="",
+     *     @OA\Schema(type="integer")
+     *   ),
      *   @OA\Response(response=200, description="OK", @OA\MediaType(mediaType="application/json", @OA\Schema(
      *        @OA\Property(property="status", type="string", example="ok"),
      *        @OA\Property(property="data", type="array", example="array", @OA\Items(
@@ -145,10 +151,10 @@ class UserAppControllerApi extends BaseUserTokenApiHttpController
 
     /**
      * @param Request $request
+     * @param int $appId
      * @return array
-     * @throws \Exception
      */
-    public function getAppKeyList(Request $request): array
+    public function getAppIdKeyList(Request $request, int $appId): array
     {
         $uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
 
@@ -159,9 +165,42 @@ class UserAppControllerApi extends BaseUserTokenApiHttpController
                 $uniqueUserDevice, self::DEFAULT_TOO_MANY_REQUESTS_TTL, __METHOD__);
         }
 
-        return UserAppService::getAppKeyList(
+        try {
+            $validator = new Validator();
+            $validator->setAttributes(
+                [
+                    'appId' => $appId
+                ]
+            );
+            $validator->setRules([
+                'appId' => ['require','int', function($v){
+                    return AppModel::exists($this->getRedisKernel(), $this->pdoExtKernel, $this->getLogger(), $v);
+                }],
+            ]);
+            $validator->setRuleMessages([
+                'appId' => 'Invalid value',
+            ]);
+
+            $validator->validateOrFail();
+
+        } catch (\Throwable $e) {
+
+            if ($e instanceof ValidatorException) {
+                throw new HttpBadRequestAppExtRuntimeException($e->getValidatorErrors());
+            }
+
+            $this->error($e->getMessage(), [
+                'errorFile' => $e->getFile() . ':' . $e->getLine(),
+                'errorTrace' => $e->getTrace()
+            ]);
+
+            throw new HttpInternalServerErrorAppExtRuntimeException();
+        }
+
+        return UserAppService::getAppIdKeyList(
             $this->getPdoExtKernel(),
-            FrontAppAuthorizeModel::Instance()->userId
+            FrontAppAuthorizeModel::Instance()->userId,
+            $validator->getAttribute('appId')
         );
     }
 }

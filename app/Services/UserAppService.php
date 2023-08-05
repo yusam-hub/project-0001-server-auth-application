@@ -51,11 +51,13 @@ class UserAppService
     /**
      * @param PdoExtKernelInterface $pdoExtKernel
      * @param int $userId
+     * @param int $appId
      * @return array
      */
-    public static function getAppKeyList(
+    public static function getAppIdKeyList(
         PdoExtKernelInterface $pdoExtKernel,
-        int $userId
+        int $userId,
+        int $appId
     ): array
     {
         $sqlRows = <<<MYSQL
@@ -72,11 +74,13 @@ from
 where
     a.id = auk.appId
     and auk.userId = :userId
+    and auk.appId = :appId
 order by 
     auk.createdAt
 MYSQL;
         return $pdoExtKernel->pdoExt()->fetchAll(strtr($sqlRows, [
-            ':userId' => $userId
+            ':userId' => $userId,
+            ':appId' => $appId,
         ]));
     }
 }
