@@ -39,6 +39,7 @@ class UserAppService
         $appUserKeyModel->deviceUuid = $deviceUuid;
         $appUserKeyModel->publicKey = $openSsl->getPublicKey();
         $appUserKeyModel->keyHash = md5($appUserKeyModel->publicKey);
+        $appUserKeyModel->lastUsedAt = app_ext_date();
         $appUserKeyModel->saveOrFail();
 
         return [
