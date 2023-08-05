@@ -7,12 +7,14 @@ use YusamHub\AppExt\Api\OpenApiExt;
 
 class ApiSwaggerController extends \YusamHub\AppExt\SymfonyExt\Http\Controllers\ApiSwaggerController
 {
-    const MODULE_USER = 'user';
     const MODULE_ADMIN = 'admin';
+    const MODULE_USER = 'user';
+    const MODULE_TOKEN = 'token';
 
     const MODULES = [
-        self::MODULE_USER,
         self::MODULE_ADMIN,
+        self::MODULE_USER,
+        self::MODULE_TOKEN,
     ];
 
     protected static function getSwaggerModules(): array

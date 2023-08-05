@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api\User;
 
 use App\Helpers\HttpHelper;
 use App\Http\Controllers\Api\ApiSwaggerController;
-use App\Http\Controllers\Api\BaseUserTokenApiHttpController;
-use App\Model\Authorize\FrontAppAuthorizeModel;
+use App\Http\Controllers\Api\BaseUserApiHttpController;
+use App\Model\Authorize\UserAuthorizeModel;
 use App\Model\Database\AppModel;
 use App\Services\AdminAppService;
 use App\Services\UserAppService;
@@ -16,7 +16,7 @@ use YusamHub\AppExt\Exceptions\HttpInternalServerErrorAppExtRuntimeException;
 use YusamHub\Validator\Validator;
 use YusamHub\Validator\ValidatorException;
 
-class UserAppControllerApi extends BaseUserTokenApiHttpController
+class UserAppControllerApi extends BaseUserApiHttpController
 {
     const MODULE_CURRENT = ApiSwaggerController::MODULE_USER;
     const TO_MANY_REQUESTS_CHECK_ENABLED = false;
@@ -119,7 +119,7 @@ class UserAppControllerApi extends BaseUserTokenApiHttpController
         return UserAppService::postAppIdRefresh(
             $this->getPdoExtKernel(),
             $validator->getAttribute('appId'),
-            FrontAppAuthorizeModel::Instance()->userId,
+            UserAuthorizeModel::Instance()->userId,
             $validator->getAttribute('deviceUuid')
         );
     }
@@ -199,8 +199,9 @@ class UserAppControllerApi extends BaseUserTokenApiHttpController
 
         return UserAppService::getAppIdKeyList(
             $this->getPdoExtKernel(),
-            FrontAppAuthorizeModel::Instance()->userId,
+            UserAuthorizeModel::Instance()->userId,
             $validator->getAttribute('appId')
         );
     }
+
 }

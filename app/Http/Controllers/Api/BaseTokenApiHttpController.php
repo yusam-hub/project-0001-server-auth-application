@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Model\Authorize\FrontAppAuthorizeModel;
-use App\Model\Database\UserModel;
+use App\Model\Authorize\TokenAppUserAuthorizeModel;
+use App\Model\Database\AppUserKeyModel;
 use Symfony\Component\HttpFoundation\Request;
 use YusamHub\AppExt\SymfonyExt\Http\Interfaces\ControllerMiddlewareInterface;
 use YusamHub\AppExt\SymfonyExt\Http\Traits\ControllerMiddlewareTrait;
-use YusamHub\Project0001ClientAuthSdk\Tokens\JwtAuthUserTokenHelper;
+use YusamHub\Project0001ClientAuthSdk\Tokens\JwtAuthAppUserTokenHelper;
 
-abstract class BaseUserTokenApiHttpController extends BaseApiHttpController implements ControllerMiddlewareInterface
+abstract class BaseTokenApiHttpController extends BaseApiHttpController implements ControllerMiddlewareInterface
 {
     use ControllerMiddlewareTrait;
 
@@ -19,14 +19,12 @@ abstract class BaseUserTokenApiHttpController extends BaseApiHttpController impl
     const AUTH_ERROR_CODE_40103 = 40103;
     const AUTH_ERROR_CODE_40104 = 40104;
     const AUTH_ERROR_CODE_40105 = 40105;
-    const AUTH_ERROR_CODE_40106 = 40106;
     const AUTH_ERROR_MESSAGES = [
-        self::AUTH_ERROR_CODE_40101 => 'Invalid user identifier in head',
-        self::AUTH_ERROR_CODE_40102 => 'Fail load user by identifier',
+        self::AUTH_ERROR_CODE_40101 => 'Invalid identifiers in head',
+        self::AUTH_ERROR_CODE_40102 => 'Fail load by identifiers',
         self::AUTH_ERROR_CODE_40103 => 'Fail load payload data',
-        self::AUTH_ERROR_CODE_40104 => 'IFail use payload data as user identifier',
+        self::AUTH_ERROR_CODE_40104 => 'Fail use payload data as identifiers',
         self::AUTH_ERROR_CODE_40105 => 'Token expired',
-        self::AUTH_ERROR_CODE_40106 => 'Invalid hash body',
     ];
 
     /**
@@ -45,43 +43,40 @@ abstract class BaseUserTokenApiHttpController extends BaseApiHttpController impl
 
         try {
 
-            $userId = JwtAuthUserTokenHelper::getUserFromJwtHeads($jwtToken);
+            $appUserTokeHead = JwtAuthAppUserTokenHelper::fromJwtAsHeads($jwtToken);
 
-            if (is_null($userId)) {
+            if (is_null($appUserTokeHead->uid) || is_null($appUserTokeHead->aid) || is_null($appUserTokeHead->did)) {
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40101], self::AUTH_ERROR_CODE_40101);
             }
 
-            $userModel = UserModel::findModel($this->getPdoExtKernel(), $userId);
-            if (is_null($userModel)) {
+            $appUserKeyModel = AppUserKeyModel::findModelByAttributes($this->getPdoExtKernel(),[
+                'appId' => $appUserTokeHead->aid,
+                'userId' => $appUserTokeHead->uid,
+                'deviceUuid' => $appUserTokeHead->did
+            ]);
+            if (is_null($appUserKeyModel)) {
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40102], self::AUTH_ERROR_CODE_40102);
             }
 
-            $userTokenPayload = JwtAuthUserTokenHelper::fromJwtAsPayload($jwtToken, $userModel->publicKey);
+            $appUserTokenPayload = JwtAuthAppUserTokenHelper::fromJwtAsPayload($jwtToken, $appUserKeyModel->publicKey);
 
-            if (is_null($userTokenPayload->uid) || is_null($userTokenPayload->iat) || is_null($userTokenPayload->exp) || is_null($userTokenPayload->hb)) {
+            if (is_null($appUserTokenPayload->aid) || is_null($appUserTokenPayload->uid) || is_null($appUserTokenPayload->did) || is_null($appUserTokenPayload->iat) || is_null($appUserTokenPayload->exp)) {
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40103], self::AUTH_ERROR_CODE_40103);
             }
 
-            if ($userTokenPayload->uid != $userId) {
+            if ($appUserTokenPayload->uid != $appUserTokeHead->uid || $appUserTokenPayload->aid != $appUserTokeHead->aid || $appUserTokenPayload->did != $appUserTokeHead->did) {
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40104], self::AUTH_ERROR_CODE_40104);
             }
 
             $serverTime = time();
 
-            if ($serverTime < $userTokenPayload->iat and $serverTime > $userTokenPayload->exp) {
+            if ($serverTime < $appUserTokenPayload->iat and $serverTime > $appUserTokenPayload->exp) {
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40105], self::AUTH_ERROR_CODE_40105);
             }
 
-            if (strtoupper($request->getMethod()) === 'GET') {
-                $content = $request->getQueryString();
-            } else {
-                $content = $request->getContent();
-            }
-            if (md5($content) !== $userTokenPayload->hb) {
-                throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40106], self::AUTH_ERROR_CODE_40106);
-            }
-
-            FrontAppAuthorizeModel::Instance()->userId = $userId;
+            TokenAppUserAuthorizeModel::Instance()->userId = $appUserTokenPayload->uid;
+            TokenAppUserAuthorizeModel::Instance()->appId = $appUserTokenPayload->aid;
+            TokenAppUserAuthorizeModel::Instance()->deviceUuid = $appUserTokenPayload->did;
 
         } catch (\Throwable $e) {
 

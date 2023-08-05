@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Helpers\HttpHelper;
 use App\Http\Controllers\Api\ApiSwaggerController;
-use App\Http\Controllers\Api\BaseUserTokenApiHttpController;
-use App\Model\Authorize\FrontAppAuthorizeModel;
+use App\Http\Controllers\Api\BaseUserApiHttpController;
+use App\Model\Authorize\UserAuthorizeModel;
 use App\Model\Database\AppModel;
 use App\Services\AdminAppService;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,7 +15,7 @@ use YusamHub\AppExt\Exceptions\HttpInternalServerErrorAppExtRuntimeException;
 use YusamHub\Validator\Validator;
 use YusamHub\Validator\ValidatorException;
 
-class AdminAppControllerApi extends BaseUserTokenApiHttpController
+class AdminAppControllerApi extends BaseUserApiHttpController
 {
     const MODULE_CURRENT = ApiSwaggerController::MODULE_ADMIN;
     const TO_MANY_REQUESTS_CHECK_ENABLED = true;
@@ -72,7 +72,7 @@ class AdminAppControllerApi extends BaseUserTokenApiHttpController
 
         return AdminAppService::getAppList(
             $this->getPdoExtKernel(),
-            FrontAppAuthorizeModel::Instance()->userId
+            UserAuthorizeModel::Instance()->userId
         );
     }
 
@@ -146,7 +146,7 @@ class AdminAppControllerApi extends BaseUserTokenApiHttpController
 
         return AdminAppService::postAppAdd(
             $this->getPdoExtKernel(),
-            FrontAppAuthorizeModel::Instance()->userId,
+            UserAuthorizeModel::Instance()->userId,
             $validator->getAttribute('title')
         );
     }
@@ -229,7 +229,7 @@ class AdminAppControllerApi extends BaseUserTokenApiHttpController
 
         return AdminAppService::getAppId(
             $this->getPdoExtKernel(),
-            FrontAppAuthorizeModel::Instance()->userId,
+            UserAuthorizeModel::Instance()->userId,
             $validator->getAttribute('appId')
         );
     }
@@ -319,7 +319,7 @@ class AdminAppControllerApi extends BaseUserTokenApiHttpController
 
         return AdminAppService::putAppIdChangeTitle(
             $this->getPdoExtKernel(),
-            FrontAppAuthorizeModel::Instance()->userId,
+            UserAuthorizeModel::Instance()->userId,
             $validator->getAttribute('appId'),
             $validator->getAttribute('title')
         );
@@ -403,7 +403,7 @@ class AdminAppControllerApi extends BaseUserTokenApiHttpController
 
         return AdminAppService::putAppIdChangeKeys(
             $this->getPdoExtKernel(),
-            FrontAppAuthorizeModel::Instance()->userId,
+            UserAuthorizeModel::Instance()->userId,
             $validator->getAttribute('appId')
         );
     }
