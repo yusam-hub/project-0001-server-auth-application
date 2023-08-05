@@ -13,7 +13,7 @@ abstract class BaseUserTokenApiHttpController extends BaseApiHttpController impl
 {
     use ControllerMiddlewareTrait;
 
-    const USER_TOKEN_KEY_NAME = 'X-User-Token';
+    const TOKEN_KEY_NAME = 'X-Token';
     const AUTH_ERROR_CODE_40101 = 40101;
     const AUTH_ERROR_CODE_40102 = 40102;
     const AUTH_ERROR_CODE_40103 = 40103;
@@ -41,7 +41,7 @@ abstract class BaseUserTokenApiHttpController extends BaseApiHttpController impl
             }
         }
 
-        $jwtToken = $request->headers->get(self::USER_TOKEN_KEY_NAME,'');
+        $jwtToken = $request->headers->get(self::TOKEN_KEY_NAME,'');
 
         try {
 
