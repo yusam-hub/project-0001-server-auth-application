@@ -27,11 +27,11 @@ class UserAccountControllerApi extends BaseApiHttpController
 
     public static function routesRegister(RoutingConfigurator $routes): void
     {
-        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/account/init-registration', self::MODULE_CURRENT), 'postUserInitRegistration');
-        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/account/confirm-registration', self::MODULE_CURRENT), 'postUserConfirmRegistration');
+        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/account/init-registration', self::MODULE_CURRENT), 'postAccountInitRegistration');
+        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/account/confirm-registration', self::MODULE_CURRENT), 'postAccountConfirmRegistration');
 
-        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/account/init-restore-registration', self::MODULE_CURRENT), 'postUserInitRestoreRegistration');
-        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/account/confirm-restore-registration', self::MODULE_CURRENT), 'postUserConfirmRestoreRegistration');
+        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/account/init-restore-registration', self::MODULE_CURRENT), 'postAccountInitRestoreRegistration');
+        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/account/confirm-restore-registration', self::MODULE_CURRENT), 'postAccountConfirmRestoreRegistration');
 
     }
 
@@ -236,7 +236,7 @@ class UserAccountControllerApi extends BaseApiHttpController
      * @return array
      * @throws \Exception
      */
-    public function postUserInitRegistration(Request $request): array
+    public function postAccountInitRegistration(Request $request): array
     {
         return $this->sendOtpForAction($request, self::OTP_ACTION_USER_REGISTER, __METHOD__);
     }
@@ -269,7 +269,7 @@ class UserAccountControllerApi extends BaseApiHttpController
      * @param Request $request
      * @return array
      */
-    public function postUserConfirmRegistration(Request $request): array
+    public function postAccountConfirmRegistration(Request $request): array
     {
         return $this->confirmOtpForAction($request, self::OTP_ACTION_USER_REGISTER, __METHOD__, function(Validator $validator)
         {
@@ -348,7 +348,7 @@ class UserAccountControllerApi extends BaseApiHttpController
      * @return array
      * @throws \Exception
      */
-    public function postUserInitRestoreRegistration(Request $request): array
+    public function postAccountInitRestoreRegistration(Request $request): array
     {
         return $this->sendOtpForAction($request, self::OTP_ACTION_USER_RESTORE_REGISTER, __METHOD__);
     }
@@ -381,7 +381,7 @@ class UserAccountControllerApi extends BaseApiHttpController
      * @param Request $request
      * @return array
      */
-    public function postUserConfirmRestoreRegistration(Request $request): array
+    public function postAccountConfirmRestoreRegistration(Request $request): array
     {
         return $this->confirmOtpForAction($request, self::OTP_ACTION_USER_RESTORE_REGISTER, __METHOD__, function(Validator $validator)
         {
