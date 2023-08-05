@@ -203,7 +203,7 @@ class AdminAppControllerApi extends BaseUserApiHttpController
                 )
             );
             $validator->setRules([
-                'appId' => ['require','int', function($v){
+                'appId' => ['require','regex:^([0-9]{1,20})$', function($v){
                     return AppModel::exists($this->getRedisKernel(), $this->pdoExtKernel, $this->getLogger(), $v);
                 }],
             ]);
@@ -291,7 +291,7 @@ class AdminAppControllerApi extends BaseUserApiHttpController
                 )
             );
             $validator->setRules([
-                'appId' => ['require','int', function($v){
+                'appId' => ['require','regex:^([0-9]{1,20})$', function($v){
                     return AppModel::exists($this->getRedisKernel(), $this->pdoExtKernel, $this->getLogger(), $v);
                 }],
                 'title' => ['require','string','min:3','max:64'],
@@ -377,7 +377,7 @@ class AdminAppControllerApi extends BaseUserApiHttpController
                 )
             );
             $validator->setRules([
-                'appId' => ['require','int', function($v){
+                'appId' => ['require','regex:^([0-9]{1,20})$', function($v){
                     return AppModel::exists($this->getRedisKernel(), $this->pdoExtKernel, $this->getLogger(), $v);
                 }],
             ]);

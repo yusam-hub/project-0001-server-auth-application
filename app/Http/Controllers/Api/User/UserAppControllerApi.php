@@ -19,7 +19,7 @@ use YusamHub\Validator\ValidatorException;
 class UserAppControllerApi extends BaseUserApiHttpController
 {
     const MODULE_CURRENT = ApiSwaggerController::MODULE_USER;
-    const TO_MANY_REQUESTS_CHECK_ENABLED = false;
+    const TO_MANY_REQUESTS_CHECK_ENABLED = true;
     const DEFAULT_TOO_MANY_REQUESTS_TTL = 60;
 
     protected array $apiAuthorizePathExcludes = [
@@ -91,7 +91,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
             );
             $validator->setRules([
                 'deviceUuid' => ['require','string','min:32','max:36'],
-                'appId' => ['require','int', function($v){
+                'appId' => ['require','regex:^([0-9]{1,20})$', function($v){
                     return AppModel::exists($this->getRedisKernel(), $this->pdoExtKernel, $this->getLogger(), $v);
                 }],
             ]);
@@ -173,7 +173,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
                 ]
             );
             $validator->setRules([
-                'appId' => ['require','int', function($v){
+                'appId' => ['require','regex:^([0-9]{1,20})$', function($v){
                     return AppModel::exists($this->getRedisKernel(), $this->pdoExtKernel, $this->getLogger(), $v);
                 }],
             ]);

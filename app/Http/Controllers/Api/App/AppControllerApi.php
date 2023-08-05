@@ -10,7 +10,9 @@ use App\Http\Controllers\Api\BaseUserApiHttpController;
 use App\Model\Authorize\AppAuthorizeModel;
 use App\Model\Authorize\UserAuthorizeModel;
 use App\Model\Database\AppModel;
+use App\Model\Database\UserModel;
 use App\Services\AdminAppService;
+use App\Services\AppService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use YusamHub\AppExt\Exceptions\HttpBadRequestAppExtRuntimeException;
@@ -83,17 +85,52 @@ class AppControllerApi extends BaseAppApiHttpController
      */
     public function getUserKey(Request $request): array
     {
-        /*$uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
+        $uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
 
         if (self::TO_MANY_REQUESTS_CHECK_ENABLED) {
             HttpHelper::checkTooManyRequestsOrFail(
                 $this->getRedisKernel(),
                 $this->getLogger(),
                 $uniqueUserDevice, self::DEFAULT_TOO_MANY_REQUESTS_TTL, __METHOD__);
-        }*/
+        }
 
-        return [
-            AppAuthorizeModel::Instance()->appId
-        ];
+        try {
+            $validator = new Validator();
+            $validator->setAttributes(
+                $request->query->all()
+            );
+            $validator->setRules([
+                'uid' => ['require','regex:^([0-9]{1,20})$', function($v){
+                    return UserModel::exists($this->getRedisKernel(), $this->pdoExtKernel, $this->getLogger(), $v);
+                }],
+                'did' => ['require','string','min:32','max:36'],
+            ]);
+            $validator->setRuleMessages([
+                'uid' => 'Invalid value',
+                'did' => 'Invalid value, require string min(32), max(36)',
+            ]);
+
+            $validator->validateOrFail();
+
+        } catch (\Throwable $e) {
+
+            if ($e instanceof ValidatorException) {
+                throw new HttpBadRequestAppExtRuntimeException($e->getValidatorErrors());
+            }
+
+            $this->error($e->getMessage(), [
+                'errorFile' => $e->getFile() . ':' . $e->getLine(),
+                'errorTrace' => $e->getTrace()
+            ]);
+
+            throw new HttpInternalServerErrorAppExtRuntimeException();
+        }
+
+        return AppService::getUserKey(
+            $this->getPdoExtKernel(),
+            AppAuthorizeModel::Instance()->appId,
+            $validator->getAttribute('uid'),
+            $validator->getAttribute('did')
+        );
     }
 }
