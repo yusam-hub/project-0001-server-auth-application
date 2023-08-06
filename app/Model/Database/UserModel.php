@@ -2,7 +2,6 @@
 
 namespace App\Model\Database;
 
-use YusamHub\AppExt\Db\Model\PdoExtModel;
 use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
 
 /**
