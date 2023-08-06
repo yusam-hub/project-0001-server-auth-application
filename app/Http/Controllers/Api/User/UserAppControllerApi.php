@@ -7,23 +7,25 @@ use App\Http\Controllers\Api\ApiSwaggerController;
 use App\Http\Controllers\Api\BaseUserApiHttpController;
 use App\Model\Authorize\UserAuthorizeModel;
 use App\Model\Database\AppModel;
+use App\Model\Database\AppUserKeyModel;
 use App\Services\AdminAppService;
 use App\Services\UserAppService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use YusamHub\AppExt\Exceptions\HttpBadRequestAppExtRuntimeException;
 use YusamHub\AppExt\Exceptions\HttpInternalServerErrorAppExtRuntimeException;
+use YusamHub\Project0001ClientAuthSdk\Tokens\JwtAccessTokenHelper;
+use YusamHub\Project0001ClientAuthSdk\Tokens\JwtAuthAppTokenHelper;
 use YusamHub\Validator\Validator;
 use YusamHub\Validator\ValidatorException;
 
 class UserAppControllerApi extends BaseUserApiHttpController
 {
     const MODULE_CURRENT = ApiSwaggerController::MODULE_USER;
-    const TO_MANY_REQUESTS_CHECK_ENABLED = true;
+    const TO_MANY_REQUESTS_CHECK_ENABLED = false;
     const DEFAULT_TOO_MANY_REQUESTS_TTL = 60;
 
     protected array $apiAuthorizePathExcludes = [
-        '/api/'.self::MODULE_CURRENT.'/app/access-token'
     ];
 
     public static function routesRegister(RoutingConfigurator $routes): void
@@ -212,6 +214,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
      *   path="/app/access-token",
      *   summary="Create access token for application id",
      *   deprecated=false,
+     *   security={{"XTokenScheme":{}}},
      *   @OA\RequestBody(description="Properties", required=true,
      *        @OA\JsonContent(type="object",
      *            @OA\Property(property="assertion", type="string", example="", description=""),
@@ -235,9 +238,112 @@ class UserAppControllerApi extends BaseUserApiHttpController
      */
     public function postAppAccessToken(Request $request): array
     {
-        return [
-            'expire' => 3600,
-            'accessToken' => 'assadsadsad',
-        ];
+        $uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
+
+        if (self::TO_MANY_REQUESTS_CHECK_ENABLED) {
+            HttpHelper::checkTooManyRequestsOrFail(
+                $this->getRedisKernel(),
+                $this->getLogger(),
+                $uniqueUserDevice, self::DEFAULT_TOO_MANY_REQUESTS_TTL, __METHOD__);
+        }
+
+        try {
+            $validator = new Validator();
+            $validator->setAttributes(
+                $request->request->all()
+            );
+            $validator->setRules([
+                'assertion' => ['require','string', function($v){
+                    $accessTokenHead = JwtAccessTokenHelper::fromJwtAsHeads($v);
+                    return (!is_null($accessTokenHead->uid) && !is_null($accessTokenHead->aid) && !is_null($accessTokenHead->did));
+                }],
+            ]);
+            $validator->setRuleMessages([
+                'assertion' => 'Invalid value',
+            ]);
+
+            $validator->validateOrFail();
+
+            $accessTokenHead = JwtAccessTokenHelper::fromJwtAsHeads($validator->getAttribute('assertion'));
+
+            if (is_null($accessTokenHead->aid) || is_null($accessTokenHead->uid) || is_null($accessTokenHead->did)) {
+                throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40101], [],self::AUTH_ERROR_CODE_40101);
+            }
+
+            $appUserKeyModel = AppUserKeyModel::findModelByAttributes($this->pdoExtKernel, [
+                'appId' => $accessTokenHead->aid,
+                'userId' => $accessTokenHead->uid,
+                'deviceUuid' => $accessTokenHead->did,
+            ]);
+            if (is_null($appUserKeyModel)) {
+                throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40102], [],self::AUTH_ERROR_CODE_40102);
+            }
+
+            $accessTokenPayload = JwtAccessTokenHelper::fromJwtAsPayload($validator->getAttribute('assertion'), $appUserKeyModel->publicKey);
+            if (
+                is_null($accessTokenPayload->aid)
+                ||
+                is_null($accessTokenPayload->uid)
+                ||
+                is_null($accessTokenPayload->did)
+                ||
+                is_null($accessTokenPayload->pkh)
+                ||
+                is_null($accessTokenPayload->iat) || is_null($accessTokenPayload->exp)
+            ) {
+                throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40103], [], self::AUTH_ERROR_CODE_40103);
+            }
+
+            if (
+                $accessTokenPayload->aid != $accessTokenHead->aid
+                ||
+                $accessTokenPayload->uid != $accessTokenHead->uid
+                ||
+                $accessTokenPayload->did != $accessTokenHead->did
+                ||
+                $accessTokenPayload->pkh != $appUserKeyModel->keyHash
+            ) {
+                throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40104], [],self::AUTH_ERROR_CODE_40104);
+            }
+
+            $serverTime = time();
+
+            if ($serverTime < $accessTokenPayload->iat and $serverTime > $accessTokenPayload->exp) {
+                throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40105], [],self::AUTH_ERROR_CODE_40105);
+            }
+
+            $appModel = AppModel::findModel($this->pdoExtKernel, $accessTokenPayload->aid);
+            if (is_null($appModel)) {
+                throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40102], [],self::AUTH_ERROR_CODE_40102);
+            }
+
+            $expire = $accessTokenPayload->exp - $serverTime;
+
+            $accessToken = md5(implode("", (array) $accessTokenPayload));
+
+            $this->getRedisKernel()->redisExt()->put(
+                $accessToken,
+                $accessTokenPayload,
+                $expire
+            );
+
+            return [
+                'expire' => $expire,
+                'accessToken' => $accessToken
+            ];
+
+        } catch (\Throwable $e) {
+
+            if ($e instanceof ValidatorException) {
+                throw new HttpBadRequestAppExtRuntimeException($e->getValidatorErrors());
+            }
+
+            $this->error($e->getMessage(), [
+                'errorFile' => $e->getFile() . ':' . $e->getLine(),
+                'errorTrace' => $e->getTrace()
+            ]);
+
+            throw new HttpInternalServerErrorAppExtRuntimeException();
+        }
     }
 }
