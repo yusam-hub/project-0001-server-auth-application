@@ -214,7 +214,6 @@ class UserAppControllerApi extends BaseUserApiHttpController
      *   deprecated=false,
      *   @OA\RequestBody(description="Properties", required=true,
      *        @OA\JsonContent(type="object",
-     *            @OA\Property(property="type", type="string", example="", description=""),
      *            @OA\Property(property="assertion", type="string", example="", description=""),
      *        ),
      *   ),
