@@ -24,7 +24,7 @@ class AppControllerApi extends BaseAppApiHttpController
 {
     const MODULE_CURRENT = ApiSwaggerController::MODULE_APP;
 
-    const TO_MANY_REQUESTS_CHECK_ENABLED = true;
+    const TO_MANY_REQUESTS_CHECK_ENABLED = false;
     const DEFAULT_TOO_MANY_REQUESTS_TTL = 60;
 
     protected array $apiAuthorizePathExcludes = [
@@ -36,7 +36,6 @@ class AppControllerApi extends BaseAppApiHttpController
         static::controllerMiddlewareRegister(static::class, 'apiAuthorizeHandle');
 
         static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s', self::MODULE_CURRENT), 'getApiHome');
-        static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s/user-key', self::MODULE_CURRENT), 'getUserKey');
         static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s/access-token', self::MODULE_CURRENT), 'getAccessToken');
     }
 
@@ -52,17 +51,11 @@ class AppControllerApi extends BaseAppApiHttpController
     /**
      * @OA\Get(
      *   tags={"default"},
-     *   path="/user-key",
-     *   summary="Get user public key for application",
+     *   path="/access-token",
+     *   summary="Get user access token for application",
      *   deprecated=false,
      *   security={{"XTokenScheme":{}}},
-     *   @OA\Parameter(name="uid",
-     *     in="query",
-     *     required=true,
-     *     example="",
-     *     @OA\Schema(type="integer")
-     *   ),
-     *   @OA\Parameter(name="did",
+     *   @OA\Parameter(name="accessToken",
      *     in="query",
      *     required=true,
      *     example="",
@@ -84,7 +77,7 @@ class AppControllerApi extends BaseAppApiHttpController
      * @param Request $request
      * @return array
      */
-    public function getUserKey(Request $request): array
+    public function getAccessToken(Request $request): array
     {
         $uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
 
@@ -101,14 +94,12 @@ class AppControllerApi extends BaseAppApiHttpController
                 $request->query->all()
             );
             $validator->setRules([
-                'uid' => ['require','regex:^([0-9]{1,20})$', function($v){
-                    return UserModel::exists($this->getRedisKernel(), $this->pdoExtKernel, $this->getLogger(), $v);
+                'accessToken' => ['require','regex:^([0-9a-f]{32})$', function($v){
+                    return $this->getRedisKernel()->redisExt()->has($v);
                 }],
-                'did' => ['require','string','min:32','max:36'],
             ]);
             $validator->setRuleMessages([
-                'uid' => 'Invalid value',
-                'did' => 'Invalid value, require string min(32), max(36)',
+                'accessToken' => 'Invalid value',
             ]);
 
             $validator->validateOrFail();
@@ -127,11 +118,6 @@ class AppControllerApi extends BaseAppApiHttpController
             throw new HttpInternalServerErrorAppExtRuntimeException();
         }
 
-        return AppService::getUserKey(
-            $this->getPdoExtKernel(),
-            AppAuthorizeModel::Instance()->appId,
-            $validator->getAttribute('uid'),
-            $validator->getAttribute('did')
-        );
+        return (array) $this->getRedisKernel()->redisExt()->get($validator->getAttribute('accessToken'));
     }
 }

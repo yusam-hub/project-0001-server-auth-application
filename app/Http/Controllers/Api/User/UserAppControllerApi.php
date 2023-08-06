@@ -22,7 +22,7 @@ use YusamHub\Validator\ValidatorException;
 class UserAppControllerApi extends BaseUserApiHttpController
 {
     const MODULE_CURRENT = ApiSwaggerController::MODULE_USER;
-    const TO_MANY_REQUESTS_CHECK_ENABLED = false;
+    const TO_MANY_REQUESTS_CHECK_ENABLED = true;
     const DEFAULT_TOO_MANY_REQUESTS_TTL = 60;
 
     protected array $apiAuthorizePathExcludes = [
