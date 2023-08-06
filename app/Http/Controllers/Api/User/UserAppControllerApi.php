@@ -23,6 +23,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
     const DEFAULT_TOO_MANY_REQUESTS_TTL = 60;
 
     protected array $apiAuthorizePathExcludes = [
+        '/api/'.self::MODULE_CURRENT.'/app/access-token'
     ];
 
     public static function routesRegister(RoutingConfigurator $routes): void
@@ -31,6 +32,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
 
         static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/app/id/{appId}/key-refresh', self::MODULE_CURRENT), 'postAppIdRefresh');
         static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s/app/id/{appId}/key-list', self::MODULE_CURRENT), 'getAppIdKeyList');
+        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/app/access-token', self::MODULE_CURRENT), 'postAppAccessToken');
     }
 
     /**
@@ -204,4 +206,39 @@ class UserAppControllerApi extends BaseUserApiHttpController
         );
     }
 
+    /**
+     * @OA\Post(
+     *   tags={"App"},
+     *   path="/app/access-token",
+     *   summary="Create access token for application id",
+     *   deprecated=false,
+     *   @OA\RequestBody(description="Properties", required=true,
+     *        @OA\JsonContent(type="object",
+     *            @OA\Property(property="type", type="string", example="", description=""),
+     *            @OA\Property(property="assertion", type="string", example="", description=""),
+     *        ),
+     *   ),
+     *   @OA\Response(response=200, description="OK", @OA\MediaType(mediaType="application/json", @OA\Schema(
+     *        @OA\Property(property="status", type="string", example="ok"),
+     *        @OA\Property(property="data", type="array", example="array", @OA\Items(
+     *        )),
+     *        example={"status":"ok","data":{}},
+     *   ))),
+     *   @OA\Response(response=400, description="Bad Request", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
+     *   @OA\Response(response=429, description="Too Many Requests", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
+     *   @OA\Response(response=401, description="Unauthorized", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
+     * );
+     */
+
+    /**
+     * @param Request $request
+     * @return array
+     */
+    public function postAppAccessToken(Request $request): array
+    {
+        return [
+            'expire' => 3600,
+            'accessToken' => 'assadsadsad',
+        ];
+    }
 }

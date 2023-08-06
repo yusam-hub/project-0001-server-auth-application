@@ -25,9 +25,6 @@ class ApiFrontRoutes extends BaseHttpController
         UserAppControllerApi::routesRegister($routes);
 
         AppControllerApi::routesRegister($routes);
-
-        AccessControllerApi::routesRegister($routes);
-        AccessAppControllerApi::routesRegister($routes);
     }
 
 }
