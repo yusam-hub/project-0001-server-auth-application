@@ -10,11 +10,13 @@ class ApiSwaggerController extends \YusamHub\AppExt\SymfonyExt\Http\Controllers\
     const MODULE_ADMIN = 'admin';
     const MODULE_USER = 'user';
     const MODULE_APP = 'app';
+    const MODULE_ACCESS = 'access';
 
     const MODULES = [
         self::MODULE_ADMIN,
         self::MODULE_USER,
         self::MODULE_APP,
+        self::MODULE_ACCESS
     ];
 
     protected static function getSwaggerModules(): array

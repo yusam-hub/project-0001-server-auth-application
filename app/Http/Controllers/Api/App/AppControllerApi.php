@@ -37,6 +37,7 @@ class AppControllerApi extends BaseAppApiHttpController
 
         static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s', self::MODULE_CURRENT), 'getApiHome');
         static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s/user-key', self::MODULE_CURRENT), 'getUserKey');
+        static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s/access-token', self::MODULE_CURRENT), 'getAccessToken');
     }
 
     /**

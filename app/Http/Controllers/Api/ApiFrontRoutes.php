@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Access\AccessAppControllerApi;
+use App\Http\Controllers\Api\Access\AccessControllerApi;
 use App\Http\Controllers\Api\Admin\AdminAppControllerApi;
 use App\Http\Controllers\Api\Admin\AdminControllerApi;
 use App\Http\Controllers\Api\App\AppControllerApi;
@@ -23,6 +25,9 @@ class ApiFrontRoutes extends BaseHttpController
         UserAppControllerApi::routesRegister($routes);
 
         AppControllerApi::routesRegister($routes);
+
+        AccessControllerApi::routesRegister($routes);
+        AccessAppControllerApi::routesRegister($routes);
     }
 
 }
