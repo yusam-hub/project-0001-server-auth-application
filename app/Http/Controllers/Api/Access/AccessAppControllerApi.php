@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Api\Access;
 
 use App\Http\Controllers\Api\ApiSwaggerController;
-use App\Http\Controllers\Api\BaseUserApiHttpController;
+use App\Http\Controllers\Api\BaseAccessApiHttpController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 
-class AccessAppControllerApi extends BaseUserApiHttpController
+class AccessAppControllerApi extends BaseAccessApiHttpController
 {
     const MODULE_CURRENT = ApiSwaggerController::MODULE_ACCESS;
     const TO_MANY_REQUESTS_CHECK_ENABLED = true;
@@ -21,23 +21,16 @@ class AccessAppControllerApi extends BaseUserApiHttpController
     {
         static::controllerMiddlewareRegister(static::class, 'apiAuthorizeHandle');
 
-        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/app/token', self::MODULE_CURRENT), 'postAppToken');
+        static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s/app/token', self::MODULE_CURRENT), 'getAppToken');
     }
 
     /**
-     * @OA\Post(
+     * @OA\Get(
      *   tags={"App"},
      *   path="/app/token",
-     *   summary="Get access token to application",
+     *   summary="Get access token for application",
      *   deprecated=false,
      *   security={{"XTokenScheme":{}}},
-     *   @OA\RequestBody(description="Properties", required=true,
-     *        @OA\JsonContent(type="object",
-     *            @OA\Property(property="appId", type="integer", example="", description=""),
-     *            @OA\Property(property="userId", type="integer", example="", description=""),
-     *            @OA\Property(property="deviceUuid", type="string", example="", description="Unique device uuid"),
-     *        ),
-     *   ),
      *   @OA\Response(response=200, description="OK", @OA\MediaType(mediaType="application/json", @OA\Schema(
      *        @OA\Property(property="status", type="string", example="ok"),
      *        @OA\Property(property="data", type="array", example="array", @OA\Items(
@@ -52,10 +45,9 @@ class AccessAppControllerApi extends BaseUserApiHttpController
 
     /**
      * @param Request $request
-     * @param int $appId
      * @return array
      */
-    public function postAppToken(Request $request, int $appId): array
+    public function getAppToken(Request $request): array
     {
         return [];
     }
