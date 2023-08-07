@@ -92,7 +92,7 @@ class TelegramJob extends DaemonJob
         ) {
             $clientTelegramSdk->sendMessage(
                 $chat['id'],
-                'Mobile received: ' . $contact['phone_number'],
+                sprintf('We are received mobile number [ %s ] and now we are checking them. Wait for result ...', $contact['phone_number']),
                 ReplyMarkupHelper::keyboardRemove()
             );
 
