@@ -9,7 +9,7 @@ use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
  * @property int $id
  * @property int $userId
  * @property string $configName
- * @property string|null $configValue
+ * @property AppTariffProperties $configValue
  * @property string $createdAt
  * @property string|null $modifiedAt
  *
@@ -50,5 +50,21 @@ class AppTariffUserConfigModel extends UserConfigModel
     ): static
     {
         return parent::configModelFindOrCreate($pdoExtKernel, $userId, $configName);
+    }
+
+    /**
+     * @param string|null $value
+     * @return AppTariffProperties
+     * @throws \ReflectionException
+     */
+    protected function newConfigValueJsonObject(?string $value)
+    {
+        $o = new AppTariffProperties();
+        try {
+            $o->import($value);
+        } catch (\Throwable $e) {
+            var_dump($e->getMessage());
+        }
+        return $o;
     }
 }

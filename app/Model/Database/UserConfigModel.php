@@ -3,6 +3,7 @@
 namespace App\Model\Database;
 
 use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
+use YusamHub\JsonExt\JsonObject;
 
 /**
  * @property int $id
@@ -17,7 +18,7 @@ use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
  * @method static UserConfigModel|null findModelByAttributes(PdoExtKernelInterface $pdoExtKernel, array $attributes)
  * @method static UserConfigModel findModelByAttributesOrFail(PdoExtKernelInterface $pdoExtKernel, array $attributes)
  */
-class UserConfigModel extends BasePdoExtModel
+abstract class UserConfigModel extends BasePdoExtModel
 {
     protected ?string $connectionName = DB_CONNECTION_DEFAULT;
     protected string $tableName = TABLE_USER_CONFIGS;
@@ -29,9 +30,16 @@ class UserConfigModel extends BasePdoExtModel
     const ATTRIBUTE_NAME_CREATED_AT = 'createdAt';
     const ATTRIBUTE_NAME_MODIFIED_AT = 'modifiedAt';
 
+    protected ?object $configValueJsonObject = null;
+
     protected function getDatabaseName(): string
     {
         return app_ext_config('database.connections.'.$this->getConnectionName().'.dbName');
+    }
+
+    public function modelExtInit(): void
+    {
+        parent::modelExtInit();
     }
 
     /**
@@ -83,5 +91,37 @@ class UserConfigModel extends BasePdoExtModel
             $model->configName = $configName;
         }
         return $model;
+    }
+
+    public function modelExtAttributeGet(string $name, $default = null, bool $exceptionNotExists = true)
+    {
+        $value = parent::modelExtAttributeGet($name, $default, $exceptionNotExists);
+
+        if ($name === self::ATTRIBUTE_NAME_CONFIG_VALUE) {
+
+            if (is_null($this->configValueJsonObject)) {
+                $this->configValueJsonObject = $this->newConfigValueJsonObject($value);
+            }
+
+            return $this->configValueJsonObject;
+
+        }
+
+        return $value;
+    }
+
+    abstract protected function newConfigValueJsonObject(string $value);
+
+    /**
+     * @throws \ReflectionException
+     */
+    protected function triggerBeforeSave(int $triggerType): void
+    {
+        if ($this->configValueJsonObject instanceof JsonObject) {
+            $value = json_encode($this->configValueJsonObject->toArray());
+            var_dump($value);
+            static::modelExtAttributeSet(self::ATTRIBUTE_NAME_CONFIG_VALUE, json_encode($this->configValueJsonObject->toArray()));
+            $this->configValueJsonObject = null;
+        }
     }
 }
