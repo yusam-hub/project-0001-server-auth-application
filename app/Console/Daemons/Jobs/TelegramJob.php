@@ -95,6 +95,11 @@ class TelegramJob extends DaemonJob
                 'Mobile received: ' . $contact['phone_number'],
                 ReplyMarkupHelper::keyboardRemove()
             );
+
+            /**
+             * todo: отправляем в очередь чтобы добавить/проверки/привязать к мобильному телефону и уже после добавления,
+             *       отправляем сообщения в телеграм, что номер зарегистрирован
+             */
         }
     }
 }
