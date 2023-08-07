@@ -4,7 +4,7 @@ return [
     'connectionDefault' => DB_CONNECTION_DEFAULT,
 
     'connections' => [
-        'default' => [
+        DB_CONNECTION_DEFAULT => [
             'user' => app_ext_env('DATABASE_DEFAULT_USER'),
             'password' => app_ext_env('DATABASE_DEFAULT_PASSWORD'),
             'host' => app_ext_env('DATABASE_DEFAULT_HOST'),
