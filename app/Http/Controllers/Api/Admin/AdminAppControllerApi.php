@@ -134,10 +134,16 @@ class AdminAppControllerApi extends BaseUserApiHttpController
             /**
              * Читаем конфиг пользователей по настройкам
              */
-            $appTariffUserConfigModel = AppTariffUserConfigModel::configModelFindOrCreate(
+            $appTariffUserConfigModel = AppTariffUserConfigModel::configModelFind(
                 $this->getPdoExtKernel(),
                 UserAuthorizeModel::Instance()->userId
             );
+            if (is_null($appTariffUserConfigModel)) {
+                /**
+                 * todo: если личные настройки не найдены, то берем глобальные настройки для $maxAllowApplications
+                 */
+                throw new ValidatorException('The tariff has reached the maximum of applications');
+            }
             $maxAllowApplications = $appTariffUserConfigModel->configValue->maxAllowApplications??0;
             if ($maxAllowApplications <= 0) {
                 throw new ValidatorException('The tariff has reached the maximum of applications');
