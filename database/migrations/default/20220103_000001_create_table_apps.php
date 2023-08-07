@@ -25,8 +25,8 @@ CREATE TABLE IF NOT EXISTS `:database`.`:table` (
     `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата создания записи',
     `modifiedAt` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Дата изменения записи',
     PRIMARY KEY (`id`),
-    KEY `idx_userId` (`userId`) USING BTREE,
-    CONSTRAINT `fkUserId_:table` FOREIGN KEY (`userId`) REFERENCES `users` (`id`)
+    KEY `idx_userId_:table` (`userId`) USING BTREE,
+    CONSTRAINT `fk_userId_:table` FOREIGN KEY (`userId`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Приложения';
 
 SET FOREIGN_KEY_CHECKS=1;

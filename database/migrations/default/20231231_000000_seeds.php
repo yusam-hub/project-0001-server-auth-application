@@ -45,6 +45,10 @@ TRUNCATE `:database`.`:table_apps`;
 
 INSERT INTO `:database`.`:table_apps` (`id`,`userId`,`title`) VALUES(1,1,'Root');
 
+TRUNCATE `:database`.`:table_socials`;
+
+INSERT INTO `:database`.`:table_socials` (`id`,`abbr`,`title`) VALUES(1,'telegram','Telegram');
+
 COMMIT;
 
 SET FOREIGN_KEY_CHECKS=1;
@@ -59,6 +63,7 @@ MYSQL;
             ':table_users_emails' => TABLE_USERS_EMAILS,
             ':table_users_mobiles' => TABLE_USERS_MOBILES,
             ':table_apps' => TABLE_APPS,
+            ':table_socials' => TABLE_SOCIALS,
         ]);
     }
 

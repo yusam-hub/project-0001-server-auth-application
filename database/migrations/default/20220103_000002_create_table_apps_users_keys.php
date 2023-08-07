@@ -27,9 +27,9 @@ CREATE TABLE IF NOT EXISTS `:database`.`:table` (
     `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата создания записи',
     `modifiedAt` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Дата изменения записи',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_appId_userId_deviceUuid` (`appId`,`userId`,`deviceUuid`) USING BTREE,
-    CONSTRAINT `fkAppId_:table` FOREIGN KEY (`appId`) REFERENCES `apps` (`id`),
-    CONSTRAINT `fkUserId_:table` FOREIGN KEY (`userId`) REFERENCES `users` (`id`)
+    UNIQUE KEY `idx_appId_userId_deviceUuid_:table` (`appId`,`userId`,`deviceUuid`) USING BTREE,
+    CONSTRAINT `fk_appId_:table` FOREIGN KEY (`appId`) REFERENCES `apps` (`id`),
+    CONSTRAINT `fk_userId_:table` FOREIGN KEY (`userId`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Ключи на устройства пользователей для приложений';
 
 SET FOREIGN_KEY_CHECKS=1;

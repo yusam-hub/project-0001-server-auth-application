@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `:database`.`:table` (
     `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата создания записи',
     `modifiedAt` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Дата изменения записи',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_email` (`email`) USING BTREE
+    UNIQUE KEY `idx_email_:table` (`email`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='E-mails';
 
 SET FOREIGN_KEY_CHECKS=1;

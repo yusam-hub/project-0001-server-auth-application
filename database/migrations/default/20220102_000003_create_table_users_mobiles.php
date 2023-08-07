@@ -23,10 +23,10 @@ CREATE TABLE IF NOT EXISTS `:database`.`:table` (
     `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата создания записи',
     `modifiedAt` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Дата изменения записи',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_mobileId` (`mobileId`) USING BTREE,
-    UNIQUE KEY `idx_userId_mobileId` (`userId`,`mobileId`) USING BTREE,
-    CONSTRAINT `fkUserId_:table` FOREIGN KEY (`userId`) REFERENCES `users` (`id`),
-    CONSTRAINT `fkMobileId_:table` FOREIGN KEY (`mobileId`) REFERENCES `mobiles` (`id`)
+    UNIQUE KEY `idx_mobileId_:table` (`mobileId`) USING BTREE,
+    UNIQUE KEY `idx_userId_mobileId_:table` (`userId`,`mobileId`) USING BTREE,
+    CONSTRAINT `fk_userId_:table` FOREIGN KEY (`userId`) REFERENCES `users` (`id`),
+    CONSTRAINT `fk_mobileId_:table` FOREIGN KEY (`mobileId`) REFERENCES `mobiles` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Мобильные пользователей';
 
 SET FOREIGN_KEY_CHECKS=1;

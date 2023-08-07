@@ -23,10 +23,10 @@ CREATE TABLE IF NOT EXISTS `:database`.`:table` (
     `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата создания записи',
     `modifiedAt` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Дата изменения записи',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_emailId` (`emailId`) USING BTREE,
-    UNIQUE KEY `idx_userId_emailId` (`userId`,`emailId`) USING BTREE,
-    CONSTRAINT `fkUserId_:table` FOREIGN KEY (`userId`) REFERENCES `users` (`id`),
-    CONSTRAINT `fkEmailId_:table` FOREIGN KEY (`emailId`) REFERENCES `emails` (`id`)
+    UNIQUE KEY `idx_emailId_:table` (`emailId`) USING BTREE,
+    UNIQUE KEY `idx_userId_emailId_:table` (`userId`,`emailId`) USING BTREE,
+    CONSTRAINT `fk_userId_:table` FOREIGN KEY (`userId`) REFERENCES `users` (`id`),
+    CONSTRAINT `fk_emailId_:table` FOREIGN KEY (`emailId`) REFERENCES `emails` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='E-mail пользователей';
 
 SET FOREIGN_KEY_CHECKS=1;
