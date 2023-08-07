@@ -11,6 +11,29 @@ class AdminAppService
     /**
      * @param PdoExtKernelInterface $pdoExtKernel
      * @param int $userId
+     * @return int
+     */
+    public static function getAppCount(
+        PdoExtKernelInterface $pdoExtKernel,
+        int $userId
+    ): int
+    {
+        $sqlRows = <<<MYSQL
+select 
+    count(id) as countRows
+from 
+    apps
+where
+    userId = :userId
+MYSQL;
+        return (int) $pdoExtKernel->pdoExt()->fetchOneColumn(strtr($sqlRows, [
+            ':userId' => $userId
+        ]),'countRows');
+    }
+
+    /**
+     * @param PdoExtKernelInterface $pdoExtKernel
+     * @param int $userId
      * @return array
      */
     public static function getAppList(

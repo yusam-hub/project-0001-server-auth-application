@@ -115,12 +115,10 @@ abstract class UserConfigModel extends BasePdoExtModel
     /**
      * @throws \ReflectionException
      */
-    protected function triggerBeforeSave(int $triggerType): void
+    protected function triggerBeforeMethodSave(): void
     {
         if ($this->configValueJsonObject instanceof JsonObject) {
-            $value = json_encode($this->configValueJsonObject->toArray());
-            var_dump($value);
-            static::modelExtAttributeSet(self::ATTRIBUTE_NAME_CONFIG_VALUE, json_encode($this->configValueJsonObject->toArray()));
+            static::modelExtAttributeSet(self::ATTRIBUTE_NAME_CONFIG_VALUE, $this->configValueJsonObject->toJson());
             $this->configValueJsonObject = null;
         }
     }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ApiSwaggerController;
 use App\Http\Controllers\Api\BaseUserApiHttpController;
 use App\Model\Authorize\UserAuthorizeModel;
 use App\Model\Database\AppModel;
+use App\Model\Database\UserConfigs\AppTariffUserConfigModel;
 use App\Services\AdminAppService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
@@ -129,6 +130,29 @@ class AdminAppControllerApi extends BaseUserApiHttpController
             ]);
 
             $validator->validateOrFail();
+
+            /**
+             * Читаем конфиг пользователей по настройкам
+             */
+            $appTariffUserConfigModel = AppTariffUserConfigModel::configModelFindOrCreate(
+                $this->getPdoExtKernel(),
+                UserAuthorizeModel::Instance()->userId
+            );
+            $maxAllowApplications = $appTariffUserConfigModel->configValue->maxAllowApplications??0;
+            if ($maxAllowApplications <= 0) {
+                throw new ValidatorException('The tariff has reached the maximum of applications');
+            }
+
+            /**
+             * Получаем текущее значение кол-во приложений
+             */
+            $currentApplication = AdminAppService::getAppCount(
+                $this->getPdoExtKernel(),
+                UserAuthorizeModel::Instance()->userId
+            );
+            if ($currentApplication >= $maxAllowApplications) {
+                throw new ValidatorException('The tariff has reached the maximum of applications');
+            }
 
         } catch (\Throwable $e) {
 
