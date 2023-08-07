@@ -62,6 +62,10 @@
     "yusam-hub/project-0001-client-auth-sdk": {
       "type": "git",
       "url": "https://github.com/yusam-hub/project-0001-client-auth-sdk.git"
+    },
+    "yusam-hub/telegram-sdk": {
+      "type": "git",
+      "url": "https://github.com/yusam-hub/telegram-sdk.git"
     }
   },
   "require": {
@@ -86,6 +90,7 @@
     "yusam-hub/helpers": "dev-master",
     "yusam-hub/model-ext": "dev-master",
     "yusam-hub/app-ext": "dev-master",
+    "yusam-hub/telegram-sdk": "dev-master",
 
     "firebase/php-jwt": "^6.0",
     "yusam-hub/project-0001-client-auth-sdk": "dev-master"

@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cabaec4f2b549607f42de9b93da21a78",
+    "content-hash": "7eec95c5143ebec2cf296a5bea164a58",
     "packages": [
         {
             "name": "bunny/bunny",
-            "version": "v0.5.4",
+            "version": "v0.5.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jakubkulhan/bunny.git",
-                "reference": "1f6c8f2163efaf9455c3390435424d93649f1d83"
+                "reference": "10e34dec73397d30cb79f61dd81e9716644ede01"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jakubkulhan/bunny/zipball/1f6c8f2163efaf9455c3390435424d93649f1d83",
-                "reference": "1f6c8f2163efaf9455c3390435424d93649f1d83",
+                "url": "https://api.github.com/repos/jakubkulhan/bunny/zipball/10e34dec73397d30cb79f61dd81e9716644ede01",
+                "reference": "10e34dec73397d30cb79f61dd81e9716644ede01",
                 "shasum": ""
             },
             "require": {
@@ -27,6 +27,7 @@
             },
             "require-dev": {
                 "ext-pcntl": "*",
+                "phpstan/phpstan": "^1.10",
                 "phpunit/phpunit": "^9.5 || ^7.5.20",
                 "symfony/process": "^6.1 || ^4.4"
             },
@@ -66,9 +67,9 @@
             ],
             "support": {
                 "issues": "https://github.com/jakubkulhan/bunny/issues",
-                "source": "https://github.com/jakubkulhan/bunny/tree/v0.5.4"
+                "source": "https://github.com/jakubkulhan/bunny/tree/v0.5.5"
             },
-            "time": "2022-12-15T20:23:51+00:00"
+            "time": "2023-08-01T19:34:13+00:00"
         },
         {
             "name": "cboden/ratchet",
@@ -4393,6 +4394,38 @@
             "time": "2023-03-28T00:36:10+00:00"
         },
         {
+            "name": "yusam-hub/telegram-sdk",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yusam-hub/telegram-sdk.git",
+                "reference": "b6df2e7a17d3ce7a98e6bf6466c61a446986a1d3"
+            },
+            "require": {
+                "php": "^8.1",
+                "yusam-hub/curl-ext": "dev-master"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "default-branch": true,
+            "type": "package",
+            "autoload": {
+                "psr-4": {
+                    "YusamHub\\TelegramSdk\\": "src/"
+                },
+                "files": []
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "YusamHub\\TelegramSdk\\Tests\\": "tests/"
+                },
+                "files": []
+            },
+            "description": "yusam-hub/telegram-sdk",
+            "time": "2023-08-07T11:57:34+00:00"
+        },
+        {
             "name": "yusam-hub/validator",
             "version": "dev-master",
             "source": {
@@ -6292,6 +6325,7 @@
         "yusam-hub/helpers": 20,
         "yusam-hub/model-ext": 20,
         "yusam-hub/app-ext": 20,
+        "yusam-hub/telegram-sdk": 20,
         "yusam-hub/project-0001-client-auth-sdk": 20
     },
     "prefer-stable": false,
