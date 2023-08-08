@@ -45,4 +45,42 @@ class MobileSocialService
         }
         return $mobileSocialModel;
     }
+
+    /**
+     * @param PdoExtKernelInterface $pdoExtKernel
+     * @param string $socialAbbr
+     * @param string $mobilePrefix
+     * @param string $num
+     * @return MobileSocialModel|null
+     */
+    public static function findMobileSocialAsSocialExternalId(
+        PdoExtKernelInterface $pdoExtKernel,
+        string $socialAbbr,
+        string $mobilePrefix,
+        string $num
+    ): ?int
+    {
+        $sqlRow = <<<MYSQL
+select 
+    c.socialExternalId
+from 
+    users_mobiles um, users u, mobiles m, country_mobile_prefixes cmp, mobile_socials mc, socials s
+where
+    um.userId = u.id and um.mobileId = m.id and m.countryMobilePrefixId = cmp.id
+    and mc.mobileId = m.id and mc.socialId = s.id
+    and s.abbr = ?
+    and cmp.mobilePrefix = ?
+    and m.num = ?    
+limit 0,1
+MYSQL;
+        return $pdoExtKernel
+            ->pdoExt()
+            ->fetchOneColumn(strtr($sqlRow, [
+
+            ]), 'socialExternalId', [
+                $socialAbbr,
+                $mobilePrefix,
+                $num
+            ]);
+    }
 }

@@ -76,6 +76,8 @@
     "ext-json": "*",
     "ext-redis": "*",
 
+    "phpmailer/phpmailer": "^6.8.0",
+
     "yusam-hub/php-compatibility": "dev-master",
     "yusam-hub/debug": "dev-master",
     "yusam-hub/curl-ext": "dev-master",

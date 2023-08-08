@@ -48,6 +48,17 @@ return [
                 'lineFormat' => \YusamHub\AppExt\Logger\FileLogger::LINE_FORMAT_NORMAL,
             ]
         ],
+        LOGGING_CHANNEL_PHP_MAILER => [
+            'class' => \YusamHub\AppExt\Logger\FileLogger::class,
+            'config' => [
+                'logDir' => app_ext()->getStorageDir('/logs'),
+                'name' => LOGGING_CHANNEL_PHP_MAILER,
+                'fileMaxSize' => 10 * 1024 * 1024,
+                'fileRotatorCount' => 10,
+                'level' => app_ext_env('LOGGING_LEVEL', \Psr\Log\LogLevel::ERROR),
+                'lineFormat' => \YusamHub\AppExt\Logger\FileLogger::LINE_FORMAT_NORMAL,
+            ]
+        ],
         'react-http-server-0' => [
             'class' => \YusamHub\AppExt\Logger\FileLogger::class,
             'config' => [

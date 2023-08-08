@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\User;
 
+use App\Console\Daemons\Jobs\OtpSendRedisQueueJob;
 use App\Helpers\HttpHelper;
 use App\Helpers\EmailMobileHelper;
 use App\Http\Controllers\Api\ApiSwaggerController;
@@ -94,11 +95,7 @@ class UserAccountControllerApi extends BaseApiHttpController
 
             $this->getRedisKernel()->redisExt()->put($hash, $redisData, self::DEFAULT_TOO_MANY_REQUESTS_TTL);
 
-            app_ext_logger('otp')->debug(__METHOD__, $redisData);//todo: remove
-
-            /**
-             * todo: send email or mobile otp throw queue
-             */
+            OtpSendRedisQueueJob::push($redisData['emailOrMobile'], $redisData['otp']);
 
             return [
                 'hash' => $hash,

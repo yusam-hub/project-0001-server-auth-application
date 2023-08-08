@@ -19,3 +19,5 @@ const LOGGING_CHANNEL_APP = 'app';
 const LOGGING_CHANNEL_OTP = 'otp';
 const LOGGING_CHANNEL_TELEGRAM_DAEMON = 'telegram-daemon';
 const LOGGING_CHANNEL_REDIS_QUEUE_DAEMON = 'redis-queue-daemon';
+const LOGGING_CHANNEL_PHP_MAILER = 'php-mailer';
+const PHP_MAILER_CONNECTION_DEFAULT = 'default';
