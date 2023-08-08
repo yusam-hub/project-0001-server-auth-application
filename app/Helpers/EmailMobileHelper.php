@@ -22,8 +22,8 @@ class EmailMobileHelper
 
     /**
      * @param RedisKernel $redisKernel
-     * @param PdoExtKernelInterface $pdoExtKernel
      * @param LoggerInterface $logger
+     * @param PdoExtKernelInterface $pdoExtKernel
      * @param string $value
      * @param $mobilePrefix
      * @param $num
@@ -32,8 +32,8 @@ class EmailMobileHelper
      */
     public static function isMobile(
         RedisKernel $redisKernel,
-        PdoExtKernelInterface $pdoExtKernel,
         LoggerInterface $logger,
+        PdoExtKernelInterface $pdoExtKernel,
         string $value,
         &$mobilePrefix,
         &$num,

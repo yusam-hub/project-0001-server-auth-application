@@ -20,17 +20,18 @@ class UserRegistrationService
 
     /**
      * @param RedisKernel $redisKernel
-     * @param PdoExtKernelInterface $pdoExtKernel
      * @param LoggerInterface $logger
+     * @param PdoExtKernelInterface $pdoExtKernel
      * @param string $emailOrMobile
      * @param $mobilePrefix
      * @param $num
+     * @param $mobilePrefixId
      * @return int|null
      */
     public static function getRegistrationType(
         RedisKernel $redisKernel,
-        PdoExtKernelInterface $pdoExtKernel,
         LoggerInterface $logger,
+        PdoExtKernelInterface $pdoExtKernel,
         string $emailOrMobile,
         &$mobilePrefix,
         &$num,
@@ -42,7 +43,7 @@ class UserRegistrationService
         $mobilePrefixId = null;
         if (EmailMobileHelper::isEmail($emailOrMobile)) {
             return self::REGISTRATION_BY_EMAIL;
-        } elseif (EmailMobileHelper::isMobile($redisKernel, $pdoExtKernel, $logger, $emailOrMobile, $mobilePrefix, $num, $mobilePrefixId)) {
+        } elseif (EmailMobileHelper::isMobile($redisKernel, $logger, $pdoExtKernel, $emailOrMobile, $mobilePrefix, $num, $mobilePrefixId)) {
             return self::REGISTRATION_BY_MOBILE;
         }
         return null;

@@ -53,8 +53,8 @@ class RedisQueueMobileCheckJob extends DaemonJob
         try {
             if (EmailMobileHelper::isMobile(
                 app_ext_redis_global(),
-                app_ext_db_global(),
                 app_ext_logger(LOGGING_CHANNEL_REDIS_QUEUE_DAEMON),
+                app_ext_db_global(),
                 $this->phone_number,
                 $mobilePrefix,
                 $num,

@@ -61,7 +61,11 @@ class UserAccountControllerApi extends BaseApiHttpController
             );
             $validator->setRules([
                 'emailOrMobile' => ['require','string', function($v)  {
-                    return !is_null(UserRegistrationService::getRegistrationType($this->getRedisKernel(), $this->getPdoExtKernel(), $this->getLogger(), $v, $mobilePrefix, $num, $mobilePrefixId));
+                    return !is_null(UserRegistrationService::getRegistrationType(
+                        $this->getRedisKernel(),
+                        $this->getLogger(),
+                        $this->getPdoExtKernel(),
+                        $v, $mobilePrefix, $num, $mobilePrefixId));
                 }],
             ]);
             $validator->setRuleMessages([
@@ -135,7 +139,11 @@ class UserAccountControllerApi extends BaseApiHttpController
             );
             $validator->setRules([
                 'emailOrMobile' => ['require','string', function($v) {
-                    return !is_null(UserRegistrationService::getRegistrationType($this->getRedisKernel(), $this->getPdoExtKernel(), $this->getLogger(), $v, $mobilePrefix, $num, $mobilePrefixId));
+                    return !is_null(UserRegistrationService::getRegistrationType(
+                        $this->getRedisKernel(),
+                        $this->getLogger(),
+                        $this->getPdoExtKernel(),
+                        $v, $mobilePrefix, $num, $mobilePrefixId));
                 }],
                 'hash' => ['require','string','size:32', function($v) {
                     return $this->getRedisKernel()->redisExt()->has($v);
@@ -260,7 +268,9 @@ class UserAccountControllerApi extends BaseApiHttpController
         return $this->confirmOtpForAction($request, self::OTP_ACTION_USER_REGISTER, __METHOD__, function(Validator $validator)
         {
             $registrationType = UserRegistrationService::getRegistrationType(
-                $this->getRedisKernel(), $this->getPdoExtKernel(), $this->getLogger(),
+                $this->getRedisKernel(),
+                $this->getLogger(),
+                $this->getPdoExtKernel(),
                 $validator->getAttribute('emailOrMobile'),
                 $mobilePrefix,
                 $num,
@@ -373,7 +383,9 @@ class UserAccountControllerApi extends BaseApiHttpController
         return $this->confirmOtpForAction($request, self::OTP_ACTION_USER_RESTORE_REGISTER, __METHOD__, function(Validator $validator)
         {
             $registrationType = UserRegistrationService::getRegistrationType(
-                $this->getRedisKernel(), $this->getPdoExtKernel(), $this->getLogger(),
+                $this->getRedisKernel(),
+                $this->getLogger(),
+                $this->getPdoExtKernel(),
                 $validator->getAttribute('emailOrMobile'),
                 $mobilePrefix,
                 $num,

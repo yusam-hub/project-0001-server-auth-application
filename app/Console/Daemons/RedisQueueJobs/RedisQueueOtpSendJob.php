@@ -58,8 +58,8 @@ class RedisQueueOtpSendJob extends DaemonJob
 
         $type = UserRegistrationService::getRegistrationType(
             app_ext_redis_global(),
-            app_ext_db_global(),
             app_ext_logger(LOGGING_CHANNEL_REDIS_QUEUE_DAEMON),
+            app_ext_db_global(),
             $this->emailOrMobile,
             $mobilePrefix,
             $num,
