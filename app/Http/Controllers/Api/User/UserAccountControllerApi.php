@@ -60,7 +60,7 @@ class UserAccountControllerApi extends BaseApiHttpController
             );
             $validator->setRules([
                 'emailOrMobile' => ['require','string', function($v)  {
-                    return !is_null(UserRegistrationService::getRegistrationType($this->getRedisKernel(), $this->getPdoExtKernel(), $this->getLogger(), $v, $mobilePrefix, $num));
+                    return !is_null(UserRegistrationService::getRegistrationType($this->getRedisKernel(), $this->getPdoExtKernel(), $this->getLogger(), $v, $mobilePrefix, $num, $mobilePrefixId));
                 }],
             ]);
             $validator->setRuleMessages([
@@ -140,7 +140,7 @@ class UserAccountControllerApi extends BaseApiHttpController
             );
             $validator->setRules([
                 'emailOrMobile' => ['require','string', function($v) {
-                    return !is_null(UserRegistrationService::getRegistrationType($this->getRedisKernel(), $this->getPdoExtKernel(), $this->getLogger(), $v, $mobilePrefix, $num));
+                    return !is_null(UserRegistrationService::getRegistrationType($this->getRedisKernel(), $this->getPdoExtKernel(), $this->getLogger(), $v, $mobilePrefix, $num, $mobilePrefixId));
                 }],
                 'hash' => ['require','string','size:32', function($v) {
                     return $this->getRedisKernel()->redisExt()->has($v);
@@ -274,7 +274,8 @@ class UserAccountControllerApi extends BaseApiHttpController
                 $this->getRedisKernel(), $this->getPdoExtKernel(), $this->getLogger(),
                 $validator->getAttribute('emailOrMobile'),
                 $mobilePrefix,
-                $num
+                $num,
+                $mobilePrefixId
             );
 
             if ($registrationType === UserRegistrationService::REGISTRATION_BY_EMAIL) {
@@ -386,7 +387,8 @@ class UserAccountControllerApi extends BaseApiHttpController
                 $this->getRedisKernel(), $this->getPdoExtKernel(), $this->getLogger(),
                 $validator->getAttribute('emailOrMobile'),
                 $mobilePrefix,
-                $num
+                $num,
+                $mobilePrefixId
             );
 
             if ($registrationType === UserRegistrationService::REGISTRATION_BY_EMAIL) {

@@ -27,6 +27,7 @@ class EmailMobileHelper
      * @param string $value
      * @param $mobilePrefix
      * @param $num
+     * @param $mobilePrefixId
      * @return bool
      */
     public static function isMobile(
@@ -35,61 +36,28 @@ class EmailMobileHelper
         LoggerInterface $logger,
         string $value,
         &$mobilePrefix,
-        &$num
+        &$num,
+        &$mobilePrefixId
     ): bool
     {
-        $cc2Prefixes = static::getCountryMobilePrefix(
+        $mobilePrefix = null;
+        $num = null;
+        $mobilePrefixId = null;
+        $prefixToId = CountryMobilePrefixModel::getAllPrefixToId(
             $redisKernel,
-            $pdoExtKernel,
-            $logger
+            $logger,
+            $pdoExtKernel
         );
 
-        $onlyPrefixes = array_values($cc2Prefixes);
         $value = '+' . ltrim($value, '+');
-        $num = substr($value,-10);
-        $mobilePrefix = str_replace($num, '', $value);
-
-        return in_array($mobilePrefix, $onlyPrefixes) && strlen($num) === 10;
-    }
-
-    /**
-     * @param RedisKernel $redisKernel
-     * @param PdoExtKernelInterface $pdoExtKernel
-     * @param LoggerInterface $logger
-     * @param string $key
-     * @return array
-     */
-    public static function getCountryMobilePrefix(
-        RedisKernel $redisKernel,
-        PdoExtKernelInterface $pdoExtKernel,
-        LoggerInterface $logger,
-        string $key = CountryMobilePrefixModel::ATTRIBUTE_NAME_COUNTRY_CODE_2
-    ): array
-    {
-        return RedisCacheUseFresh::rememberExt(
-            $redisKernel->redisExt(),
-            $logger,
-            md5(__METHOD__ . $key),
-            true, false, RedisCacheUseFresh::CACHE_TTL_DAY,
-            function() use($pdoExtKernel, $key) {
-                $sqlRows = <<<MYSQL
-select 
-    :key,
-    mobilePrefix
-from country_mobile_prefixes
-order by :key
-MYSQL;
-                $rows = $pdoExtKernel->pdoExt()->fetchAll(strtr($sqlRows, [
-                    ':key' => $key
-                ]));
-
-                return ArrayHelper::map(
-                    $rows,
-                    $key,
-                    function($row) {
-                        return $row['mobilePrefix'];
-                    }
-                );
-            });
+        $_num = substr($value,-10);
+        $_mobilePrefix = str_replace($_num, '', $value);
+        $result = isset($prefixToId[$_mobilePrefix]) && strlen($_num) === 10;
+        if ($result) {
+            $mobilePrefix = $_mobilePrefix;
+            $num = $_num;
+            $mobilePrefixId = $prefixToId[$_mobilePrefix];
+        }
+        return $result;
     }
 }

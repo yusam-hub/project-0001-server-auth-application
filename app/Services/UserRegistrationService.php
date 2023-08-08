@@ -19,6 +19,36 @@ class UserRegistrationService
     const REGISTRATION_BY_MOBILE = 2;
 
     /**
+     * @param RedisKernel $redisKernel
+     * @param PdoExtKernelInterface $pdoExtKernel
+     * @param LoggerInterface $logger
+     * @param string $emailOrMobile
+     * @param $mobilePrefix
+     * @param $num
+     * @return int|null
+     */
+    public static function getRegistrationType(
+        RedisKernel $redisKernel,
+        PdoExtKernelInterface $pdoExtKernel,
+        LoggerInterface $logger,
+        string $emailOrMobile,
+        &$mobilePrefix,
+        &$num,
+        &$mobilePrefixId
+    ): ?int
+    {
+        $mobilePrefix = null;
+        $num = null;
+        $mobilePrefixId = null;
+        if (EmailMobileHelper::isEmail($emailOrMobile)) {
+            return self::REGISTRATION_BY_EMAIL;
+        } elseif (EmailMobileHelper::isMobile($redisKernel, $pdoExtKernel, $logger, $emailOrMobile, $mobilePrefix, $num, $mobilePrefixId)) {
+            return self::REGISTRATION_BY_MOBILE;
+        }
+        return null;
+    }
+
+    /**
      * @param PdoExtKernelInterface $pdoExtKernel
      * @param string $email
      * @param string $publicKey
@@ -61,36 +91,6 @@ class UserRegistrationService
         }
         return $userModel;
     }
-
-    /**
-     * @param RedisKernel $redisKernel
-     * @param PdoExtKernelInterface $pdoExtKernel
-     * @param LoggerInterface $logger
-     * @param string $emailOrMobile
-     * @param $mobilePrefix
-     * @param $num
-     * @return int|null
-     */
-    public static function getRegistrationType(
-        RedisKernel $redisKernel,
-        PdoExtKernelInterface $pdoExtKernel,
-        LoggerInterface $logger,
-        string $emailOrMobile,
-        &$mobilePrefix,
-        &$num
-    ): ?int
-    {
-        $mobilePrefix = null;
-        $num = null;
-        if (EmailMobileHelper::isEmail($emailOrMobile)) {
-            return self::REGISTRATION_BY_EMAIL;
-        } elseif (EmailMobileHelper::isMobile($redisKernel, $pdoExtKernel, $logger, $emailOrMobile, $mobilePrefix, $num)) {
-            return self::REGISTRATION_BY_MOBILE;
-        }
-        return null;
-    }
-
-
 
     /**
      * @param PdoExtKernelInterface $pdoExtKernel

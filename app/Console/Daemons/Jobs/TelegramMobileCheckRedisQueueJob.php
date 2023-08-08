@@ -57,10 +57,11 @@ class TelegramMobileCheckRedisQueueJob extends DaemonJob
                 app_ext_db_global(),
                 app_ext_logger(LOGGING_CHANNEL_REDIS_QUEUE_DAEMON),
                 $this->phone_number,
-                $prefix,
-                $num
+                $mobilePrefix,
+                $num,
+                $mobilePrefixId
             )) {
-                $mobileModel = MobileModel::findOrCreateMobile(app_ext_db_global(), $prefix, $num);
+                $mobileModel = MobileModel::findOrCreateMobile(app_ext_db_global(), $mobilePrefix, $num);
                 if (is_null($mobileModel->verifiedAt)) {
                     $mobileModel->verifiedAt = app_ext_date();
                     $mobileModel->saveOrFail();

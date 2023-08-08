@@ -63,7 +63,9 @@ class OtpSendRedisQueueJob extends DaemonJob
             app_ext_logger(LOGGING_CHANNEL_REDIS_QUEUE_DAEMON),
             $this->emailOrMobile,
             $mobilePrefix,
-            $num);
+            $num,
+            $mobilePrefixId
+        );
 
         if ($type === UserRegistrationService::REGISTRATION_BY_EMAIL) {
 
