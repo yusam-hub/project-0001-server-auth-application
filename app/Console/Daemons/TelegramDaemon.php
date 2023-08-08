@@ -3,10 +3,9 @@
 namespace App\Console\Daemons;
 
 use App\ClientApi\ClientTelegramSdk;
-use App\Console\Daemons\Jobs\TelegramJob;
+use App\Console\Daemons\TelegramJobs\TelegramIncomingCommandJob;
 use YusamHub\Daemon\Daemon;
 use YusamHub\Daemon\Interfaces\DaemonJobInterface;
-use YusamHub\RedisExt\RedisExt;
 
 class TelegramDaemon extends Daemon
 {
@@ -36,7 +35,7 @@ class TelegramDaemon extends Daemon
             if (count($getUpdates['result']) > 0) {
 
                 foreach ($getUpdates['result'] as $update) {
-                    $out[] = new TelegramJob($update);
+                    $out[] = new TelegramIncomingCommandJob($update);
                     $lastOffset = intval($update['update_id']);
                 }
 

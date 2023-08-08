@@ -1,17 +1,16 @@
 <?php
 
-namespace App\Console\Daemons\Jobs;
+namespace App\Console\Daemons\RedisQueueJobs;
 
 use App\ClientApi\ClientTelegramSdk;
 use App\ClientApi\PHPMailerExt;
 use App\Model\Database\MobileSocialModel;
 use App\Model\Database\SocialModel;
-use App\Services\MobileSocialService;
 use App\Services\UserRegistrationService;
 use YusamHub\Daemon\Daemon;
 use YusamHub\Daemon\DaemonJob;
 
-class OtpSendRedisQueueJob extends DaemonJob
+class RedisQueueOtpSendJob extends DaemonJob
 {
     const QUEUE_DEFAULT = 'default';
 

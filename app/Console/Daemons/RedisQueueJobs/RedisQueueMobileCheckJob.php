@@ -1,19 +1,17 @@
 <?php
 
-namespace App\Console\Daemons\Jobs;
+namespace App\Console\Daemons\RedisQueueJobs;
 
 use App\ClientApi\ClientTelegramSdk;
 use App\Helpers\EmailMobileHelper;
 use App\Model\Database\MobileModel;
 use App\Model\Database\MobileSocialModel;
 use App\Model\Database\SocialModel;
-use App\Services\MobileSocialService;
-use App\Services\UserRegistrationService;
 use YusamHub\AppExt\Helpers\ExceptionHelper;
 use YusamHub\Daemon\Daemon;
 use YusamHub\Daemon\DaemonJob;
 
-class TelegramMobileCheckRedisQueueJob extends DaemonJob
+class RedisQueueMobileCheckJob extends DaemonJob
 {
     const QUEUE_DEFAULT = 'default';
 

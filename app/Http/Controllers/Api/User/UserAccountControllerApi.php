@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\User;
 
-use App\Console\Daemons\Jobs\OtpSendRedisQueueJob;
+use App\Console\Daemons\RedisQueueJobs\RedisQueueOtpSendJob;
 use App\Helpers\HttpHelper;
 use App\Http\Controllers\Api\ApiSwaggerController;
 use App\Http\Controllers\Api\BaseApiHttpController;
@@ -93,7 +93,7 @@ class UserAccountControllerApi extends BaseApiHttpController
 
             $this->getRedisKernel()->redisExt()->put($hash, $redisData, self::DEFAULT_TOO_MANY_REQUESTS_TTL);
 
-            OtpSendRedisQueueJob::push($redisData['emailOrMobile'], $redisData['otp']);
+            RedisQueueOtpSendJob::push($redisData['emailOrMobile'], $redisData['otp']);
 
             return [
                 'hash' => $hash,

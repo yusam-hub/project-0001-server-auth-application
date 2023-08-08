@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Console\Daemons\Jobs;
+namespace App\Console\Daemons\TelegramJobs;
 
 use App\ClientApi\ClientTelegramSdk;
+use App\Console\Daemons\RedisQueueJobs\RedisQueueMobileCheckJob;
 use YusamHub\Daemon\Daemon;
 use YusamHub\Daemon\DaemonJob;
 use YusamHub\TelegramSdk\Helpers\ReplyMarkupHelper;
 
-class TelegramJob extends DaemonJob
+class TelegramIncomingCommandJob extends DaemonJob
 {
     const TELEGRAM_COMMAND_START = '/start';
 
@@ -90,7 +91,7 @@ class TelegramJob extends DaemonJob
             &&
             $from['id'] === $contact['user_id']
         ) {
-            TelegramMobileCheckRedisQueueJob::push([
+            RedisQueueMobileCheckJob::push([
                 'user_id' => $contact['user_id'],
                 'phone_number' => $contact['phone_number'],
                 'language_code' => $from['language_code'],
