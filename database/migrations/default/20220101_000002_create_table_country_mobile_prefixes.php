@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS `:database`.`:table` (
     `modifiedAt` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Дата изменения записи',
     PRIMARY KEY (`id`),
     UNIQUE KEY `idx_countryCode2_:table` (`countryCode2`) USING BTREE,
-    UNIQUE KEY `idx_countryCode3_:table` (`countryCode3`) USING BTREE
+    UNIQUE KEY `idx_countryCode3_:table` (`countryCode3`) USING BTREE,
+    UNIQUE KEY `idx_mobilePrefix_:table` (`countryCode3`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Справочник мобильные префиксы стран';
 
 SET FOREIGN_KEY_CHECKS=1;
