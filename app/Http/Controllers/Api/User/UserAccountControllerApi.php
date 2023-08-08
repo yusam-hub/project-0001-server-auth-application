@@ -6,6 +6,8 @@ use App\Console\Daemons\Jobs\OtpSendRedisQueueJob;
 use App\Helpers\HttpHelper;
 use App\Http\Controllers\Api\ApiSwaggerController;
 use App\Http\Controllers\Api\BaseApiHttpController;
+use App\Model\Database\UserEmailModel;
+use App\Model\Database\UserMobileModel;
 use App\Model\Database\UserModel;
 use App\Services\UserRegistrationService;
 use Symfony\Component\HttpFoundation\Request;
@@ -276,7 +278,7 @@ class UserAccountControllerApi extends BaseApiHttpController
             );
 
             if ($registrationType === UserRegistrationService::REGISTRATION_BY_EMAIL) {
-                if (UserRegistrationService::findUserByEmail($this->getPdoExtKernel(), $validator->getAttribute('emailOrMobile'))) {
+                if (UserEmailModel::findUserIdByEmail($this->getPdoExtKernel(), $validator->getAttribute('emailOrMobile'))) {
                     throw new HttpBadRequestAppExtRuntimeException([
                         'emailOrMobile' => 'Registration fail, user is exists',
                     ]);
@@ -291,7 +293,7 @@ class UserAccountControllerApi extends BaseApiHttpController
                 );
 
             } else {
-                if (UserRegistrationService::findUserByMobile($this->getPdoExtKernel(), '', $validator->getAttribute('emailOrMobile'))) {
+                if (UserMobileModel::findUserIdByMobile($this->getPdoExtKernel(), '', $validator->getAttribute('emailOrMobile'))) {
                     throw new HttpBadRequestAppExtRuntimeException([
                         'emailOrMobile' => 'Registration fail, user is exists',
                     ]);
@@ -388,9 +390,9 @@ class UserAccountControllerApi extends BaseApiHttpController
             );
 
             if ($registrationType === UserRegistrationService::REGISTRATION_BY_EMAIL) {
-                $userId = UserRegistrationService::findUserByEmail($this->getPdoExtKernel(), $validator->getAttribute('emailOrMobile'));
+                $userId = UserEmailModel::findUserIdByEmail($this->getPdoExtKernel(), $validator->getAttribute('emailOrMobile'));
             } else {
-                $userId = UserRegistrationService::findUserByMobile($this->getPdoExtKernel(), $mobilePrefix, $num);
+                $userId = UserMobileModel::findUserIdByMobile($this->getPdoExtKernel(), $mobilePrefix, $num);
             }
 
             if (is_null($userId)) {

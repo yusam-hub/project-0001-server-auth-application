@@ -4,6 +4,8 @@ namespace App\Console\Daemons\Jobs;
 
 use App\ClientApi\ClientTelegramSdk;
 use App\Helpers\EmailMobileHelper;
+use App\Model\Database\MobileModel;
+use App\Model\Database\MobileSocialModel;
 use App\Model\Database\SocialModel;
 use App\Services\MobileSocialService;
 use App\Services\UserRegistrationService;
@@ -58,13 +60,13 @@ class TelegramMobileCheckRedisQueueJob extends DaemonJob
                 $prefix,
                 $num
             )) {
-                $mobileModel = UserRegistrationService::findOrCreateMobile(app_ext_db_global(), $prefix, $num);
+                $mobileModel = MobileModel::findOrCreateMobile(app_ext_db_global(), $prefix, $num);
                 if (is_null($mobileModel->verifiedAt)) {
                     $mobileModel->verifiedAt = app_ext_date();
                     $mobileModel->saveOrFail();
                 }
 
-                MobileSocialService::findOrCreateMobileSocial(
+                MobileSocialModel::findOrCreateMobileSocial(
                     app_ext_db_global(),
                     SocialModel::SOCIAL_TELEGRAM_ABBR,
                     $mobileModel->id,

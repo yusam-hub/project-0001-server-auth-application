@@ -21,59 +21,6 @@ class UserRegistrationService
     /**
      * @param PdoExtKernelInterface $pdoExtKernel
      * @param string $email
-     * @return int|null
-     */
-    public static function findUserByEmail(
-        PdoExtKernelInterface $pdoExtKernel,
-        string $email
-    ): ?int
-    {
-        $email = strtolower($email);
-
-        $sqlRow = <<<MYSQL
-select 
-    u.id
-from 
-    users_emails ue, users u, emails e
-where
-    ue.userId = u.id and ue.emailId = e.id
-    and e.email = ?
-limit 0,1
-MYSQL;
-        return $pdoExtKernel
-            ->pdoExt()
-            ->fetchOneColumn(strtr($sqlRow, [
-            ]), 'id', [
-                $email
-            ]);
-    }
-
-    /**
-     * @param PdoExtKernelInterface $pdoExtKernel
-     * @param string $email
-     * @return EmailModel
-     */
-    public static function findOrCreateEmail(
-        PdoExtKernelInterface $pdoExtKernel,
-        string $email
-    ): EmailModel
-    {
-        $email = strtolower($email);
-        $emailModel = EmailModel::findModelByAttributes($pdoExtKernel, [
-            'email' => $email
-        ]);
-        if (is_null($emailModel)) {
-            $emailModel = new EmailModel();
-            $emailModel->setPdoExtKernel($pdoExtKernel);
-            $emailModel->email = $email;
-            $emailModel->saveOrFail();
-        }
-        return $emailModel;
-    }
-
-    /**
-     * @param PdoExtKernelInterface $pdoExtKernel
-     * @param string $email
      * @param string $publicKey
      * @return UserModel
      * @throws \Throwable
@@ -87,7 +34,7 @@ MYSQL;
         $pdoExtKernel->pdoExt()->beginTransactionDepth();
 
         try {
-            $emailModel = static::findOrCreateEmail($pdoExtKernel, $email);
+            $emailModel = EmailModel::findOrCreateEmail($pdoExtKernel, $email);
 
             if (is_null($emailModel->verifiedAt)) {
                 $emailModel->verifiedAt = app_ext_date();
@@ -143,67 +90,7 @@ MYSQL;
         return null;
     }
 
-    /**
-     * @param PdoExtKernelInterface $pdoExtKernel
-     * @param string $mobilePrefix
-     * @param string $num
-     * @return int|null
-     */
-    public static function findUserByMobile(
-        PdoExtKernelInterface $pdoExtKernel,
-        string $mobilePrefix,
-        string $num
-    ): ?int
-    {
-        $sqlRow = <<<MYSQL
-select 
-    u.id
-from 
-    users_mobiles um, users u, mobiles m, country_mobile_prefixes cmp
-where
-    um.userId = u.id and um.mobileId = m.id and m.countryMobilePrefixId = cmp.id
-    and cmp.mobilePrefix = ?
-    and m.num = ?
-limit 0,1
-MYSQL;
-        return $pdoExtKernel
-            ->pdoExt()
-            ->fetchOneColumn(strtr($sqlRow, [
 
-            ]), 'id', [
-                $mobilePrefix,
-                $num
-            ]);
-    }
-
-    /**
-     * @param PdoExtKernelInterface $pdoExtKernel
-     * @param string $mobilePrefix
-     * @param string $num
-     * @return MobileModel
-     */
-    public static function findOrCreateMobile(
-        PdoExtKernelInterface $pdoExtKernel,
-        string $mobilePrefix,
-        string $num
-    ): MobileModel
-    {
-        $countryMobilePrefixModel = CountryMobilePrefixModel::findModelByAttributesOrFail($pdoExtKernel, [
-            'mobilePrefix' => $mobilePrefix
-        ]);
-        $mobileModel = MobileModel::findModelByAttributes($pdoExtKernel, [
-            'countryMobilePrefixId' => $countryMobilePrefixModel->id,
-            'num' => $num
-        ]);
-        if (is_null($mobileModel)) {
-            $mobileModel = new MobileModel();
-            $mobileModel->setPdoExtKernel($pdoExtKernel);
-            $mobileModel->countryMobilePrefixId = $countryMobilePrefixModel->id;
-            $mobileModel->num = $num;
-            $mobileModel->saveOrFail();
-        }
-        return $mobileModel;
-    }
 
     /**
      * @param PdoExtKernelInterface $pdoExtKernel
@@ -223,7 +110,7 @@ MYSQL;
         $pdoExtKernel->pdoExt()->beginTransactionDepth();
 
         try {
-            $mobileModel = static::findOrCreateMobile($pdoExtKernel, $mobilePrefix, $num);
+            $mobileModel = MobileModel::findOrCreateMobile($pdoExtKernel, $mobilePrefix, $num);
 
             if (is_null($mobileModel->verifiedAt)) {
                 $mobileModel->verifiedAt = app_ext_date();

@@ -34,5 +34,50 @@ class UserEmailModel extends BasePdoExtModel
         return app_ext_config('database.connections.'.$this->getConnectionName().'.dbName');
     }
 
+    /**
+     * @param PdoExtKernelInterface $pdoExtKernel
+     * @param string $email
+     * @return int|null
+     */
+    public static function findUserIdByEmail(
+        PdoExtKernelInterface $pdoExtKernel,
+        string $email
+    ): ?int
+    {
+        $userModel = static::findUserModelByEmail($pdoExtKernel, $email);
+        if (!is_null($userModel)) {
+            return $userModel->id;
+        }
+        return null;
+    }
 
+    /**
+     * @param PdoExtKernelInterface $pdoExtKernel
+     * @param string $email
+     * @return UserModel|null
+     */
+    public static function findUserModelByEmail(
+        PdoExtKernelInterface $pdoExtKernel,
+        string $email
+    ): ?UserModel
+    {
+        $email = strtolower($email);
+
+        $sqlRow = <<<MYSQL
+select 
+    u.*
+from 
+    :current_table_name ue, users u, emails e
+where
+    ue.userId = u.id and ue.emailId = e.id and e.email = ?
+limit 0,1
+MYSQL;
+        return $pdoExtKernel
+            ->pdoExt()
+            ->fetchOne(strtr($sqlRow, [
+                ':current_table_name' => self::CURRENT_TABLE_NAME
+            ]), [
+                $email
+            ], UserModel::class);
+    }
 }

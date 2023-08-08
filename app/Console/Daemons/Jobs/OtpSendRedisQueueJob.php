@@ -4,6 +4,7 @@ namespace App\Console\Daemons\Jobs;
 
 use App\ClientApi\ClientTelegramSdk;
 use App\ClientApi\PHPMailerExt;
+use App\Model\Database\MobileSocialModel;
 use App\Model\Database\SocialModel;
 use App\Services\MobileSocialService;
 use App\Services\UserRegistrationService;
@@ -70,7 +71,7 @@ class OtpSendRedisQueueJob extends DaemonJob
 
         } elseif($type === UserRegistrationService::REGISTRATION_BY_MOBILE) {
 
-            $socialExternalId = MobileSocialService::findMobileSocialAsSocialExternalId(
+            $socialExternalId = MobileSocialModel::findMobileSocialAsSocialExternalId(
                 app_ext_db_global(),
                 SocialModel::SOCIAL_TELEGRAM_ABBR,
                 $mobilePrefix,

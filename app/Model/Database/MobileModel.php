@@ -37,5 +37,32 @@ class MobileModel extends BasePdoExtModel
         return app_ext_config('database.connections.'.$this->getConnectionName().'.dbName');
     }
 
-
+    /**
+     * @param PdoExtKernelInterface $pdoExtKernel
+     * @param string $mobilePrefix
+     * @param string $num
+     * @return MobileModel
+     */
+    public static function findOrCreateMobile(
+        PdoExtKernelInterface $pdoExtKernel,
+        string $mobilePrefix,
+        string $num
+    ): MobileModel
+    {
+        $countryMobilePrefixModel = CountryMobilePrefixModel::findModelByAttributesOrFail($pdoExtKernel, [
+            'mobilePrefix' => $mobilePrefix
+        ]);
+        $mobileModel = MobileModel::findModelByAttributes($pdoExtKernel, [
+            'countryMobilePrefixId' => $countryMobilePrefixModel->id,
+            'num' => $num
+        ]);
+        if (is_null($mobileModel)) {
+            $mobileModel = new MobileModel();
+            $mobileModel->setPdoExtKernel($pdoExtKernel);
+            $mobileModel->countryMobilePrefixId = $countryMobilePrefixModel->id;
+            $mobileModel->num = $num;
+            $mobileModel->saveOrFail();
+        }
+        return $mobileModel;
+    }
 }

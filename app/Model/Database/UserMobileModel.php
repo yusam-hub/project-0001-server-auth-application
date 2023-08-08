@@ -35,5 +35,55 @@ class UserMobileModel extends BasePdoExtModel
         return app_ext_config('database.connections.'.$this->getConnectionName().'.dbName');
     }
 
+    /**
+     * @param PdoExtKernelInterface $pdoExtKernel
+     * @param string $mobilePrefix
+     * @param string $num
+     * @return UserModel|null
+     */
+    public static function findUserModelByMobile(
+        PdoExtKernelInterface $pdoExtKernel,
+        string $mobilePrefix,
+        string $num
+    ): ?UserModel
+    {
+        $sqlRow = <<<MYSQL
+select 
+    u.*
+from 
+    :current_table_name um, users u, mobiles m, country_mobile_prefixes cmp
+where
+    um.userId = u.id and um.mobileId = m.id and m.countryMobilePrefixId = cmp.id
+    and cmp.mobilePrefix = ?
+    and m.num = ?
+limit 0,1
+MYSQL;
+        return $pdoExtKernel
+            ->pdoExt()
+            ->fetchOne(strtr($sqlRow, [
+                ':current_table_name' => self::CURRENT_TABLE_NAME,
+            ]), [
+                $mobilePrefix,
+                $num
+            ], UserModel::class);
+    }
 
+    /**
+     * @param PdoExtKernelInterface $pdoExtKernel
+     * @param string $mobilePrefix
+     * @param string $num
+     * @return int|null
+     */
+    public static function findUserIdByMobile(
+        PdoExtKernelInterface $pdoExtKernel,
+        string $mobilePrefix,
+        string $num
+    ): ?int
+    {
+        $userModel = static::findUserModelByMobile($pdoExtKernel, $mobilePrefix, $num);
+        if (!is_null($userModel)) {
+            return $userModel->id;
+        }
+        return null;
+    }
 }

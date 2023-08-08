@@ -66,4 +66,27 @@ MYSQL;
                         ]
                     );
     }
+
+    /**
+     * @param PdoExtKernelInterface $pdoExtKernel
+     * @param string $email
+     * @return EmailModel
+     */
+    public static function findOrCreateEmail(
+        PdoExtKernelInterface $pdoExtKernel,
+        string $email
+    ): EmailModel
+    {
+        $email = strtolower($email);
+        $emailModel = EmailModel::findModelByAttributes($pdoExtKernel, [
+            'email' => $email
+        ]);
+        if (is_null($emailModel)) {
+            $emailModel = new EmailModel();
+            $emailModel->setPdoExtKernel($pdoExtKernel);
+            $emailModel->email = $email;
+            $emailModel->saveOrFail();
+        }
+        return $emailModel;
+    }
 }
