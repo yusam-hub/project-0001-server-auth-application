@@ -62,12 +62,13 @@ class MobileSocialService
     {
         $sqlRow = <<<MYSQL
 select 
-    c.socialExternalId
+    mc.socialExternalId
 from 
-    users_mobiles um, users u, mobiles m, country_mobile_prefixes cmp, mobile_socials mc, socials s
+    mobiles m, country_mobile_prefixes cmp, mobile_socials mc, socials s
 where
-    um.userId = u.id and um.mobileId = m.id and m.countryMobilePrefixId = cmp.id
-    and mc.mobileId = m.id and mc.socialId = s.id
+    m.countryMobilePrefixId = cmp.id
+    and mc.mobileId = m.id 
+    and mc.socialId = s.id
     and s.abbr = ?
     and cmp.mobilePrefix = ?
     and m.num = ?    

@@ -4,10 +4,8 @@ namespace App\Http\Controllers\Api\User;
 
 use App\Console\Daemons\Jobs\OtpSendRedisQueueJob;
 use App\Helpers\HttpHelper;
-use App\Helpers\EmailMobileHelper;
 use App\Http\Controllers\Api\ApiSwaggerController;
 use App\Http\Controllers\Api\BaseApiHttpController;
-use App\Model\Database\EmailModel;
 use App\Model\Database\UserModel;
 use App\Services\UserRegistrationService;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,7 +19,7 @@ use YusamHub\Validator\ValidatorException;
 class UserAccountControllerApi extends BaseApiHttpController
 {
     const MODULE_CURRENT = ApiSwaggerController::MODULE_USER;
-    const TO_MANY_REQUESTS_CHECK_ENABLED = true;
+    const TO_MANY_REQUESTS_CHECK_ENABLED = false;
     const DEFAULT_TOO_MANY_REQUESTS_TTL = 600;
     const OTP_ACTION_USER_REGISTER = 1;
     const OTP_ACTION_USER_RESTORE_REGISTER = 2;
