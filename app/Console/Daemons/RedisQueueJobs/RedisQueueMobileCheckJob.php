@@ -24,7 +24,7 @@ class RedisQueueMobileCheckJob extends DaemonJob
     {
         app_ext_logger(LOGGING_CHANNEL_TELEGRAM_DAEMON)->debug(__METHOD__, ['contact' => $contact]);
 
-        app_ext_redis_global()->redisExt()->queuePush($queue, [
+        app_ext_redis_global()->connection()->queuePush($queue, [
             'jobClass' => static::class,
             'jobData' => $contact,
         ]);
