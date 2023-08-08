@@ -4,6 +4,8 @@ namespace App\Console\Daemons\Jobs;
 
 use App\ClientApi\ClientTelegramSdk;
 use App\Helpers\EmailMobileHelper;
+use App\Model\Database\SocialModel;
+use App\Services\MobileSocialService;
 use App\Services\UserRegistrationService;
 use YusamHub\Daemon\Daemon;
 use YusamHub\Daemon\DaemonJob;
@@ -57,16 +59,22 @@ class TelegramMobileCheckRedisQueueJob extends DaemonJob
                 $num
             )) {
                 $mobileModel = UserRegistrationService::findOrCreateMobile(app_ext_db_global(), $prefix, $num);
-
                 if (is_null($mobileModel->verifiedAt)) {
                     $mobileModel->verifiedAt = app_ext_date();
                     $mobileModel->saveOrFail();
                 }
 
+                MobileSocialService::findOrCreateMobileSocial(
+                    app_ext_db_global(),
+                    SocialModel::SOCIAL_TELEGRAM_ABBR,
+                    $mobileModel->id,
+                    $this->user_id
+                );
+
                 $clientTelegramSdk = new ClientTelegramSdk();
                 $clientTelegramSdk->sendMessage($this->user_id, 'Congratulation, mobile number has successfully added');
             } else {
-                throw new \Exception("Invalid mobile number");
+                throw new \Exception(sprintf("Invalid mobile number [ %s ]", $this->phone_number));
             }
         } catch (\Throwable $e) {
 

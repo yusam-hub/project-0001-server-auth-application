@@ -12,12 +12,12 @@ use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
  * @property string $createdAt
  * @property string|null $modifiedAt
  *
- * @method static MobileSocialsModel|null findModel(PdoExtKernelInterface $pdoExtKernel, $pk)
- * @method static MobileSocialsModel findModelOrFail(PdoExtKernelInterface $pdoExtKernel, $pk)
- * @method static MobileSocialsModel|null findModelByAttributes(PdoExtKernelInterface $pdoExtKernel, array $attributes)
- * @method static MobileSocialsModel findModelByAttributesOrFail(PdoExtKernelInterface $pdoExtKernel, array $attributes)
+ * @method static MobileSocialModel|null findModel(PdoExtKernelInterface $pdoExtKernel, $pk)
+ * @method static MobileSocialModel findModelOrFail(PdoExtKernelInterface $pdoExtKernel, $pk)
+ * @method static MobileSocialModel|null findModelByAttributes(PdoExtKernelInterface $pdoExtKernel, array $attributes)
+ * @method static MobileSocialModel findModelByAttributesOrFail(PdoExtKernelInterface $pdoExtKernel, array $attributes)
  */
-class MobileSocialsModel extends BasePdoExtModel
+class MobileSocialModel extends BasePdoExtModel
 {
     protected ?string $connectionName = DB_CONNECTION_DEFAULT;
     protected string $tableName = TABLE_MOBILE_SOCIALS;

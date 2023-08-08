@@ -2,7 +2,9 @@
 
 namespace App\Model\Database;
 
+use YusamHub\AppExt\Redis\RedisCacheUseFresh;
 use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
+use YusamHub\Helper\ArrayHelper;
 
 /**
  * @property int $id
@@ -11,12 +13,12 @@ use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
  * @property string $createdAt
  * @property string|null $modifiedAt
  *
- * @method static SocialsModel|null findModel(PdoExtKernelInterface $pdoExtKernel, $pk)
- * @method static SocialsModel findModelOrFail(PdoExtKernelInterface $pdoExtKernel, $pk)
- * @method static SocialsModel|null findModelByAttributes(PdoExtKernelInterface $pdoExtKernel, array $attributes)
- * @method static SocialsModel findModelByAttributesOrFail(PdoExtKernelInterface $pdoExtKernel, array $attributes)
+ * @method static SocialModel|null findModel(PdoExtKernelInterface $pdoExtKernel, $pk)
+ * @method static SocialModel findModelOrFail(PdoExtKernelInterface $pdoExtKernel, $pk)
+ * @method static SocialModel|null findModelByAttributes(PdoExtKernelInterface $pdoExtKernel, array $attributes)
+ * @method static SocialModel findModelByAttributesOrFail(PdoExtKernelInterface $pdoExtKernel, array $attributes)
  */
-class SocialsModel extends BasePdoExtModel
+class SocialModel extends BasePdoExtModel
 {
     protected ?string $connectionName = DB_CONNECTION_DEFAULT;
     protected string $tableName = TABLE_SOCIALS;
@@ -36,6 +38,4 @@ class SocialsModel extends BasePdoExtModel
     {
         return app_ext_config('database.connections.'.$this->getConnectionName().'.dbName');
     }
-
-
 }
