@@ -72,7 +72,7 @@ class TelegramMobileCheckRedisQueueJob extends DaemonJob
                 );
 
                 $clientTelegramSdk = new ClientTelegramSdk();
-                $clientTelegramSdk->sendMessage($this->user_id, 'Congratulation, mobile number has successfully added');
+                $clientTelegramSdk->sendMessage($this->user_id, 'Congratulation, the mobile number has been successfully added');
             } else {
                 throw new \Exception(sprintf("Invalid mobile number [ %s ]", $this->phone_number));
             }
