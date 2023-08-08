@@ -94,7 +94,7 @@ select
 from 
     mobiles m, :current_table_name mc, socials s
 where
-    and mc.mobileId = m.id 
+    mc.mobileId = m.id 
     and mc.socialId = s.id
     and s.abbr = ?
     and mc.socialExternalId = ?
