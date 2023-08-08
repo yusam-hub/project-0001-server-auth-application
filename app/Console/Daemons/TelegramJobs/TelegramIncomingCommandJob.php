@@ -4,6 +4,9 @@ namespace App\Console\Daemons\TelegramJobs;
 
 use App\ClientApi\ClientTelegramSdk;
 use App\Console\Daemons\RedisQueueJobs\RedisQueueMobileCheckJob;
+use App\Model\Database\MobileSocialModel;
+use App\Model\Database\SocialModel;
+use App\Model\Database\UserMobileModel;
 use YusamHub\Daemon\Daemon;
 use YusamHub\Daemon\DaemonJob;
 use YusamHub\TelegramSdk\Helpers\ReplyMarkupHelper;
@@ -67,8 +70,21 @@ class TelegramIncomingCommandJob extends DaemonJob
         if ($result) {
             $clientTelegramSdk = new ClientTelegramSdk();
 
+            $mobileId = MobileSocialModel::getMobileIdBySocialAbbrSocialExternalId(
+                app_ext_db_global(),
+                SocialModel::SOCIAL_TELEGRAM_ABBR,
+                $chat['id']
+            );
+
             $chat_id = $chat['id'];
-            $message = 'Hello ' . $chat['first_name'] . ", for add mobile number to our system, please click button `Send mobile number` on shown keyboard";
+
+            if (is_null($mobileId)) {
+                $message = "Welcome! For add mobile number to our system, please click button `Send mobile number` on shown keyboard";
+                $reply_markup = ReplyMarkupHelper::keyboardButtonRequestContact('Send mobile number');
+            } else {
+                $message = "Welcome!";
+                $reply_markup = ReplyMarkupHelper::keyboardRemove();
+            }
 
             app_ext_logger(LOGGING_CHANNEL_TELEGRAM_DAEMON)->debug('SendMessage', [
                 'chat_id' => $chat_id,
@@ -78,8 +94,9 @@ class TelegramIncomingCommandJob extends DaemonJob
             $clientTelegramSdk->sendMessage(
                 $chat_id,
                 $message,
-                ReplyMarkupHelper::keyboardButtonRequestContact('Send mobile number')
+                $reply_markup
             );
+
         }
     }
 

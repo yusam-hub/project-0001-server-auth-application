@@ -44,7 +44,7 @@ class MobileSocialModel extends BasePdoExtModel
      * @param string $num
      * @return MobileSocialModel|null
      */
-    public static function findMobileSocialAsSocialExternalId(
+    public static function getSocialExternalIdBuAbbrMobilePrefixNum(
         PdoExtKernelInterface $pdoExtKernel,
         string $socialAbbr,
         string $mobilePrefix,
@@ -73,6 +73,40 @@ MYSQL;
                 $socialAbbr,
                 $mobilePrefix,
                 $num
+            ]);
+    }
+
+    /**
+     * @param PdoExtKernelInterface $pdoExtKernel
+     * @param string $socialAbbr
+     * @param int $socialExternalId
+     * @return MobileSocialModel|null
+     */
+    public static function getMobileIdBySocialAbbrSocialExternalId(
+        PdoExtKernelInterface $pdoExtKernel,
+        string $socialAbbr,
+        int $socialExternalId
+    ): ?int
+    {
+        $sqlRow = <<<MYSQL
+select 
+    m.id
+from 
+    mobiles m, :current_table_name mc, socials s
+where
+    and mc.mobileId = m.id 
+    and mc.socialId = s.id
+    and s.abbr = ?
+    and mc.socialExternalId = ?
+limit 0,1
+MYSQL;
+        return $pdoExtKernel
+            ->pdoExt()
+            ->fetchOneColumn(strtr($sqlRow, [
+                ':current_table_name' => self::CURRENT_TABLE_NAME,
+            ]), 'id', [
+                $socialAbbr,
+                $socialExternalId
             ]);
     }
 

@@ -74,7 +74,7 @@ class RedisQueueOtpSendJob extends DaemonJob
 
         } elseif($type === UserRegistrationService::REGISTRATION_BY_MOBILE) {
 
-            $socialExternalId = MobileSocialModel::findMobileSocialAsSocialExternalId(
+            $socialExternalId = MobileSocialModel::getSocialExternalIdBuAbbrMobilePrefixNum(
                 app_ext_db_global(),
                 SocialModel::SOCIAL_TELEGRAM_ABBR,
                 $mobilePrefix,
