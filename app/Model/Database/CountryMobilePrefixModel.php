@@ -60,7 +60,7 @@ class CountryMobilePrefixModel extends BasePdoExtModel
     ): array
     {
         return RedisCacheUseFresh::rememberExt(
-            $redisKernel->redisExt(),
+            $redisKernel->connection(),
             $logger,
             md5(__METHOD__),
             $cacheUse, $cacheFresh, $cacheTtl,

@@ -95,7 +95,7 @@ class UserAccountControllerApi extends BaseApiHttpController
 
             $hash = md5(microtime(true) . json_encode($redisData));
 
-            $this->getRedisKernel()->redisExt()->put($hash, $redisData, self::DEFAULT_TOO_MANY_REQUESTS_TTL);
+            $this->getRedisKernel()->connection()->put($hash, $redisData, self::DEFAULT_TOO_MANY_REQUESTS_TTL);
 
             RedisQueueOtpSendJob::push($redisData['emailOrMobile'], $redisData['otp']);
 
@@ -146,7 +146,7 @@ class UserAccountControllerApi extends BaseApiHttpController
                         $v, $mobilePrefix, $num, $mobilePrefixId));
                 }],
                 'hash' => ['require','string','size:32', function($v) {
-                    return $this->getRedisKernel()->redisExt()->has($v);
+                    return $this->getRedisKernel()->connection()->has($v);
                 }],
                 'otp' => ['require','string','size:5'],
             ]);
@@ -171,9 +171,9 @@ class UserAccountControllerApi extends BaseApiHttpController
 
         try {
 
-            $redisData = $this->getRedisKernel()->redisExt()->get($validator->getAttribute('hash'));
+            $redisData = $this->getRedisKernel()->connection()->get($validator->getAttribute('hash'));
 
-            $this->getRedisKernel()->redisExt()->del($validator->getAttribute('hash'));
+            $this->getRedisKernel()->connection()->del($validator->getAttribute('hash'));
 
             if (
                 isset($redisData['uniqueUserDevice']) && $redisData['uniqueUserDevice'] == $uniqueUserDevice

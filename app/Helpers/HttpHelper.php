@@ -38,7 +38,7 @@ class HttpHelper
     ): void
     {
         try {
-            $redisExt = $redisKernel->redisExt();
+            $redisExt = $redisKernel->connection();
             $redisKey = md5($unique . $ttl . $method);
             if ($redisExt->has($redisKey)) {
                 $timeFinished = $redisExt->get($redisKey);

@@ -316,7 +316,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
 
             $accessToken = md5(implode("", (array) $accessTokenPayload));
 
-            $this->getRedisKernel()->redisExt()->put(
+            $this->getRedisKernel()->connection()->put(
                 $accessToken,
                 $accessTokenPayload,
                 $expire

@@ -21,7 +21,7 @@ abstract class BasePdoExtModel extends PdoExtModel
     ): bool
     {
         return RedisCacheUseFresh::rememberExt(
-            $redisKernel->redisExt(),
+            $redisKernel->connection(),
             $logger,
             md5(__METHOD__ . $pk),
             $cacheUse, $cacheFresh, $cacheTtl,

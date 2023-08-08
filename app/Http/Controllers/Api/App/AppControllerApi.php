@@ -96,7 +96,7 @@ class AppControllerApi extends BaseAppApiHttpController
             );
             $validator->setRules([
                 'accessToken' => ['require','regex:^([0-9a-f]{32})$', function($v){
-                    return $this->getRedisKernel()->redisExt()->has($v);
+                    return $this->getRedisKernel()->connection()->has($v);
                 }],
             ]);
             $validator->setRuleMessages([
@@ -116,6 +116,6 @@ class AppControllerApi extends BaseAppApiHttpController
             throw new HttpInternalServerErrorAppExtRuntimeException();
         }
 
-        return (array) $this->getRedisKernel()->redisExt()->get($validator->getAttribute('accessToken'));
+        return (array) $this->getRedisKernel()->connection()->get($validator->getAttribute('accessToken'));
     }
 }
