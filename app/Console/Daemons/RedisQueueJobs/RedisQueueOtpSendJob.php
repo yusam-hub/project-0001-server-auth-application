@@ -3,7 +3,6 @@
 namespace App\Console\Daemons\RedisQueueJobs;
 
 use App\ClientApi\ClientTelegramSdk;
-use App\ClientApi\PHPMailerExt;
 use App\Model\Database\MobileSocialModel;
 use App\Model\Database\SocialModel;
 use App\Services\UserRegistrationService;
