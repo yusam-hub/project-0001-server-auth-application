@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use YusamHub\AppExt\Exceptions\HttpBadRequestAppExtRuntimeException;
 use YusamHub\AppExt\Exceptions\HttpInternalServerErrorAppExtRuntimeException;
+use YusamHub\AppExt\Helpers\ExceptionHelper;
 use YusamHub\Validator\Validator;
 use YusamHub\Validator\ValidatorException;
 
@@ -110,10 +111,7 @@ class AppControllerApi extends BaseAppApiHttpController
                 throw new HttpBadRequestAppExtRuntimeException($e->getValidatorErrors());
             }
 
-            $this->error($e->getMessage(), [
-                'errorFile' => $e->getFile() . ':' . $e->getLine(),
-                'errorTrace' => $e->getTrace()
-            ]);
+            $this->error($e->getMessage(), ExceptionHelper::e2a($e));
 
             throw new HttpInternalServerErrorAppExtRuntimeException();
         }

@@ -9,6 +9,7 @@ use App\Model\Database\MobileSocialModel;
 use App\Model\Database\SocialModel;
 use App\Services\MobileSocialService;
 use App\Services\UserRegistrationService;
+use YusamHub\AppExt\Helpers\ExceptionHelper;
 use YusamHub\Daemon\Daemon;
 use YusamHub\Daemon\DaemonJob;
 
@@ -84,11 +85,7 @@ class TelegramMobileCheckRedisQueueJob extends DaemonJob
             $clientTelegramSdk = new ClientTelegramSdk();
             $clientTelegramSdk->sendMessage($this->user_id, 'Sorry, some error happen in server, please try late or contact to administrator');
 
-            app_ext_logger(LOGGING_CHANNEL_REDIS_QUEUE_DAEMON)->error($e->getMessage(), [
-                'errorCode' => $e->getCode(),
-                'errorFile' => $e->getFile() . ':' . $e->getLine(),
-                'errorTrace' => $e->getTrace()
-            ]);
+            app_ext_logger(LOGGING_CHANNEL_REDIS_QUEUE_DAEMON)->error($e->getMessage(), ExceptionHelper::e2a($e));
         }
     }
 }

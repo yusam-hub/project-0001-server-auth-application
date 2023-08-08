@@ -4,6 +4,7 @@ namespace App\ClientApi;
 
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
+use YusamHub\AppExt\Helpers\ExceptionHelper;
 
 class PHPMailerExt extends PHPMailer
 {
@@ -52,10 +53,7 @@ class PHPMailerExt extends PHPMailer
             return $mail->send();
         } catch (\Throwable $e) {
             app_ext_logger(LOGGING_CHANNEL_PHP_MAILER)
-                ->error($e->getMessage(), [
-                    'errorFile' => $e->getFile() . ':' . $e->getLine(),
-                    'errorTrace' => $e->getTrace()
-                ]);
+                ->error($e->getMessage(), ExceptionHelper::e2a($e));
             return false;
         }
     }

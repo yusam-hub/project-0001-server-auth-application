@@ -6,6 +6,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use YusamHub\AppExt\Exceptions\HttpInternalServerErrorAppExtRuntimeException;
 use YusamHub\AppExt\Exceptions\HttpTooManyRequestsAppExtRuntimeException;
+use YusamHub\AppExt\Helpers\ExceptionHelper;
 use YusamHub\AppExt\Redis\RedisKernel;
 
 class HttpHelper
@@ -48,10 +49,7 @@ class HttpHelper
             if ($e instanceof HttpTooManyRequestsAppExtRuntimeException) {
                 throw $e;
             }
-            $logger->error($e->getMessage(), [
-                'errorFile' => $e->getFile() . ':' . $e->getLine(),
-                'errorTrace' => $e->getTrace()
-            ]);
+            $logger->error($e->getMessage(), ExceptionHelper::e2a($e));
             throw new HttpInternalServerErrorAppExtRuntimeException([
                 'method' => 'Some error in method'
             ]);
