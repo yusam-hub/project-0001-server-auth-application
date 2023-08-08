@@ -68,7 +68,7 @@ class TelegramIncomingCommandJob extends DaemonJob
             $clientTelegramSdk = new ClientTelegramSdk();
 
             $chat_id = $chat['id'];
-            $message = 'Hello ' . $chat['first_name'];
+            $message = 'Hello ' . $chat['first_name'] . ", for add mobile number to our system, please click button `Send mobile number` on shown keyboard";
 
             app_ext_logger(LOGGING_CHANNEL_TELEGRAM_DAEMON)->debug('SendMessage', [
                 'chat_id' => $chat_id,
