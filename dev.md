@@ -3,6 +3,7 @@
     docker exec -it yusam-php81 sh
 
     docker exec -it yusam-php81 sh -c "php -m"
+    docker exec -it yusam-php81 sh -c "date"
 
 ###### tail
 
@@ -43,7 +44,6 @@
 
 ###### console db
 
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console db:check"
     docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console db:migrate"
 
 ###### console show
@@ -51,9 +51,12 @@
     docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console show:env"
     docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console show:server"
 
-###### console smarty
+###### check
 
+    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console redis:check"    
+    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console db:check"    
     docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console smarty:check"
+    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console php-mailer:check"    
 
 ###### testing
 
