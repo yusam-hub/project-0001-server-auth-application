@@ -45,7 +45,7 @@ class EmailMobileHelper
         );
 
         $onlyPrefixes = array_values($cc2Prefixes);
-
+        $value = '+' . ltrim($value, '+');
         $num = substr($value,-10);
         $mobilePrefix = str_replace($num, '', $value);
 

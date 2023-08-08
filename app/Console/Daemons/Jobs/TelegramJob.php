@@ -90,16 +90,17 @@ class TelegramJob extends DaemonJob
             &&
             $from['id'] === $contact['user_id']
         ) {
+            TelegramMobileCheckRedisQueueJob::push([
+                'user_id' => $contact['user_id'],
+                'phone_number' => $contact['phone_number'],
+                'language_code' => $from['language_code'],
+            ]);
+
             $clientTelegramSdk->sendMessage(
-                $chat['id'],
+                $contact['user_id'],
                 sprintf('We are received mobile number [ %s ] and now we are checking them. Wait for result ...', $contact['phone_number']),
                 ReplyMarkupHelper::keyboardRemove()
             );
-
-            /**
-             * todo: отправляем в очередь чтобы добавить/проверки/привязать к мобильному телефону и уже после добавления,
-             *       отправляем сообщения в телеграм, что номер зарегистрирован
-             */
         }
     }
 }

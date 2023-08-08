@@ -27,6 +27,7 @@
 ###### daemon
 
     docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console daemon:telegram"
+    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console daemon:redis-queue"
 
 ###### console client
 

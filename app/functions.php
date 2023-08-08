@@ -18,3 +18,4 @@ const TELEGRAM_CONNECTION_DEFAULT = 'default';
 const LOGGING_CHANNEL_APP = 'app';
 const LOGGING_CHANNEL_OTP = 'otp';
 const LOGGING_CHANNEL_TELEGRAM_DAEMON = 'telegram-daemon';
+const LOGGING_CHANNEL_REDIS_QUEUE_DAEMON = 'redis-queue-daemon';
