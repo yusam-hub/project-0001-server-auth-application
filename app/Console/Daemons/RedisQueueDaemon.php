@@ -30,11 +30,13 @@ class RedisQueueDaemon extends Daemon
      */
     protected function getNextJob(): ?DaemonJobInterface
     {
+        app_ext_db_global()->pdoExtClose();
+        app_ext_redis_global()->redisExtClose();
         $queue = app_ext_redis_global()->redisExt()->queueShift($this->queue);
         if (!empty($queue) && isset($queue['jobClass'], $queue['jobData'])) {
             $class = $queue['jobClass'];
             if (class_exists($class)) {
-                return new $queue['jobClass']($queue['jobData']);
+                return new $class($queue['jobData']);
             } else {
                 app_ext_logger(LOGGING_CHANNEL_REDIS_QUEUE_DAEMON)->error("Class not exists", $queue);
             }
