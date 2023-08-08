@@ -37,12 +37,6 @@ class RedisQueueDaemon extends Daemon
         if (!empty($queue) && isset($queue['jobClass'], $queue['jobData'])) {
             $class = $queue['jobClass'];
             if (class_exists($class)) {
-                var_dump(
-                    [
-                        __METHOD__,
-                        $queue
-                    ]
-                );
                 return new $class($queue['jobData']);
             } else {
                 app_ext_logger(LOGGING_CHANNEL_REDIS_QUEUE_DAEMON)->error("Class not exists", $queue);

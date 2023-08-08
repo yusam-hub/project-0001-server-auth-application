@@ -11,22 +11,10 @@ class TelegramDaemon extends Daemon
 {
     protected array $fetchedJobs = [];
 
-    const REDIS_KEY_TELEGRAM_OFFSET = 'telegram_offset';
-
-    protected function getLastOffset(): int
-    {
-        if (app_ext_redis_global()->redisExt()->has(self::REDIS_KEY_TELEGRAM_OFFSET)) {
-            return app_ext_redis_global()->redisExt()->get(self::REDIS_KEY_TELEGRAM_OFFSET);
-        }
-        return 0;
-    }
-
     protected function fetchJobs(): array
     {
-        $lastOffset = $this->getLastOffset();
-
         $clientTelegramSdk = new ClientTelegramSdk();
-        $getUpdates = $clientTelegramSdk->getUpdates($lastOffset);
+        $getUpdates = $clientTelegramSdk->getUpdates();
 
         if (isset($getUpdates['result']) && is_array($getUpdates['result'])) {
 
@@ -34,12 +22,13 @@ class TelegramDaemon extends Daemon
 
             if (count($getUpdates['result']) > 0) {
 
+                $lastOffset = 0;
                 foreach ($getUpdates['result'] as $update) {
                     $out[] = new TelegramIncomingCommandJob($update);
                     $lastOffset = intval($update['update_id']);
                 }
 
-                app_ext_redis_global()->redisExt()->put(self::REDIS_KEY_TELEGRAM_OFFSET, $lastOffset + 1);
+                $clientTelegramSdk->getUpdates($lastOffset+1);
             }
 
             return $out;
