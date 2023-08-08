@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS `:database`.`:table` (
     `title` varchar(64) NOT NULL COMMENT 'Название приложения',
     `keyHash` varchar(32) DEFAULT NULL COMMENT 'Хеш ключей',    
     `publicKey` text DEFAULT NULL COMMENT 'Публичный ключ',   
+    `serviceKey` varchar(32) DEFAULT NULL COMMENT 'Сервичный ключ',   
     `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата создания записи',
     `modifiedAt` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Дата изменения записи',
     PRIMARY KEY (`id`),

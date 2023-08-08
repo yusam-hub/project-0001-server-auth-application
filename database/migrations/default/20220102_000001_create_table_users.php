@@ -19,7 +19,8 @@ DROP TABLE IF EXISTS `:database`.`:table`;
 CREATE TABLE IF NOT EXISTS `:database`.`:table` (
     `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
     `keyHash` varchar(32) DEFAULT NULL COMMENT 'Хеш ключей',
-    `publicKey` text DEFAULT NULL COMMENT 'Публичный ключ',    
+    `publicKey` text DEFAULT NULL COMMENT 'Публичный ключ', 
+    `serviceKey` varchar(32) DEFAULT NULL COMMENT 'Сервичный ключ',   
     `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата создания записи',
     `modifiedAt` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Дата изменения записи',
     PRIMARY KEY (`id`)

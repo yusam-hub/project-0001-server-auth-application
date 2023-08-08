@@ -14,6 +14,7 @@ abstract class BaseAppApiHttpController extends BaseApiHttpController implements
 {
     use ControllerMiddlewareTrait;
     const TOKEN_KEY_NAME = 'X-Token';
+    const SIGN_KEY_NAME = 'X-Sign';
     const AUTH_ERROR_CODE_40101 = 40101;
     const AUTH_ERROR_CODE_40102 = 40102;
     const AUTH_ERROR_CODE_40103 = 40103;
@@ -41,11 +42,36 @@ abstract class BaseAppApiHttpController extends BaseApiHttpController implements
             }
         }
 
-        $jwtToken = $request->headers->get(self::TOKEN_KEY_NAME,'');
+        $token = $request->headers->get(self::TOKEN_KEY_NAME,'');
+        $sign = $request->headers->get(self::SIGN_KEY_NAME,'');
+
+        if (!empty($sign)) {
+            $appId = intval($token);
+            $serviceKey = $sign;
+
+            $appModel = AppModel::findModel($this->getPdoExtKernel(), $appId);
+
+            if (is_null($appModel)) {
+                throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
+                    self::TOKEN_KEY_NAME => 'Invalid value',
+                    self::SIGN_KEY_NAME => 'Invalid value',
+                ]);
+            }
+
+            if ($appModel->serviceKey !== $serviceKey) {
+                throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
+                    self::TOKEN_KEY_NAME => 'Invalid value',
+                    self::SIGN_KEY_NAME => 'Invalid value',
+                ]);
+            }
+
+            AppAuthorizeModel::Instance()->appId = $appId;
+            return;
+        }
 
         try {
 
-            $appId = JwtAuthAppTokenHelper::getAppFromJwtHeads($jwtToken);
+            $appId = JwtAuthAppTokenHelper::getAppFromJwtHeads($token);
 
             if (is_null($appId)) {
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40101], self::AUTH_ERROR_CODE_40101);
@@ -56,7 +82,7 @@ abstract class BaseAppApiHttpController extends BaseApiHttpController implements
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40102], self::AUTH_ERROR_CODE_40102);
             }
 
-            $appTokenPayload = JwtAuthAppTokenHelper::fromJwtAsPayload($jwtToken, $appModel->publicKey);
+            $appTokenPayload = JwtAuthAppTokenHelper::fromJwtAsPayload($token, $appModel->publicKey);
 
             if (is_null($appTokenPayload->aid) || is_null($appTokenPayload->iat) || is_null($appTokenPayload->exp) || is_null($appTokenPayload->hb)) {
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40103], self::AUTH_ERROR_CODE_40103);
@@ -66,6 +92,7 @@ abstract class BaseAppApiHttpController extends BaseApiHttpController implements
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40104], self::AUTH_ERROR_CODE_40104);
             }
 
+            //todo: converto to UTC
             $serverTime = time();
 
             if ($serverTime < $appTokenPayload->iat and $serverTime > $appTokenPayload->exp) {

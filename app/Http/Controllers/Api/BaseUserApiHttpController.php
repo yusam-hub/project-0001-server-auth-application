@@ -14,6 +14,7 @@ abstract class BaseUserApiHttpController extends BaseApiHttpController implement
     use ControllerMiddlewareTrait;
 
     const TOKEN_KEY_NAME = 'X-Token';
+    const SIGN_KEY_NAME = 'X-Sign';
     const AUTH_ERROR_CODE_40101 = 40101;
     const AUTH_ERROR_CODE_40102 = 40102;
     const AUTH_ERROR_CODE_40103 = 40103;
@@ -41,11 +42,36 @@ abstract class BaseUserApiHttpController extends BaseApiHttpController implement
             }
         }
 
-        $jwtToken = $request->headers->get(self::TOKEN_KEY_NAME,'');
+        $token = $request->headers->get(self::TOKEN_KEY_NAME,'');
+        $sign = $request->headers->get(self::SIGN_KEY_NAME,'');
+
+        if (!empty($sign)) {
+            $userId = intval($token);
+            $serviceKey = $sign;
+
+            $userModel = UserModel::findModel($this->getPdoExtKernel(), $userId);
+
+            if (is_null($userModel)) {
+                throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
+                    self::TOKEN_KEY_NAME => 'Invalid value',
+                    self::SIGN_KEY_NAME => 'Invalid value',
+                ]);
+            }
+
+            if ($userModel->serviceKey !== $serviceKey) {
+                throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
+                    self::TOKEN_KEY_NAME => 'Invalid value',
+                    self::SIGN_KEY_NAME => 'Invalid value',
+                ]);
+            }
+
+            UserAuthorizeModel::Instance()->userId = $userId;
+            return;
+        }
 
         try {
 
-            $userId = JwtAuthUserTokenHelper::getUserFromJwtHeads($jwtToken);
+            $userId = JwtAuthUserTokenHelper::getUserFromJwtHeads($token);
 
             if (is_null($userId)) {
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40101], self::AUTH_ERROR_CODE_40101);
@@ -56,7 +82,7 @@ abstract class BaseUserApiHttpController extends BaseApiHttpController implement
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40102], self::AUTH_ERROR_CODE_40102);
             }
 
-            $userTokenPayload = JwtAuthUserTokenHelper::fromJwtAsPayload($jwtToken, $userModel->publicKey);
+            $userTokenPayload = JwtAuthUserTokenHelper::fromJwtAsPayload($token, $userModel->publicKey);
 
             if (is_null($userTokenPayload->uid) || is_null($userTokenPayload->iat) || is_null($userTokenPayload->exp) || is_null($userTokenPayload->hb)) {
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40103], self::AUTH_ERROR_CODE_40103);
@@ -66,6 +92,7 @@ abstract class BaseUserApiHttpController extends BaseApiHttpController implement
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40104], self::AUTH_ERROR_CODE_40104);
             }
 
+            //todo: convert to UTC
             $serverTime = time();
 
             if ($serverTime < $userTokenPayload->iat and $serverTime > $userTokenPayload->exp) {
@@ -94,7 +121,7 @@ abstract class BaseUserApiHttpController extends BaseApiHttpController implement
         } catch (\Throwable $e) {
 
             throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
-                'token' => 'Invalid value',
+                self::TOKEN_KEY_NAME => 'Invalid value',
                 'detail' => $e->getMessage(),
                 'code' => $e->getCode()
             ]);
