@@ -22,8 +22,11 @@ use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
  */
 class AppUserKeyModel extends BasePdoExtModel
 {
-    protected ?string $connectionName = DB_CONNECTION_DEFAULT;
-    protected string $tableName = TABLE_APPS_USERS_KEYS;
+    const CURRENT_CONNECTION_NAME =  DB_CONNECTION_DEFAULT;
+    const CURRENT_TABLE_NAME = TABLE_APPS_USERS_KEYS;
+
+    protected ?string $connectionName = self::CURRENT_CONNECTION_NAME;
+    protected string $tableName = self::CURRENT_TABLE_NAME;
 
     const ATTRIBUTE_NAME_ID = 'id';
     const ATTRIBUTE_NAME_APP_ID = 'appId';

@@ -19,8 +19,11 @@ use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
  */
 class MobileSocialModel extends BasePdoExtModel
 {
-    protected ?string $connectionName = DB_CONNECTION_DEFAULT;
-    protected string $tableName = TABLE_MOBILE_SOCIALS;
+    const CURRENT_CONNECTION_NAME =  DB_CONNECTION_DEFAULT;
+    const CURRENT_TABLE_NAME = TABLE_MOBILE_SOCIALS;
+
+    protected ?string $connectionName = self::CURRENT_CONNECTION_NAME;
+    protected string $tableName = self::CURRENT_TABLE_NAME;
 
     const ATTRIBUTE_NAME_ID = 'id';
     const ATTRIBUTE_NAME_MOBILE_ID = 'mobileId';

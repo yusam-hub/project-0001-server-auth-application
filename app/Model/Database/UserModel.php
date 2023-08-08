@@ -18,8 +18,11 @@ use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
  */
 class UserModel extends BasePdoExtModel
 {
-    protected ?string $connectionName = DB_CONNECTION_DEFAULT;
-    protected string $tableName = TABLE_USERS;
+    const CURRENT_CONNECTION_NAME =  DB_CONNECTION_DEFAULT;
+    const CURRENT_TABLE_NAME = TABLE_USERS;
+
+    protected ?string $connectionName = self::CURRENT_CONNECTION_NAME;
+    protected string $tableName = self::CURRENT_TABLE_NAME;
 
     const ATTRIBUTE_NAME_ID = 'id';
     const ATTRIBUTE_NAME_KEY_HASH = 'keyHash';
