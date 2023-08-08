@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "432bc4e952f925209e5d3a6ea65ec9e9",
+    "content-hash": "7eec95c5143ebec2cf296a5bea164a58",
     "packages": [
         {
             "name": "bunny/bunny",
@@ -4006,7 +4006,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yusam-hub/app-ext.git",
-                "reference": "56e0e8f6a3eace4e30133e75c5e0a165d4f87b63"
+                "reference": "440709c6ab52662ccbbc6e1c6e8398ca9b0d0dd9"
             },
             "require": {
                 "bunny/bunny": "@dev",
@@ -4017,6 +4017,7 @@
                 "ext-pdo": "*",
                 "ext-redis": "*",
                 "php": "^7.4|^8.0|^8.1|^8.2",
+                "phpmailer/phpmailer": "^6.8.0",
                 "psr/log": "^1.1",
                 "react/http": "^1.8",
                 "swagger-api/swagger-ui": "^3.5",
@@ -4063,7 +4064,7 @@
                 "files": []
             },
             "description": "yusam-hub/app-ext",
-            "time": "2023-08-08T11:21:05+00:00"
+            "time": "2023-08-08T21:39:30+00:00"
         },
         {
             "name": "yusam-hub/captcha",

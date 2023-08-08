@@ -70,7 +70,13 @@ class RedisQueueOtpSendJob extends DaemonJob
 
         if ($type === UserRegistrationService::REGISTRATION_BY_EMAIL) {
 
-            PHPMailerExt::sendTo($this->emailOrMobile, $message, $message);
+            app_ext_php_mailer_global()
+                ->connection()
+                ->sendTo(
+                    $this->emailOrMobile,
+                    $message,
+                    $message
+                );
 
         } elseif($type === UserRegistrationService::REGISTRATION_BY_MOBILE) {
 
