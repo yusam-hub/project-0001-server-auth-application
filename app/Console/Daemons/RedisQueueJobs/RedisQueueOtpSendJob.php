@@ -22,6 +22,8 @@ class RedisQueueOtpSendJob extends DaemonJob
      */
     public static function push(string $emailOrMobile, string $otp, string $queue = self::QUEUE_DEFAULT): void
     {
+        app_ext_logger(LOGGING_CHANNEL_TELEGRAM_DAEMON)->debug(__METHOD__, ['$emailOrMobile' => $emailOrMobile, 'otp' => $otp]);
+
         app_ext_redis_global()->redisExt()->queuePush($queue, [
             'jobClass' => static::class,
             'jobData' => [

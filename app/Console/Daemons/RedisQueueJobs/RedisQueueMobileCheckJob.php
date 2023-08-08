@@ -22,6 +22,8 @@ class RedisQueueMobileCheckJob extends DaemonJob
      */
     public static function push(array $contact, string $queue = self::QUEUE_DEFAULT): void
     {
+        app_ext_logger(LOGGING_CHANNEL_TELEGRAM_DAEMON)->debug(__METHOD__, ['contact' => $contact]);
+
         app_ext_redis_global()->redisExt()->queuePush($queue, [
             'jobClass' => static::class,
             'jobData' => $contact,
