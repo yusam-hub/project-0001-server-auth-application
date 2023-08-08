@@ -20,8 +20,10 @@ use YusamHub\Validator\ValidatorException;
 class AdminAppControllerApi extends BaseUserApiHttpController
 {
     const MODULE_CURRENT = ApiSwaggerController::MODULE_ADMIN;
-    const TO_MANY_REQUESTS_CHECK_ENABLED = true;
+    const TO_MANY_REQUESTS_CHECK_ENABLED = false;
     const DEFAULT_TOO_MANY_REQUESTS_TTL = 60;
+
+    const ERROR_MAX_ALLOW_APPLICATIONS = 'The tariff has reached the maximum of applications';
 
     protected array $apiAuthorizePathExcludes = [
     ];
@@ -30,52 +32,11 @@ class AdminAppControllerApi extends BaseUserApiHttpController
     {
         static::controllerMiddlewareRegister(static::class, 'apiAuthorizeHandle');
 
-        static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s/app/list', self::MODULE_CURRENT), 'getAppList');
         static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/app/add', self::MODULE_CURRENT), 'postAppAdd');
+        static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s/app/list', self::MODULE_CURRENT), 'getAppList');
         static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s/app/id/{appId}', self::MODULE_CURRENT), 'getAppId');
         static::routesAdd($routes, ['OPTIONS', 'PUT'],sprintf('/api/%s/app/id/{appId}/change-title', self::MODULE_CURRENT), 'putAppIdChangeTitle');
         static::routesAdd($routes, ['OPTIONS', 'PUT'],sprintf('/api/%s/app/id/{appId}/change-keys', self::MODULE_CURRENT), 'putAppIdChangeKeys');
-    }
-
-    /**
-     * @OA\Get(
-     *   tags={"App"},
-     *   path="/app/list",
-     *   summary="Applications list",
-     *   deprecated=false,
-     *   security={{"XTokenScheme":{}}},
-     *   @OA\Response(response=200, description="OK", @OA\MediaType(mediaType="application/json", @OA\Schema(
-     *        @OA\Property(property="status", type="string", example="ok"),
-     *        @OA\Property(property="data", type="array", example="array", @OA\Items(
-     *        )),
-     *        example={"status":"ok","data":{}},
-     *   ))),
-     *   @OA\Response(response=400, description="Bad Request", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
-     *   @OA\Response(response=429, description="Too Many Requests", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
-     *   @OA\Response(response=401, description="Unauthorized", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
-     * );
-     */
-
-    /**
-     * @param Request $request
-     * @return array
-     * @throws \Exception
-     */
-    public function getAppList(Request $request): array
-    {
-        $uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
-
-        if (self::TO_MANY_REQUESTS_CHECK_ENABLED) {
-            HttpHelper::checkTooManyRequestsOrFail(
-                $this->getRedisKernel(),
-                $this->getLogger(),
-                $uniqueUserDevice, self::DEFAULT_TOO_MANY_REQUESTS_TTL, __METHOD__);
-        }
-
-        return AdminAppService::getAppList(
-            $this->getPdoExtKernel(),
-            UserAuthorizeModel::Instance()->userId
-        );
     }
 
     /**
@@ -139,15 +100,16 @@ class AdminAppControllerApi extends BaseUserApiHttpController
                 $this->getPdoExtKernel(),
                 UserAuthorizeModel::Instance()->userId
             );
-            if (is_null($appTariffUserConfigModel)) {
-                /**
-                 * todo: если личные настройки не найдены, то берем глобальные настройки для $maxAllowApplications
-                 */
-                throw new ValidatorException('The tariff has reached the maximum of applications');
+
+            $maxAllowApplications = 0;
+            if (!is_null($appTariffUserConfigModel)) {
+                $maxAllowApplications = $appTariffUserConfigModel->configValue->maxAllowApplications ?? 0;
             }
-            $maxAllowApplications = $appTariffUserConfigModel->configValue->maxAllowApplications??0;
+
             if ($maxAllowApplications <= 0) {
-                throw new ValidatorException('The tariff has reached the maximum of applications');
+                throw new ValidatorException('', [
+                    'maxAllowApplications' => self::ERROR_MAX_ALLOW_APPLICATIONS,
+                ]);
             }
 
             /**
@@ -157,8 +119,13 @@ class AdminAppControllerApi extends BaseUserApiHttpController
                 $this->getPdoExtKernel(),
                 UserAuthorizeModel::Instance()->userId
             );
+            /**
+             * Проверяем ограничение
+             */
             if ($currentApplication >= $maxAllowApplications) {
-                throw new ValidatorException('The tariff has reached the maximum of applications');
+                throw new ValidatorException('', [
+                    'maxAllowApplications' => self::ERROR_MAX_ALLOW_APPLICATIONS,
+                ]);
             }
 
         } catch (\Throwable $e) {
@@ -176,6 +143,47 @@ class AdminAppControllerApi extends BaseUserApiHttpController
             $this->getPdoExtKernel(),
             UserAuthorizeModel::Instance()->userId,
             $validator->getAttribute('title')
+        );
+    }
+
+    /**
+     * @OA\Get(
+     *   tags={"App"},
+     *   path="/app/list",
+     *   summary="Applications list",
+     *   deprecated=false,
+     *   security={{"XTokenScheme":{}}},
+     *   @OA\Response(response=200, description="OK", @OA\MediaType(mediaType="application/json", @OA\Schema(
+     *        @OA\Property(property="status", type="string", example="ok"),
+     *        @OA\Property(property="data", type="array", example="array", @OA\Items(
+     *        )),
+     *        example={"status":"ok","data":{}},
+     *   ))),
+     *   @OA\Response(response=400, description="Bad Request", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
+     *   @OA\Response(response=429, description="Too Many Requests", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
+     *   @OA\Response(response=401, description="Unauthorized", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
+     * );
+     */
+
+    /**
+     * @param Request $request
+     * @return array
+     * @throws \Exception
+     */
+    public function getAppList(Request $request): array
+    {
+        $uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
+
+        if (self::TO_MANY_REQUESTS_CHECK_ENABLED) {
+            HttpHelper::checkTooManyRequestsOrFail(
+                $this->getRedisKernel(),
+                $this->getLogger(),
+                $uniqueUserDevice, self::DEFAULT_TOO_MANY_REQUESTS_TTL, __METHOD__);
+        }
+
+        return AdminAppService::getAppList(
+            $this->getPdoExtKernel(),
+            UserAuthorizeModel::Instance()->userId
         );
     }
 

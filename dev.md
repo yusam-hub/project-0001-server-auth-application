@@ -58,6 +58,10 @@
     docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console smarty:check"
     docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console php-mailer:check"    
 
+###### maintenance
+
+    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console maintenance:set-user-max-allow-applications 1 999"  
+    
 ###### testing
 
     docker exec -it yusam-php81 sh

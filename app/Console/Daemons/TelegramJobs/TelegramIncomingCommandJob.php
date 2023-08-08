@@ -6,7 +6,6 @@ use App\ClientApi\ClientTelegramSdk;
 use App\Console\Daemons\RedisQueueJobs\RedisQueueMobileCheckJob;
 use App\Model\Database\MobileSocialModel;
 use App\Model\Database\SocialModel;
-use App\Model\Database\UserMobileModel;
 use YusamHub\Daemon\Daemon;
 use YusamHub\Daemon\DaemonJob;
 use YusamHub\TelegramSdk\Helpers\ReplyMarkupHelper;
