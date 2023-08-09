@@ -258,7 +258,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
                 }],
             ]);
             $validator->setRuleMessages([
-                'assertion' => 'Invalid value',
+                'assertion' => 'Invalid value by validator',
             ]);
 
             $validator->validateOrFail();
@@ -272,7 +272,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
                 $appUserKeyModel = AppUserKeyModel::findModel($this->getPdoExtKernel(), $id);
                 if (!is_null($appUserKeyModel) && $appUserKeyModel->serviceKey !== $serviceKey) {
                     throw new ValidatorException('', [
-                        'assertion' => 'Invalid value',
+                        'assertion' => 'Invalid service key value',
                     ]);
                 }
 
