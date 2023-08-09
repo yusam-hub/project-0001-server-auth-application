@@ -265,6 +265,8 @@ class UserAppControllerApi extends BaseUserApiHttpController
 
             list($id,$serviceKey) = explode(":",$validator->getAttribute('assertion'));
 
+            $serverTime = curl_ext_time_utc();
+
             if (!empty($id) && !empty($serviceKey)) {
 
                 $appUserKeyModel = AppUserKeyModel::findModel($this->getPdoExtKernel(), $id);
@@ -277,7 +279,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
                 $expire = 600;
                 $accessTokenPayload = [
                     'type' => 'service-key',
-                    'expire' => $expire,
+                    'expired' => $serverTime + $expire,
                     'userId' => $appUserKeyModel->userId,
                     'appId' => $appUserKeyModel->appId,
                     'deviceUuid' => $appUserKeyModel->deviceUuid
@@ -328,7 +330,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
                     throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40104], [], self::AUTH_ERROR_CODE_40104);
                 }
 
-                $serverTime = curl_ext_time_utc();
+
 
                 if ($serverTime < $accessTokenPayload->iat and $serverTime > $accessTokenPayload->exp) {
                     throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40105], [], self::AUTH_ERROR_CODE_40105);
@@ -342,7 +344,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
                 $expire = $accessTokenPayload->exp - $serverTime;
                 $accessTokenPayload = [
                     'type' => 'jwt-key',
-                    'expire' => $expire,
+                    'expired' => $serverTime + $expire,
                     'userId' => $accessTokenPayload->uid,
                     'appId' => $accessTokenPayload->aid,
                     'deviceUuid' => $accessTokenPayload->did
