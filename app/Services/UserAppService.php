@@ -44,7 +44,7 @@ class UserAppService
 
         return [
             'type' => 'assertion',
-            'keyHash' => $appUserKeyModel->keyHash,
+            'publicKeyHash' => $appUserKeyModel->keyHash,
             'privateKey' => $openSsl->getPrivateKey()
         ];
     }

@@ -85,7 +85,7 @@ MYSQL;
 
         return [
             'appId' => $appModel->id,
-            'keyHash' => $appModel->keyHash,
+            'publicKeyHash' => $appModel->keyHash,
             'privateKey' => $openSsl->getPrivateKey(),
         ];
     }
@@ -171,7 +171,7 @@ MYSQL;
 
         return [
             'appId' => $appId,
-            'keyHash' => $appModel->keyHash,
+            'publicKeyHash' => $appModel->keyHash,
             'privateKey' => $openSsl->getPrivateKey()
         ];
     }

@@ -311,7 +311,7 @@ class UserAccountControllerApi extends BaseApiHttpController
 
             return [
                 'userId' => $userModel->id,
-                'keyHash' => $userModel->keyHash,
+                'publicKeyHash' => $userModel->keyHash,
                 'privateKey' => $openSsl->getPrivateKey(),
             ];
         });
@@ -413,7 +413,7 @@ class UserAccountControllerApi extends BaseApiHttpController
 
             return [
                 'userId' => $userModel->id,
-                'keyHash' => $userModel->keyHash,
+                'publicKeyHash' => $userModel->keyHash,
                 'privateKey' => $openSsl->getPrivateKey(),
             ];
         });

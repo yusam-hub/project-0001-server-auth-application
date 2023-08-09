@@ -27,7 +27,7 @@ class AppService
             'deviceUuid' => $deviceUuid
         ]);
         return [
-            'keyHash' => $appUserKeyModel->keyHash,
+            'publicKeyHash' => $appUserKeyModel->keyHash,
             'publicKey' => $appUserKeyModel->publicKey
         ];
     }
