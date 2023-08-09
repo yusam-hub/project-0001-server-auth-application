@@ -25,7 +25,7 @@ class AppControllerApi extends BaseAppApiHttpController
 {
     const MODULE_CURRENT = ApiSwaggerController::MODULE_APP;
 
-    const TO_MANY_REQUESTS_CHECK_ENABLED = true;
+    const TO_MANY_REQUESTS_CHECK_ENABLED = false;
     const DEFAULT_TOO_MANY_REQUESTS_TTL = 60;
 
     protected array $apiAuthorizePathExcludes = [
