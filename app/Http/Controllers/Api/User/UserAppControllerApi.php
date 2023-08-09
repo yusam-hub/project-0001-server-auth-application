@@ -277,8 +277,9 @@ class UserAppControllerApi extends BaseUserApiHttpController
                 }
 
                 $expire = 600;
+                $type = 'service-key';
                 $accessTokenPayload = [
-                    'type' => 'service-key',
+                    'type' => $type,
                     'expired' => $serverTime + $expire,
                     'userId' => $appUserKeyModel->userId,
                     'appId' => $appUserKeyModel->appId,
@@ -342,8 +343,9 @@ class UserAppControllerApi extends BaseUserApiHttpController
                 }
 
                 $expire = $accessTokenPayload->exp - $serverTime;
+                $type = 'jwt-key';
                 $accessTokenPayload = [
-                    'type' => 'jwt-key',
+                    'type' => $type,
                     'expired' => $serverTime + $expire,
                     'userId' => $accessTokenPayload->uid,
                     'appId' => $accessTokenPayload->aid,
@@ -360,6 +362,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
             );
 
             return [
+                'type' => $type,
                 'expire' => $expire,
                 'accessToken' => $accessToken
             ];
