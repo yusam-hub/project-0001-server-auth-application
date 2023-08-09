@@ -170,6 +170,7 @@ MYSQL;
         $appModel->saveOrFail();
 
         return [
+            'appId' => $appId,
             'keyHash' => $appModel->keyHash,
             'privateKey' => $openSsl->getPrivateKey()
         ];

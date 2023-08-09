@@ -43,6 +43,7 @@ class UserAppService
         $appUserKeyModel->saveOrFail();
 
         return [
+            'type' => 'assertion',
             'keyHash' => $appUserKeyModel->keyHash,
             'privateKey' => $openSsl->getPrivateKey()
         ];
