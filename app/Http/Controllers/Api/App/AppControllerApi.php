@@ -55,7 +55,7 @@ class AppControllerApi extends BaseAppApiHttpController
      *   path="/access-token",
      *   summary="Get user access token for application",
      *   deprecated=false,
-     *   security={{"XTokenScheme":{}}},
+     *   security={{"XTokenScheme":{}},{"XSignScheme":{}}},
      *   @OA\Parameter(name="accessToken",
      *     in="query",
      *     required=true,

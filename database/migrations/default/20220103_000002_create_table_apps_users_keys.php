@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS `:database`.`:table` (
     `deviceUuid` varchar(36) NOT NULL COMMENT 'Uuid устройства пользователя',
     `keyHash` varchar(32) DEFAULT NULL COMMENT 'Хеш ключей',    
     `publicKey` text NULL DEFAULT NULL COMMENT 'Публичный ключ',
+    `serviceKey` varchar(32) DEFAULT NULL COMMENT 'Сервичный ключ',       
     `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Дата создания записи',
     `modifiedAt` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Дата изменения записи',
     PRIMARY KEY (`id`),

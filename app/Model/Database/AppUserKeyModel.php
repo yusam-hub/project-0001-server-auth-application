@@ -11,6 +11,7 @@ use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
  * @property string $deviceUuid
  * @property string|null $keyHash
  * @property string|null $publicKey
+ * @property string|null $serviceKey
  * @property string $createdAt
  * @property string|null $modifiedAt
  *
@@ -33,6 +34,7 @@ class AppUserKeyModel extends BasePdoExtModel
     const ATTRIBUTE_NAME_DEVICE_UUID = 'deviceUuid';
     const ATTRIBUTE_NAME_KEY_HASH = 'keyHash';
     const ATTRIBUTE_NAME_PUBLIC_KEY = 'publicKey';
+    const ATTRIBUTE_NAME_SERVICE_KEY = 'serviceKey';
     const ATTRIBUTE_NAME_CREATED_AT = 'createdAt';
     const ATTRIBUTE_NAME_MODIFIED_AT = 'modifiedAt';
     protected function getDatabaseName(): string

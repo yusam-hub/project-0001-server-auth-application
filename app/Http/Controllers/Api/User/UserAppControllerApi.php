@@ -44,7 +44,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
      *   path="/app/id/{appId}/key-refresh",
      *   summary="Refresh keys for access user to application id",
      *   deprecated=false,
-     *   security={{"XTokenScheme":{}}},
+     *   security={{"XTokenScheme":{}},{"XSignScheme":{}}},
      *   @OA\Parameter(name="appId",
      *     in="path",
      *     required=true,
@@ -132,7 +132,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
      *   path="/app/id/{appId}/key-list",
      *   summary="Application id key list for user",
      *   deprecated=false,
-     *   security={{"XTokenScheme":{}}},
+     *   security={{"XTokenScheme":{}},{"XSignScheme":{}}},
      *   @OA\Parameter(name="appId",
      *     in="path",
      *     required=true,
@@ -209,7 +209,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
      *   path="/app/access-token",
      *   summary="Create access token for application id",
      *   deprecated=false,
-     *   security={{"XTokenScheme":{}}},
+     *   security={{"XTokenScheme":{}},{"XSignScheme":{}}},
      *   @OA\RequestBody(description="Properties", required=true,
      *        @OA\JsonContent(type="object",
      *            @OA\Property(property="assertion", type="string", example="", description=""),
@@ -249,6 +249,10 @@ class UserAppControllerApi extends BaseUserApiHttpController
             );
             $validator->setRules([
                 'assertion' => ['require','string', function($v){
+                    list($id, $serviceKey) = explode(":",$v);
+                    if (!empty($id) && !empty($serviceKey)) {
+                        return true;
+                    }
                     $accessTokenHead = JwtAccessTokenHelper::fromJwtAsHeads($v);
                     return (!is_null($accessTokenHead->uid) && !is_null($accessTokenHead->aid) && !is_null($accessTokenHead->did));
                 }],
@@ -259,62 +263,94 @@ class UserAppControllerApi extends BaseUserApiHttpController
 
             $validator->validateOrFail();
 
-            $accessTokenHead = JwtAccessTokenHelper::fromJwtAsHeads($validator->getAttribute('assertion'));
+            list($id,$serviceKey) = explode(":",$validator->getAttribute('assertion'));
 
-            if (is_null($accessTokenHead->aid) || is_null($accessTokenHead->uid) || is_null($accessTokenHead->did)) {
-                throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40101], [],self::AUTH_ERROR_CODE_40101);
+            if (!empty($id) && !empty($serviceKey)) {
+
+                $appUserKeyModel = AppUserKeyModel::findModel($this->getPdoExtKernel(), $id);
+                if (!is_null($appUserKeyModel) && $appUserKeyModel->serviceKey !== $serviceKey) {
+                    throw new ValidatorException('', [
+                        'assertion' => 'Invalid value',
+                    ]);
+                }
+
+                $expire = 600;
+                $accessTokenPayload = [
+                    'type' => 'service-key',
+                    'expire' => $expire,
+                    'userId' => $appUserKeyModel->userId,
+                    'appId' => $appUserKeyModel->appId,
+                    'deviceUuid' => $appUserKeyModel->deviceUuid
+                ];
+                $accessToken = md5(json_encode($accessTokenPayload) . microtime());
+
+            } else {
+
+                $accessTokenHead = JwtAccessTokenHelper::fromJwtAsHeads($validator->getAttribute('assertion'));
+
+                if (is_null($accessTokenHead->aid) || is_null($accessTokenHead->uid) || is_null($accessTokenHead->did)) {
+                    throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40101], [], self::AUTH_ERROR_CODE_40101);
+                }
+
+                $appUserKeyModel = AppUserKeyModel::findModelByAttributes($this->pdoExtKernel, [
+                    'appId' => $accessTokenHead->aid,
+                    'userId' => $accessTokenHead->uid,
+                    'deviceUuid' => $accessTokenHead->did,
+                ]);
+                if (is_null($appUserKeyModel)) {
+                    throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40102], [], self::AUTH_ERROR_CODE_40102);
+                }
+
+                $accessTokenPayload = JwtAccessTokenHelper::fromJwtAsPayload($validator->getAttribute('assertion'), $appUserKeyModel->publicKey);
+                if (
+                    is_null($accessTokenPayload->aid)
+                    ||
+                    is_null($accessTokenPayload->uid)
+                    ||
+                    is_null($accessTokenPayload->did)
+                    ||
+                    is_null($accessTokenPayload->pkh)
+                    ||
+                    is_null($accessTokenPayload->iat) || is_null($accessTokenPayload->exp)
+                ) {
+                    throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40103], [], self::AUTH_ERROR_CODE_40103);
+                }
+
+                if (
+                    $accessTokenPayload->aid != $accessTokenHead->aid
+                    ||
+                    $accessTokenPayload->uid != $accessTokenHead->uid
+                    ||
+                    $accessTokenPayload->did != $accessTokenHead->did
+                    ||
+                    $accessTokenPayload->pkh != $appUserKeyModel->keyHash
+                ) {
+                    throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40104], [], self::AUTH_ERROR_CODE_40104);
+                }
+
+                //todo: convert to UTC
+                $serverTime = time();
+
+                if ($serverTime < $accessTokenPayload->iat and $serverTime > $accessTokenPayload->exp) {
+                    throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40105], [], self::AUTH_ERROR_CODE_40105);
+                }
+
+                $appModel = AppModel::findModel($this->pdoExtKernel, $accessTokenPayload->aid);
+                if (is_null($appModel)) {
+                    throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40102], [], self::AUTH_ERROR_CODE_40102);
+                }
+
+                $expire = $accessTokenPayload->exp - $serverTime;
+                $accessTokenPayload = [
+                    'type' => 'jwt-key',
+                    'expire' => $expire,
+                    'userId' => $accessTokenPayload->uid,
+                    'appId' => $accessTokenPayload->aid,
+                    'deviceUuid' => $accessTokenPayload->did
+                ];
+                $accessToken = md5(json_encode($accessTokenPayload) . microtime());
+
             }
-
-            $appUserKeyModel = AppUserKeyModel::findModelByAttributes($this->pdoExtKernel, [
-                'appId' => $accessTokenHead->aid,
-                'userId' => $accessTokenHead->uid,
-                'deviceUuid' => $accessTokenHead->did,
-            ]);
-            if (is_null($appUserKeyModel)) {
-                throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40102], [],self::AUTH_ERROR_CODE_40102);
-            }
-
-            $accessTokenPayload = JwtAccessTokenHelper::fromJwtAsPayload($validator->getAttribute('assertion'), $appUserKeyModel->publicKey);
-            if (
-                is_null($accessTokenPayload->aid)
-                ||
-                is_null($accessTokenPayload->uid)
-                ||
-                is_null($accessTokenPayload->did)
-                ||
-                is_null($accessTokenPayload->pkh)
-                ||
-                is_null($accessTokenPayload->iat) || is_null($accessTokenPayload->exp)
-            ) {
-                throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40103], [], self::AUTH_ERROR_CODE_40103);
-            }
-
-            if (
-                $accessTokenPayload->aid != $accessTokenHead->aid
-                ||
-                $accessTokenPayload->uid != $accessTokenHead->uid
-                ||
-                $accessTokenPayload->did != $accessTokenHead->did
-                ||
-                $accessTokenPayload->pkh != $appUserKeyModel->keyHash
-            ) {
-                throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40104], [],self::AUTH_ERROR_CODE_40104);
-            }
-
-            $serverTime = time();
-
-            if ($serverTime < $accessTokenPayload->iat and $serverTime > $accessTokenPayload->exp) {
-                throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40105], [],self::AUTH_ERROR_CODE_40105);
-            }
-
-            $appModel = AppModel::findModel($this->pdoExtKernel, $accessTokenPayload->aid);
-            if (is_null($appModel)) {
-                throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40102], [],self::AUTH_ERROR_CODE_40102);
-            }
-
-            $expire = $accessTokenPayload->exp - $serverTime;
-
-            $accessToken = md5(implode("", (array) $accessTokenPayload));
 
             $this->getRedisKernel()->connection()->put(
                 $accessToken,

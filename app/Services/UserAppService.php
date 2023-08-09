@@ -39,6 +39,7 @@ class UserAppService
         $appUserKeyModel->deviceUuid = $deviceUuid;
         $appUserKeyModel->publicKey = $openSsl->getPublicKey();
         $appUserKeyModel->keyHash = md5($appUserKeyModel->publicKey);
+        $appUserKeyModel->serviceKey = md5($appUserKeyModel->keyHash . microtime());
         $appUserKeyModel->saveOrFail();
 
         return [

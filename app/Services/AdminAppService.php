@@ -80,7 +80,7 @@ MYSQL;
         $appModel->title = $title;
         $appModel->publicKey = $openSsl->getPublicKey();
         $appModel->keyHash = md5($appModel->publicKey);
-        $appModel->serviceKey = md5($appModel->keyHash . microtime(false));
+        $appModel->serviceKey = md5($appModel->keyHash . microtime());
         $appModel->saveOrFail();
 
         return [

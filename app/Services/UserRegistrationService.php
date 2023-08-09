@@ -74,9 +74,9 @@ class UserRegistrationService
 
             $userModel = new UserModel();
             $userModel->setPdoExtKernel($pdoExtKernel);
-            $userModel->keyHash = md5($publicKey);
             $userModel->publicKey = $publicKey;
-            $userModel->serviceKey = md5($userModel->keyHash . microtime(false));
+            $userModel->keyHash = md5($userModel->publicKey);
+            $userModel->serviceKey = md5($userModel->keyHash . microtime());
             $userModel->saveOrFail();
 
             $userEmailModel = new UserEmailModel();
@@ -121,9 +121,9 @@ class UserRegistrationService
 
             $userModel = new UserModel();
             $userModel->setPdoExtKernel($pdoExtKernel);
-            $userModel->keyHash = md5($publicKey);
             $userModel->publicKey = $publicKey;
-            $userModel->serviceKey = md5($userModel->keyHash . microtime(false));
+            $userModel->keyHash = md5($userModel->publicKey);
+            $userModel->serviceKey = md5($userModel->keyHash . microtime());
             $userModel->saveOrFail();
 
             $userMobileModel = new UserMobileModel();
