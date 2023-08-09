@@ -4104,7 +4104,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yusam-hub/curl-ext",
-                "reference": "55e95a6828c587c86875f50793204d33b8d4f808"
+                "reference": "ed1200364deded9d97e8509e4e14d1d1f4a29f49"
             },
             "require": {
                 "ext-curl": "*",
@@ -4135,7 +4135,7 @@
                 "files": []
             },
             "description": "yusam-hub/curl-ext",
-            "time": "2023-02-28T00:05:52+00:00"
+            "time": "2023-08-09T14:15:00+00:00"
         },
         {
             "name": "yusam-hub/daemon",
@@ -4381,7 +4381,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yusam-hub/project-0001-client-auth-sdk.git",
-                "reference": "dd8bc6ddc1116552dbebaa6cef1da90549ab1c23"
+                "reference": "f7a8259380b738deddaaaa0449dd770c7dc9987e"
             },
             "require": {
                 "firebase/php-jwt": "^6.0",
@@ -4406,7 +4406,7 @@
                 "files": []
             },
             "description": "yusam-hub/project-0001-client-auth-sdk",
-            "time": "2023-08-06T21:18:34+00:00"
+            "time": "2023-08-09T00:24:50+00:00"
         },
         {
             "name": "yusam-hub/redis-ext",

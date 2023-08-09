@@ -328,8 +328,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
                     throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40104], [], self::AUTH_ERROR_CODE_40104);
                 }
 
-                //todo: convert to UTC
-                $serverTime = time();
+                $serverTime = curl_ext_time_utc();
 
                 if ($serverTime < $accessTokenPayload->iat and $serverTime > $accessTokenPayload->exp) {
                     throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40105], [], self::AUTH_ERROR_CODE_40105);

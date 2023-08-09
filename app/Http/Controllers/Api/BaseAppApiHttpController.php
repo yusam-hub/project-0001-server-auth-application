@@ -92,8 +92,7 @@ abstract class BaseAppApiHttpController extends BaseApiHttpController implements
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40104], self::AUTH_ERROR_CODE_40104);
             }
 
-            //todo: converto to UTC
-            $serverTime = time();
+            $serverTime = curl_ext_time_utc();
 
             if ($serverTime < $appTokenPayload->iat and $serverTime > $appTokenPayload->exp) {
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40105], self::AUTH_ERROR_CODE_40105);
