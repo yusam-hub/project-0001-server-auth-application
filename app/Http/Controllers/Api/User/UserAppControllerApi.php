@@ -278,14 +278,14 @@ class UserAppControllerApi extends BaseUserApiHttpController
 
                 $expire = 3600;
                 $type = 'service-key';
-                $accessTokenPayload = [
+                $accessTokenData = [
                     'type' => $type,
                     'expired' => $serverTime + $expire,
                     'userId' => $appUserKeyModel->userId,
                     'appId' => $appUserKeyModel->appId,
                     'deviceUuid' => $appUserKeyModel->deviceUuid
                 ];
-                $accessToken = md5(json_encode($accessTokenPayload) . microtime());
+                $accessToken = md5(json_encode($accessTokenData) . microtime());
 
             } else {
 
@@ -331,8 +331,6 @@ class UserAppControllerApi extends BaseUserApiHttpController
                     throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40104], [], self::AUTH_ERROR_CODE_40104);
                 }
 
-
-
                 if ($serverTime < $accessTokenPayload->iat and $serverTime > $accessTokenPayload->exp) {
                     throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40105], [], self::AUTH_ERROR_CODE_40105);
                 }
@@ -344,20 +342,19 @@ class UserAppControllerApi extends BaseUserApiHttpController
 
                 $expire = $accessTokenPayload->exp - $serverTime;
                 $type = 'jwt-key';
-                $accessTokenPayload = [
+                $accessTokenData = [
                     'type' => $type,
                     'expired' => $serverTime + $expire,
                     'userId' => $accessTokenPayload->uid,
                     'appId' => $accessTokenPayload->aid,
                     'deviceUuid' => $accessTokenPayload->did
                 ];
-                $accessToken = md5(json_encode($accessTokenPayload) . microtime());
-
+                $accessToken = md5(json_encode($accessTokenData) . microtime());
             }
 
             $this->getRedisKernel()->connection()->put(
                 $accessToken,
-                $accessTokenPayload,
+                $accessTokenData,
                 $expire
             );
 
