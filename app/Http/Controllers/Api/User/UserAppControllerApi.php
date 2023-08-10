@@ -276,7 +276,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
                     ]);
                 }
 
-                $expire = 600;
+                $expire = 3600;
                 $type = 'service-key';
                 $accessTokenPayload = [
                     'type' => $type,
