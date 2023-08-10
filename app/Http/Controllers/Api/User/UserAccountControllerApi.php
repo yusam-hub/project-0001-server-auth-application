@@ -25,16 +25,11 @@ class UserAccountControllerApi extends BaseApiHttpController
     const TO_MANY_REQUESTS_CHECK_ENABLED = false;
     const DEFAULT_TOO_MANY_REQUESTS_TTL = 600;
     const OTP_ACTION_USER_REGISTER = 1;
-    const OTP_ACTION_USER_RESTORE_REGISTER = 2;
 
     public static function routesRegister(RoutingConfigurator $routes): void
     {
         static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/account/init-registration', self::MODULE_CURRENT), 'postAccountInitRegistration');
         static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/account/confirm-registration', self::MODULE_CURRENT), 'postAccountConfirmRegistration');
-
-        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/account/init-restore-registration', self::MODULE_CURRENT), 'postAccountInitRestoreRegistration');
-        static::routesAdd($routes, ['OPTIONS', 'POST'],sprintf('/api/%s/account/confirm-restore-registration', self::MODULE_CURRENT), 'postAccountConfirmRestoreRegistration');
-
     }
 
     /**
@@ -277,139 +272,52 @@ class UserAccountControllerApi extends BaseApiHttpController
                 $mobilePrefixId
             );
 
-            if ($registrationType === UserRegistrationService::REGISTRATION_BY_EMAIL) {
-                if (UserEmailModel::findUserIdByEmail($this->getPdoExtKernel(), $validator->getAttribute('emailOrMobile'))) {
-                    throw new HttpBadRequestAppExtRuntimeException([
-                        'emailOrMobile' => 'Registration fail, user is exists',
-                    ]);
-                }
+            if ($registrationType === UserRegistrationService::REGISTRATION_BY_EMAIL)
+            {
 
-                $openSsl = (new OpenSsl())->newPrivatePublicKeys();
-
-                $userModel = UserRegistrationService::addUserByEmailOrFail(
-                    $this->getPdoExtKernel(),
-                    $validator->getAttribute('emailOrMobile'),
-                    $openSsl->getPublicKey(),
-                );
-
-            } else {
-                if (UserMobileModel::findUserIdByMobile($this->getPdoExtKernel(), '', $validator->getAttribute('emailOrMobile'))) {
-                    throw new HttpBadRequestAppExtRuntimeException([
-                        'emailOrMobile' => 'Registration fail, user is exists',
-                    ]);
-                }
-
-                $openSsl = (new OpenSsl())->newPrivatePublicKeys();
-
-                $userModel = UserRegistrationService::addUserByMobileOrFail(
-                    $this->getPdoExtKernel(),
-                    $mobilePrefix,
-                    $num,
-                    $openSsl->getPublicKey(),
-                );
-            }
-
-            return [
-                'userId' => $userModel->id,
-                'publicKeyHash' => $userModel->keyHash,
-                'privateKey' => $openSsl->getPrivateKey(),
-            ];
-        });
-    }
-
-
-    /**
-     * @OA\Post(
-     *   tags={"Account"},
-     *   path="/account/init-restore-registration",
-     *   summary="Account init restore registration",
-     *   deprecated=false,
-     *   @OA\RequestBody(description="Properties", required=true,
-     *        @OA\JsonContent(type="object",
-     *            @OA\Property(property="emailOrMobile", type="string", example="example@domain.zone|+73337777777", description="E-mail or mobile of exists user"),
-     *        ),
-     *   ),
-     *   @OA\Response(response=200, description="OK", @OA\MediaType(mediaType="application/json", @OA\Schema(
-     *        @OA\Property(property="status", type="string", example="ok"),
-     *        @OA\Property(property="data", type="array", example="array", @OA\Items(
-     *        )),
-     *        example={"status":"ok","data":{"hash":"string"}},
-     *   ))),
-     *   @OA\Response(response=400, description="Bad Request", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
-     *   @OA\Response(response=429, description="Too Many Requests", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
-     * );
-     */
-
-    /**
-     * @param Request $request
-     * @return array
-     * @throws \Exception
-     */
-    public function postAccountInitRestoreRegistration(Request $request): array
-    {
-        return $this->sendOtpForAction($request, self::OTP_ACTION_USER_RESTORE_REGISTER, __METHOD__);
-    }
-
-    /**
-     * @OA\Post(
-     *   tags={"Account"},
-     *   path="/account/confirm-restore-registration",
-     *   summary="Account confirm restore registation",
-     *   deprecated=false,
-     *   @OA\RequestBody(description="Properties", required=true,
-     *        @OA\JsonContent(type="object",
-     *            @OA\Property(property="emailOrMobile", type="string", example="example@domain.zone|+73337777777", description="E-mail or mobile of exists user"),
-     *            @OA\Property(property="hash", type="string", example="", description="Hash string returned on init registration"),
-     *            @OA\Property(property="otp", type="string", example="", description="One time password"),
-     *        ),
-     *   ),
-     *   @OA\Response(response=200, description="OK", @OA\MediaType(mediaType="application/json", @OA\Schema(
-     *        @OA\Property(property="status", type="string", example="ok"),
-     *        @OA\Property(property="data", type="array", example="array", @OA\Items(
-     *        )),
-     *        example={"status":"ok","data":{"userId":"integer","privateKey":"string"}},
-     *   ))),
-     *   @OA\Response(response=400, description="Bad Request", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
-     *   @OA\Response(response=429, description="Too Many Requests", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
-     * );
-     */
-
-    /**
-     * @param Request $request
-     * @return array
-     */
-    public function postAccountConfirmRestoreRegistration(Request $request): array
-    {
-        return $this->confirmOtpForAction($request, self::OTP_ACTION_USER_RESTORE_REGISTER, __METHOD__, function(Validator $validator)
-        {
-            $registrationType = UserRegistrationService::getRegistrationType(
-                $this->getRedisKernel(),
-                $this->getLogger(),
-                $this->getPdoExtKernel(),
-                $validator->getAttribute('emailOrMobile'),
-                $mobilePrefix,
-                $num,
-                $mobilePrefixId
-            );
-
-            if ($registrationType === UserRegistrationService::REGISTRATION_BY_EMAIL) {
                 $userId = UserEmailModel::findUserIdByEmail($this->getPdoExtKernel(), $validator->getAttribute('emailOrMobile'));
+
+                $openSsl = (new OpenSsl())->newPrivatePublicKeys();
+
+                if (!is_null($userId)) {
+
+                    $userModel = UserModel::findModelOrFail($this->getPdoExtKernel(), $userId);
+                    $userModel->publicKey = $openSsl->getPublicKey();
+                    $userModel->keyHash = md5($userModel->publicKey);
+                    $userModel->saveOrFail();
+
+                } else {
+
+                    $userModel = UserRegistrationService::addUserByEmailOrFail(
+                        $this->getPdoExtKernel(),
+                        $validator->getAttribute('emailOrMobile'),
+                        $openSsl->getPublicKey(),
+                    );
+
+                }
+
             } else {
+
                 $userId = UserMobileModel::findUserIdByMobile($this->getPdoExtKernel(), $mobilePrefix, $num);
+
+                $openSsl = (new OpenSsl())->newPrivatePublicKeys();
+
+                if (!is_null($userId)) {
+
+                    $userModel = UserModel::findModelOrFail($this->getPdoExtKernel(), $userId);
+                    $userModel->publicKey = $openSsl->getPublicKey();
+                    $userModel->keyHash = md5($userModel->publicKey);
+                    $userModel->saveOrFail();
+
+                } else {
+                    $userModel = UserRegistrationService::addUserByMobileOrFail(
+                        $this->getPdoExtKernel(),
+                        $mobilePrefix,
+                        $num,
+                        $openSsl->getPublicKey(),
+                    );
+                }
             }
-
-            if (is_null($userId)) {
-                throw new HttpBadRequestAppExtRuntimeException([
-                    'emailOrMobile' => 'Restore registration fail, user is not exists',
-                ]);
-            }
-
-            $openSsl = (new OpenSsl())->newPrivatePublicKeys();
-
-            $userModel = UserModel::findModelOrFail($this->getPdoExtKernel(), $userId);
-            $userModel->publicKey = $openSsl->getPublicKey();
-            $userModel->keyHash = md5($userModel->publicKey);
-            $userModel->saveOrFail();
 
             return [
                 'userId' => $userModel->id,
