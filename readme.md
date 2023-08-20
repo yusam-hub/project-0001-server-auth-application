@@ -27,3 +27,16 @@
     curl --unix-socket /tmp/react-http-server-socks/server.worker0.sock -vvv -X GET http://localhost.loc
     curl --unix-socket /tmp/react-http-server-socks/server.worker0.sock -vvv -X GET http://mini-app-example-react-8074.loc/api/debug
 
+#### тестирование
+
+-) Сделать полную миграцию (удалить файл migrations_default.lst)
+-) Нужно запустить сервисы daemon:telegram + daemon:queue
+-) В телеграмм боте запустить /start
+-) Должно прийти сообщение и с кнопкой отправить номер для регистрации
+-) После отправки придет сообщение что номер добавлен в БД, это нужно для того что бы отправлять OTP коды
+-) Далее производим регистрацию и получаем приватный ключ пользователя
+-) Далее меняем параметр maxAllowApplications через комманд maintenance:set-user-max-allow-applications
+-) Далее регистрируем приложение и получаем приватный ключ приложения
+-) Далее делаем key-refresh и получаем приватный ключ доступа к приложению
+-) Далее получаем токен к приложению
+-) из приложения читаем токен и получаем параметр клиенты userId + deviceUuid

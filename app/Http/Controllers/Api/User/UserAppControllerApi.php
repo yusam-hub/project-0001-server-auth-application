@@ -10,6 +10,7 @@ use App\Model\Database\AppModel;
 use App\Model\Database\AppUserKeyModel;
 use App\Services\AdminAppService;
 use App\Services\UserAppService;
+use Firebase\JWT\JWT;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use YusamHub\AppExt\Exceptions\HttpBadRequestAppExtRuntimeException;
@@ -276,6 +277,11 @@ class UserAppControllerApi extends BaseUserApiHttpController
                     ]);
                 }
 
+                $appModel = AppModel::findModel($this->pdoExtKernel, $appUserKeyModel->appId);
+                if (is_null($appModel)) {
+                    throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40102], [], self::AUTH_ERROR_CODE_40102);
+                }
+
                 $expire = 3600;
                 $type = 'service-key';
                 $accessTokenData = [
@@ -285,7 +291,6 @@ class UserAppControllerApi extends BaseUserApiHttpController
                     'appId' => $appUserKeyModel->appId,
                     'deviceUuid' => $appUserKeyModel->deviceUuid
                 ];
-                $accessToken = md5(json_encode($accessTokenData) . microtime());
 
             } else {
 
@@ -349,8 +354,9 @@ class UserAppControllerApi extends BaseUserApiHttpController
                     'appId' => $accessTokenPayload->aid,
                     'deviceUuid' => $accessTokenPayload->did
                 ];
-                $accessToken = md5(json_encode($accessTokenData) . microtime());
             }
+
+            $accessToken = md5(json_encode($accessTokenData) . microtime());
 
             $this->getRedisKernel()->connection()->put(
                 $accessToken,
