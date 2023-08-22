@@ -116,6 +116,10 @@ class AppControllerApi extends BaseAppApiHttpController
             throw new HttpInternalServerErrorAppExtRuntimeException();
         }
 
-        return (array) $this->getRedisKernel()->connection()->get($validator->getAttribute('accessToken'));
+        $accessTokenData = (array) $this->getRedisKernel()->connection()->get($validator->getAttribute('accessToken'));
+
+        $this->getRedisKernel()->connection()->del($validator->getAttribute('accessToken'));
+
+        return $accessTokenData;
     }
 }
