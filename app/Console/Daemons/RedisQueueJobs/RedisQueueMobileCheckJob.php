@@ -7,9 +7,13 @@ use App\Helpers\EmailMobileHelper;
 use App\Model\Database\MobileModel;
 use App\Model\Database\MobileSocialModel;
 use App\Model\Database\SocialModel;
+use App\Model\Database\UserMobileModel;
+use App\Model\Database\UserModel;
+use App\Services\UserRegistrationService;
 use YusamHub\AppExt\Helpers\ExceptionHelper;
 use YusamHub\Daemon\Daemon;
 use YusamHub\Daemon\DaemonJob;
+use YusamHub\Helper\OpenSsl;
 
 class RedisQueueMobileCheckJob extends DaemonJob
 {
@@ -77,6 +81,19 @@ class RedisQueueMobileCheckJob extends DaemonJob
 
                 $clientTelegramSdk = new ClientTelegramSdk();
                 $clientTelegramSdk->sendMessage($this->user_id, sprintf('Congratulation, the mobile number [ %s ] has been successfully added', $this->phone_number));
+
+                $userId = UserMobileModel::findUserIdByMobile(app_ext_db_global(), $mobilePrefix, $num);
+
+                if (is_null($userId)) {
+                    $openSsl = (new OpenSsl())->newPrivatePublicKeys();
+                    $userModel = UserRegistrationService::addUserByMobileOrFail(
+                        app_ext_db_global(),
+                        $mobilePrefix,
+                        $num,
+                        $openSsl->getPublicKey(),
+                    );
+                    $clientTelegramSdk->sendMessage($this->user_id, sprintf('Congratulation, the user id [ %s ] has been successfully added', $userModel->id));
+                }
             } else {
                 throw new \Exception(sprintf("Invalid mobile number [ %s ]", $this->phone_number));
             }
