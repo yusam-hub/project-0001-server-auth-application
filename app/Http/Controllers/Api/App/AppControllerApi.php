@@ -95,6 +95,12 @@ class AppControllerApi extends BaseAppApiHttpController
                 $request->query->all()
             );
             $validator->setRules([
+                /**
+                 * todo: сюда нужно передатавать и проверять
+                    'appId' => $accessTokenHead->aid,
+                    'userId' => $accessTokenHead->uid,
+                    'deviceUuid' => $accessTokenHead->did,
+                 */
                 'accessToken' => ['require','regex:^([0-9a-f]{32})$', function($v){
                     return $this->getRedisKernel()->connection()->has($v);
                 }],
@@ -116,6 +122,13 @@ class AppControllerApi extends BaseAppApiHttpController
             throw new HttpInternalServerErrorAppExtRuntimeException();
         }
 
+        /**
+         * todo: здесь нужно получить публичный ключ, для того, чтобы расшифровать токен в приложении для этого юзера
+        'appId' => $accessTokenHead->aid,
+        'userId' => $accessTokenHead->uid,
+        'deviceUuid' => $accessTokenHead->did,
+         находим publicKey и возвращаем в приложение, которое его использует для дешифрации JWT
+         */
         $accessTokenData = (array) $this->getRedisKernel()->connection()->get($validator->getAttribute('accessToken'));
 
         $this->getRedisKernel()->connection()->del($validator->getAttribute('accessToken'));

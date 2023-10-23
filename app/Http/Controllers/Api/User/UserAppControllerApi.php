@@ -16,8 +16,7 @@ use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use YusamHub\AppExt\Exceptions\HttpBadRequestAppExtRuntimeException;
 use YusamHub\AppExt\Exceptions\HttpInternalServerErrorAppExtRuntimeException;
 use YusamHub\AppExt\Helpers\ExceptionHelper;
-use YusamHub\Project0001ClientAuthSdk\Tokens\JwtAccessTokenHelper;
-use YusamHub\Project0001ClientAuthSdk\Tokens\JwtAuthAppTokenHelper;
+use YusamHub\Project0001ClientAuthSdk\Tokens\JwtAssertionHelper;
 use YusamHub\Validator\Validator;
 use YusamHub\Validator\ValidatorException;
 
@@ -261,7 +260,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
                     if (!empty($id) && !empty($serviceKey)) {
                         return true;
                     }
-                    $accessTokenHead = JwtAccessTokenHelper::fromJwtAsHeads($v);
+                    $accessTokenHead = JwtAssertionHelper::fromJwtAsHeads($v);
                     return (!is_null($accessTokenHead->uid) && !is_null($accessTokenHead->aid) && !is_null($accessTokenHead->did));
                 }],
             ]);
@@ -303,7 +302,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
 
             } else {
 
-                $accessTokenHead = JwtAccessTokenHelper::fromJwtAsHeads($validator->getAttribute('assertion'));
+                $accessTokenHead = JwtAssertionHelper::fromJwtAsHeads($validator->getAttribute('assertion'));
 
                 if (is_null($accessTokenHead->aid) || is_null($accessTokenHead->uid) || is_null($accessTokenHead->did)) {
                     throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40101], [], self::AUTH_ERROR_CODE_40101);
@@ -318,7 +317,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
                     throw new ValidatorException(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40102], [], self::AUTH_ERROR_CODE_40102);
                 }
 
-                $accessTokenPayload = JwtAccessTokenHelper::fromJwtAsPayload($validator->getAttribute('assertion'), $appUserKeyModel->publicKey);
+                $accessTokenPayload = JwtAssertionHelper::fromJwtAsPayload($validator->getAttribute('assertion'), $appUserKeyModel->publicKey);
                 if (
                     is_null($accessTokenPayload->aid)
                     ||
@@ -365,6 +364,11 @@ class UserAppControllerApi extends BaseUserApiHttpController
                 ];
             }
 
+            /**
+             * Достаем приватный ключ пользователя для приложения и запаковываем в JWT через - $appUserKeyModel->privateKey
+             */
+            $jwtToken = '';
+
             $accessToken = md5(json_encode($accessTokenData) . microtime());
 
             $this->getRedisKernel()->connection()->put(
@@ -375,7 +379,8 @@ class UserAppControllerApi extends BaseUserApiHttpController
 
             return [
                 'type' => $type,
-                'expire' => $expire,
+                'expire' => $expire,//удаляем
+                //todo: возвращаем $jwtToken
                 'accessToken' => $accessToken
             ];
 
