@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Model\Authorize\AppAuthorizeModel;
 use App\Model\Database\AppModel;
+use Firebase\JWT\JWT;
 use Symfony\Component\HttpFoundation\Request;
 use YusamHub\AppExt\SymfonyExt\Http\Interfaces\ControllerMiddlewareInterface;
 use YusamHub\AppExt\SymfonyExt\Http\Traits\ControllerMiddlewareTrait;
@@ -93,6 +94,7 @@ abstract class BaseAppApiHttpController extends BaseApiHttpController implements
             }
 
             $serverTime = curl_ext_time_utc();
+            JWT::$timestamp = $serverTime;
 
             if ($serverTime < $appTokenPayload->iat and $serverTime > $appTokenPayload->exp) {
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40105], self::AUTH_ERROR_CODE_40105);
@@ -112,9 +114,10 @@ abstract class BaseAppApiHttpController extends BaseApiHttpController implements
         } catch (\Throwable $e) {
 
             throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
-                'token' => 'Invalid value',
+                self::TOKEN_KEY_NAME => 'Invalid value',
                 'detail' => $e->getMessage(),
-                'code' => $e->getCode()
+                'code' => $e->getCode(),
+                'class' => get_class($e)
             ]);
 
         }
