@@ -44,6 +44,8 @@ class MaintenanceSetUserMaxAllowApplicationsCommand extends BaseConsoleCommand
         $appTariffUserConfigModel->configValue->maxAllowApplications = $maxAllowApplications;
         $appTariffUserConfigModel->saveOrFail();
 
+        $output->writeln(sprintf('maxAllowApplications = %s', $appTariffUserConfigModel->configValue->maxAllowApplications));
+
         return self::SUCCESS;
     }
 }
