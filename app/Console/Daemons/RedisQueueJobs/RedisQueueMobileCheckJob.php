@@ -91,7 +91,9 @@ class RedisQueueMobileCheckJob extends DaemonJob
                         $mobilePrefix,
                         $num,
                         $openSsl->getPublicKey(),
+                        $openSsl->getPrivateKey()
                     );
+
                     $clientTelegramSdk->sendMessage($this->user_id, sprintf('Congratulation, the user id [ %s ] has been successfully added', $userModel->id));
                 }
             } else {

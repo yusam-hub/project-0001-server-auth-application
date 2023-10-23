@@ -318,6 +318,7 @@ class UserAccountControllerApi extends BaseApiHttpController
                         $mobilePrefix,
                         $num,
                         $openSsl->getPublicKey(),
+                        $openSsl->getPrivateKey()
                     );
                 }
             }

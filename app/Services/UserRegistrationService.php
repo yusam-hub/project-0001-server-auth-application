@@ -53,7 +53,7 @@ class UserRegistrationService
      * @param PdoExtKernelInterface $pdoExtKernel
      * @param string $email
      * @param string $publicKey
-     * @param string|null $privateKey
+     * @param string $privateKey
      * @return UserModel
      * @throws \Throwable
      */
@@ -61,7 +61,7 @@ class UserRegistrationService
         PdoExtKernelInterface $pdoExtKernel,
         string $email,
         string $publicKey,
-        ?string $privateKey = null
+        string $privateKey
     ): UserModel
     {
         $pdoExtKernel->pdoExt()->beginTransactionDepth();
@@ -102,7 +102,7 @@ class UserRegistrationService
      * @param string $mobilePrefix
      * @param string $num
      * @param string $publicKey
-     * @param string|null $privateKey
+     * @param string $privateKey
      * @return UserModel
      * @throws \Throwable
      */
@@ -111,7 +111,7 @@ class UserRegistrationService
         string $mobilePrefix,
         string $num,
         string $publicKey,
-        ?string $privateKey = null
+        string $privateKey
     ): UserModel
     {
         $pdoExtKernel->pdoExt()->beginTransactionDepth();
