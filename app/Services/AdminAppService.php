@@ -80,13 +80,14 @@ MYSQL;
         $appModel->title = $title;
         $appModel->publicKey = $openSsl->getPublicKey();
         $appModel->keyHash = md5($appModel->publicKey);
+        $appModel->privateKey = $openSsl->getPrivateKey();
         $appModel->serviceKey = md5($appModel->keyHash . microtime());
         $appModel->saveOrFail();
 
         return [
             'appId' => $appModel->id,
             'publicKeyHash' => $appModel->keyHash,
-            'privateKey' => $openSsl->getPrivateKey(),
+            'privateKey' => $appModel->privateKey,
         ];
     }
 
@@ -167,12 +168,13 @@ MYSQL;
         ]);
         $appModel->publicKey = $openSsl->getPublicKey();
         $appModel->keyHash = md5($appModel->publicKey);
+        $appModel->privateKey = $openSsl->getPrivateKey();
         $appModel->saveOrFail();
 
         return [
             'appId' => $appId,
             'publicKeyHash' => $appModel->keyHash,
-            'privateKey' => $openSsl->getPrivateKey()
+            'privateKey' => $appModel->privateKey
         ];
     }
 }

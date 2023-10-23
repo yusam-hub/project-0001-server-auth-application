@@ -284,6 +284,7 @@ class UserAccountControllerApi extends BaseApiHttpController
                     $userModel = UserModel::findModelOrFail($this->getPdoExtKernel(), $userId);
                     $userModel->publicKey = $openSsl->getPublicKey();
                     $userModel->keyHash = md5($userModel->publicKey);
+                    $userModel->privateKey = $openSsl->getPrivateKey();
                     $userModel->saveOrFail();
 
                 } else {
@@ -292,6 +293,7 @@ class UserAccountControllerApi extends BaseApiHttpController
                         $this->getPdoExtKernel(),
                         $validator->getAttribute('emailOrMobile'),
                         $openSsl->getPublicKey(),
+                        $openSsl->getPrivateKey()
                     );
 
                 }
@@ -307,6 +309,7 @@ class UserAccountControllerApi extends BaseApiHttpController
                     $userModel = UserModel::findModelOrFail($this->getPdoExtKernel(), $userId);
                     $userModel->publicKey = $openSsl->getPublicKey();
                     $userModel->keyHash = md5($userModel->publicKey);
+                    $userModel->privateKey = $openSsl->getPrivateKey();
                     $userModel->saveOrFail();
 
                 } else {
@@ -322,7 +325,7 @@ class UserAccountControllerApi extends BaseApiHttpController
             return [
                 'userId' => $userModel->id,
                 'publicKeyHash' => $userModel->keyHash,
-                'privateKey' => $openSsl->getPrivateKey(),
+                'privateKey' => $userModel->privateKey,
             ];
         });
     }

@@ -53,13 +53,15 @@ class UserRegistrationService
      * @param PdoExtKernelInterface $pdoExtKernel
      * @param string $email
      * @param string $publicKey
+     * @param string|null $privateKey
      * @return UserModel
      * @throws \Throwable
      */
     public static function addUserByEmailOrFail(
         PdoExtKernelInterface $pdoExtKernel,
         string $email,
-        string $publicKey
+        string $publicKey,
+        ?string $privateKey = null
     ): UserModel
     {
         $pdoExtKernel->pdoExt()->beginTransactionDepth();
@@ -76,6 +78,7 @@ class UserRegistrationService
             $userModel->setPdoExtKernel($pdoExtKernel);
             $userModel->publicKey = $publicKey;
             $userModel->keyHash = md5($userModel->publicKey);
+            $userModel->privateKey = $privateKey;
             $userModel->serviceKey = md5($userModel->keyHash . microtime());
             $userModel->saveOrFail();
 
@@ -99,6 +102,7 @@ class UserRegistrationService
      * @param string $mobilePrefix
      * @param string $num
      * @param string $publicKey
+     * @param string|null $privateKey
      * @return UserModel
      * @throws \Throwable
      */
@@ -106,7 +110,8 @@ class UserRegistrationService
         PdoExtKernelInterface $pdoExtKernel,
         string $mobilePrefix,
         string $num,
-        string $publicKey
+        string $publicKey,
+        ?string $privateKey = null
     ): UserModel
     {
         $pdoExtKernel->pdoExt()->beginTransactionDepth();
@@ -123,6 +128,7 @@ class UserRegistrationService
             $userModel->setPdoExtKernel($pdoExtKernel);
             $userModel->publicKey = $publicKey;
             $userModel->keyHash = md5($userModel->publicKey);
+            $userModel->privateKey = $privateKey;
             $userModel->serviceKey = md5($userModel->keyHash . microtime());
             $userModel->saveOrFail();
 

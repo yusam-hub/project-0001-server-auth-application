@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Model\Database\AppModel;
 use App\Model\Database\AppUserKeyModel;
 use YusamHub\DbExt\Interfaces\PdoExtKernelInterface;
 use YusamHub\Helper\OpenSsl;
@@ -39,13 +38,14 @@ class UserAppService
         $appUserKeyModel->deviceUuid = $deviceUuid;
         $appUserKeyModel->publicKey = $openSsl->getPublicKey();
         $appUserKeyModel->keyHash = md5($appUserKeyModel->publicKey);
+        $appUserKeyModel->privateKey = $openSsl->getPrivateKey();
         $appUserKeyModel->serviceKey = md5($appUserKeyModel->keyHash . microtime());
         $appUserKeyModel->saveOrFail();
 
         return [
             'type' => 'assertion',
             'publicKeyHash' => $appUserKeyModel->keyHash,
-            'privateKey' => $openSsl->getPrivateKey()
+            'privateKey' => $appUserKeyModel->privateKey
         ];
     }
 
