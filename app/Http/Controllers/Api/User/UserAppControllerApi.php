@@ -253,7 +253,11 @@ class UserAppControllerApi extends BaseUserApiHttpController
             );
             $validator->setRules([
                 'assertion' => ['require','string', function($v){
-                    list($id, $serviceKey) = explode(":",$v);
+                    $id = null;
+                    $serviceKey = null;
+                    if (str_contains($v, ':')) {
+                        list($id, $serviceKey) = explode(":", $v);
+                    }
                     if (!empty($id) && !empty($serviceKey)) {
                         return true;
                     }
@@ -267,7 +271,11 @@ class UserAppControllerApi extends BaseUserApiHttpController
 
             $validator->validateOrFail();
 
-            list($id,$serviceKey) = explode(":",$validator->getAttribute('assertion'));
+            $id = null;
+            $serviceKey = null;
+            if (str_contains($validator->getAttribute('assertion'), ':')) {
+                list($id, $serviceKey) = explode(":", $validator->getAttribute('assertion'));
+            }
 
             if (!empty($id) && !empty($serviceKey)) {
 
