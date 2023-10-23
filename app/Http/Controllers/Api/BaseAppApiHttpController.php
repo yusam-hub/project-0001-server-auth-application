@@ -71,6 +71,8 @@ abstract class BaseAppApiHttpController extends BaseApiHttpController implements
         }
 
         try {
+            $serverTime = curl_ext_time_utc();
+            JWT::$timestamp = $serverTime;
 
             $appId = JwtAuthAppTokenHelper::getAppFromJwtHeads($token);
 
@@ -92,9 +94,6 @@ abstract class BaseAppApiHttpController extends BaseApiHttpController implements
             if ($appTokenPayload->aid != $appId) {
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40104], self::AUTH_ERROR_CODE_40104);
             }
-
-            $serverTime = curl_ext_time_utc();
-            JWT::$timestamp = $serverTime;
 
             if ($serverTime < $appTokenPayload->iat and $serverTime > $appTokenPayload->exp) {
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40105], self::AUTH_ERROR_CODE_40105);

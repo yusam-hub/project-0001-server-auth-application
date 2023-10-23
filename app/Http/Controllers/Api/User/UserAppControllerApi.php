@@ -244,6 +244,9 @@ class UserAppControllerApi extends BaseUserApiHttpController
         }
 
         try {
+            $serverTime = curl_ext_time_utc();
+            JWT::$timestamp = $serverTime;
+
             $validator = new Validator();
             $validator->setAttributes(
                 $request->request->all()
@@ -265,9 +268,6 @@ class UserAppControllerApi extends BaseUserApiHttpController
             $validator->validateOrFail();
 
             list($id,$serviceKey) = explode(":",$validator->getAttribute('assertion'));
-
-            $serverTime = curl_ext_time_utc();
-            JWT::$timestamp = $serverTime;
 
             if (!empty($id) && !empty($serviceKey)) {
 
