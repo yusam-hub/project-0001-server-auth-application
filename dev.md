@@ -1,73 +1,58 @@
 #### vbox
     
-    cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application
-
-#### dockers
-
-    docker exec -it yusam-php81 sh
-
-    docker exec -it yusam-php81 sh -c "php -m"
-    docker exec -it yusam-php81 sh -c "date"
+    cd /var/www/home-www/yusam/github/yusam-hub/project-0001/server-auth-application
 
 ###### tail
 
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application/storage/logs && tail -f app-2023-03-21.log"
+    tail -f app-2023-03-21.log
 
 ###### composer
 
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && composer update"
+    composer update
 
 ###### console
 
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console"
-
-###### db migrate
-
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console db:migrate"
+    php console
 
 ###### debug
 
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console debug:test"
+    php console debug:test
 
 ###### daemon
 
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console daemon:telegram"
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console daemon:redis-queue"
+    php console daemon:telegram
+    php console daemon:redis-queue
+    php console daemon:rabbit-mq-consumer
+    php console daemon:react-http-server
+    php console daemon:web-socket-server
 
 ###### console client
 
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console client:rabbit-mq-publisher hello-message"
-
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console client:web-socket-internal"
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console client:web-socket-external hello-message"
+    php console client:rabbit-mq-publisher hello-message
+    php console client:web-socket-internal
+    php console client:web-socket-external hello-message
 
 ###### console openapi + swagger-ui
 
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console open-api:generate-json"
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console swagger-ui install"
+    php console open-api:generate-json
+    php console swagger-ui install
 
 ###### console db
 
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console db:migrate"
+    php console db:migrate
 
 ###### console show
 
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console show:env"
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console show:server"
+    php console show:env
+    php console show:server
 
 ###### check
 
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console redis:check"    
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console db:check"    
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console smarty:check"
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console php-mailer:check"    
+    php console redis:check    
+    php console db:check    
+    php console smarty:check
+    php console php-mailer:check    
 
 ###### maintenance
 
-    docker exec -it yusam-php81 sh -c "cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application && php console maintenance:set-user-max-allow-applications 1 999"  
-    
-###### testing
-
-    docker exec -it yusam-php81 sh
-    cd '/var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application/#dev'
-    curl --unix-socket /tmp/react-http-server-socks/server.worker0.sock -vvv -X GET http://project-0001/server-auth-application-react-8074.loc/api/debug
+    php console maintenance:set-user-max-allow-applications 1 999
