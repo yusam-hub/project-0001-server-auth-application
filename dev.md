@@ -1,3 +1,7 @@
+#### vbox
+    
+    cd /var/www/data/yusam/github/yusam-hub/project-0001/server-auth-application
+
 #### dockers
 
     docker exec -it yusam-php81 sh
