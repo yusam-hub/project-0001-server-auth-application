@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\BaseUserApiHttpController;
 use App\Model\Authorize\AppAuthorizeModel;
 use App\Model\Authorize\UserAuthorizeModel;
 use App\Model\Database\AppModel;
+use App\Model\Database\AppUserKeyModel;
 use App\Model\Database\UserModel;
 use App\Services\AdminAppService;
 use App\Services\AppService;
@@ -18,6 +19,7 @@ use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use YusamHub\AppExt\Exceptions\HttpBadRequestAppExtRuntimeException;
 use YusamHub\AppExt\Exceptions\HttpInternalServerErrorAppExtRuntimeException;
 use YusamHub\AppExt\Helpers\ExceptionHelper;
+use YusamHub\DbExt\Exceptions\PdoExtModelException;
 use YusamHub\Validator\Validator;
 use YusamHub\Validator\ValidatorException;
 
@@ -37,7 +39,7 @@ class AppControllerApi extends BaseAppApiHttpController
         static::controllerMiddlewareRegister(static::class, 'apiAuthorizeHandle');
 
         static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s', self::MODULE_CURRENT), 'getApiHome');
-        static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s/access-token', self::MODULE_CURRENT), 'getAccessToken');
+        static::routesAdd($routes, ['OPTIONS', 'GET'],sprintf('/api/%s/user-key', self::MODULE_CURRENT), 'getUserKey');
     }
 
     /**
@@ -52,11 +54,17 @@ class AppControllerApi extends BaseAppApiHttpController
     /**
      * @OA\Get(
      *   tags={"default"},
-     *   path="/access-token",
-     *   summary="Get user access token for application",
+     *   path="/user-key",
+     *   summary="Get user key for application",
      *   deprecated=false,
      *   security={{"XTokenScheme":{}},{"XSignScheme":{}}},
-     *   @OA\Parameter(name="accessToken",
+     *   @OA\Parameter(name="userId",
+     *     in="query",
+     *     required=true,
+     *     example="",
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\Parameter(name="deviceUuid",
      *     in="query",
      *     required=true,
      *     example="",
@@ -66,7 +74,7 @@ class AppControllerApi extends BaseAppApiHttpController
      *        @OA\Property(property="status", type="string", example="ok"),
      *        @OA\Property(property="data", type="array", example="array", @OA\Items(
      *        )),
-     *        example={"status":"ok","data":{}},
+     *        example={"status":"ok","data":{"keyHash":"","publicKey":""}},
      *   ))),
      *   @OA\Response(response=400, description="Bad Request", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
      *   @OA\Response(response=429, description="Too Many Requests", @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/ResponseErrorDefault"))),
@@ -78,7 +86,7 @@ class AppControllerApi extends BaseAppApiHttpController
      * @param Request $request
      * @return array
      */
-    public function getAccessToken(Request $request): array
+    public function getUserKey(Request $request): array
     {
         $uniqueUserDevice = HttpHelper::getUniqueUserDeviceFromRequest($request);
 
@@ -95,21 +103,23 @@ class AppControllerApi extends BaseAppApiHttpController
                 $request->query->all()
             );
             $validator->setRules([
-                /**
-                 * todo: сюда нужно передатавать и проверять
-                    'appId' => $accessTokenHead->aid,
-                    'userId' => $accessTokenHead->uid,
-                    'deviceUuid' => $accessTokenHead->did,
-                 */
-                'accessToken' => ['require','regex:^([0-9a-f]{32})$', function($v){
-                    return $this->getRedisKernel()->connection()->has($v);
+                'userId' => ['require','regex:^([0-9]{1,20})$', function($v){
+                    return UserModel::exists($this->getRedisKernel(), $this->pdoExtKernel, $this->getLogger(), $v);
                 }],
+                'deviceUuid' => ['require','string','min:32','max:36'],
             ]);
             $validator->setRuleMessages([
-                'accessToken' => 'Invalid value',
+                'userId' => 'Invalid value',
+                'deviceUuid' => 'Invalid value, require string min(32), max(36)',
             ]);
 
             $validator->validateOrFail();
+
+            $appUserKeyModel = AppUserKeyModel::findModelByAttributesOrFail($this->getPdoExtKernel(), [
+                'appId' => AppAuthorizeModel::Instance()->appId,
+                'userId' => $validator->getAttribute('userId'),
+                'deviceUuid' => $validator->getAttribute('deviceUuid')
+            ]);
 
         } catch (\Throwable $e) {
 
@@ -117,22 +127,21 @@ class AppControllerApi extends BaseAppApiHttpController
                 throw new HttpBadRequestAppExtRuntimeException($e->getValidatorErrors());
             }
 
+            if ($e instanceof PdoExtModelException) {
+                throw new HttpBadRequestAppExtRuntimeException([
+                    'userId' => 'Invalid value',
+                    'deviceUuid' => 'Invalid value'
+                ],$e->getMessage());
+            }
+
             $this->error($e->getMessage(), ExceptionHelper::e2a($e));
 
             throw new HttpInternalServerErrorAppExtRuntimeException();
         }
 
-        /**
-         * todo: здесь нужно получить публичный ключ, для того, чтобы расшифровать токен в приложении для этого юзера
-        'appId' => $accessTokenHead->aid,
-        'userId' => $accessTokenHead->uid,
-        'deviceUuid' => $accessTokenHead->did,
-         находим publicKey и возвращаем в приложение, которое его использует для дешифрации JWT
-         */
-        $accessTokenData = (array) $this->getRedisKernel()->connection()->get($validator->getAttribute('accessToken'));
-
-        $this->getRedisKernel()->connection()->del($validator->getAttribute('accessToken'));
-
-        return $accessTokenData;
+        return [
+            'keyHash' => $appUserKeyModel->keyHash,
+            'publicKey' => $appUserKeyModel->publicKey,
+        ];
     }
 }
