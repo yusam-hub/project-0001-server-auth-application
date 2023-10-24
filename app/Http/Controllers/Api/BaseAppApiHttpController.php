@@ -74,7 +74,7 @@ abstract class BaseAppApiHttpController extends BaseApiHttpController implements
             $serverTime = curl_ext_time_utc();
             JWT::$timestamp = $serverTime;
 
-            $appId = JwtAuthAppTokenHelper::getAppFromJwtHeads($token);
+            $appId = JwtAuthAppTokenHelper::getAppIdFromJwtHeads($token);
 
             if (is_null($appId)) {
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40101], self::AUTH_ERROR_CODE_40101);

@@ -43,7 +43,7 @@ class UserAppService
         $appUserKeyModel->saveOrFail();
 
         return [
-            'type' => 'assertion',
+            'appUserKeyId' => $appUserKeyModel->id,
             'publicKeyHash' => $appUserKeyModel->keyHash,
             'privateKey' => $appUserKeyModel->privateKey
         ];
@@ -63,6 +63,7 @@ class UserAppService
     {
         $sqlRows = <<<MYSQL
 select 
+    auk.id as appUserKeyId,
     a.id as appId,
     a.title as appTitle,
     auk.deviceUuid,
