@@ -6,6 +6,7 @@ use App\Model\Authorize\AppAuthorizeModel;
 use App\Model\Database\AppModel;
 use Firebase\JWT\JWT;
 use Symfony\Component\HttpFoundation\Request;
+use YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException;
 use YusamHub\AppExt\SymfonyExt\Http\Interfaces\ControllerMiddlewareInterface;
 use YusamHub\AppExt\SymfonyExt\Http\Traits\ControllerMiddlewareTrait;
 use YusamHub\Project0001ClientAuthSdk\Tokens\JwtAuthAppTokenHelper;
@@ -46,31 +47,31 @@ abstract class BaseAppApiHttpController extends BaseApiHttpController implements
         $token = $request->headers->get(self::TOKEN_KEY_NAME,'');
         $sign = $request->headers->get(self::SIGN_KEY_NAME,'');
 
-        if (!empty($sign)) {
-            $appId = intval($token);
-            $serviceKey = $sign;
-
-            $appModel = AppModel::findModel($this->getPdoExtKernel(), $appId);
-
-            if (is_null($appModel)) {
-                throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
-                    self::TOKEN_KEY_NAME => 'Invalid value',
-                    self::SIGN_KEY_NAME => 'Invalid value',
-                ]);
-            }
-
-            if ($appModel->serviceKey !== $serviceKey) {
-                throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
-                    self::TOKEN_KEY_NAME => 'Invalid value',
-                    self::SIGN_KEY_NAME => 'Invalid value',
-                ]);
-            }
-
-            AppAuthorizeModel::Instance()->appId = $appId;
-            return;
-        }
-
         try {
+            if (!empty($sign)) {
+                $appId = intval($token);
+                $serviceKey = $sign;
+
+                $appModel = AppModel::findModel($this->getPdoExtKernel(), $appId);
+
+                if (is_null($appModel)) {
+                    throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
+                        self::TOKEN_KEY_NAME => 'Invalid value',
+                        self::SIGN_KEY_NAME => 'Invalid value',
+                    ]);
+                }
+
+                if ($appModel->serviceKey !== $serviceKey) {
+                    throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
+                        self::TOKEN_KEY_NAME => 'Invalid value',
+                        self::SIGN_KEY_NAME => 'Invalid value',
+                    ]);
+                }
+
+                AppAuthorizeModel::Instance()->appId = $appId;
+                return;
+            }
+
             $serverTime = curl_ext_time_utc();
             JWT::$timestamp = $serverTime;
 
@@ -111,6 +112,10 @@ abstract class BaseAppApiHttpController extends BaseApiHttpController implements
             AppAuthorizeModel::Instance()->appId = $appId;
 
         } catch (\Throwable $e) {
+
+            if ($e instanceof HttpUnauthorizedAppExtRuntimeException) {
+                throw $e;
+            }
 
             throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
                 self::TOKEN_KEY_NAME => 'Invalid value',
