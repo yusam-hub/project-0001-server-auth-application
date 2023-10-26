@@ -4,22 +4,16 @@ namespace App\Http\Controllers\Api\App;
 
 use App\Helpers\HttpHelper;
 use App\Http\Controllers\Api\ApiSwaggerController;
-use App\Http\Controllers\Api\BaseApiHttpController;
 use App\Http\Controllers\Api\BaseAppApiHttpController;
-use App\Http\Controllers\Api\BaseUserApiHttpController;
-use App\Model\Authorize\AppAuthorizeModel;
-use App\Model\Authorize\UserAuthorizeModel;
-use App\Model\Database\AppModel;
 use App\Model\Database\AppUserKeyModel;
 use App\Model\Database\UserModel;
-use App\Services\AdminAppService;
-use App\Services\AppService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use YusamHub\AppExt\Exceptions\HttpBadRequestAppExtRuntimeException;
 use YusamHub\AppExt\Exceptions\HttpInternalServerErrorAppExtRuntimeException;
 use YusamHub\AppExt\Helpers\ExceptionHelper;
 use YusamHub\DbExt\Exceptions\PdoExtModelException;
+use YusamHub\Project0001ClientAuthSdk\Servers\Models\AppTokenAuthorizeModel;
 use YusamHub\Validator\Validator;
 use YusamHub\Validator\ValidatorException;
 
@@ -117,7 +111,7 @@ class AppControllerApi extends BaseAppApiHttpController
             $validator->validateOrFail();
 
             $appUserKeyModel = AppUserKeyModel::findModelByAttributesOrFail($this->getPdoExtKernel(), [
-                'appId' => AppAuthorizeModel::Instance()->appId,
+                'appId' => AppTokenAuthorizeModel::Instance()->appId,
                 'userId' => $validator->getAttribute('userId'),
                 'deviceUuid' => $validator->getAttribute('deviceUuid')
             ]);
@@ -212,7 +206,7 @@ class AppControllerApi extends BaseAppApiHttpController
 
             $appUserKeyModel = AppUserKeyModel::findModelByAttributesOrFail($this->getPdoExtKernel(), [
                 'id' => $validator->getAttribute('appUserKeyId'),
-                'appId' => AppAuthorizeModel::Instance()->appId,
+                'appId' => AppTokenAuthorizeModel::Instance()->appId,
                 'serviceKey' => $validator->getAttribute('serviceKey')
             ]);
 

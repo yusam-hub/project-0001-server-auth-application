@@ -2,12 +2,10 @@
 
 namespace App\Console\Commands\Maintenance;
 
-use App\Model\Authorize\UserAuthorizeModel;
 use App\Model\Database\UserConfigs\AppTariffUserConfigModel;
 use App\Model\Database\UserModel;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use YusamHub\AppExt\SymfonyExt\Console\Commands\BaseConsoleCommand;
 

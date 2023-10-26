@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Helpers\HttpHelper;
 use App\Http\Controllers\Api\ApiSwaggerController;
 use App\Http\Controllers\Api\BaseUserApiHttpController;
-use App\Model\Authorize\UserAuthorizeModel;
 use App\Model\Database\AppModel;
 use App\Model\Database\UserConfigs\AppTariffUserConfigModel;
 use App\Services\AdminAppService;
@@ -14,6 +13,7 @@ use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use YusamHub\AppExt\Exceptions\HttpBadRequestAppExtRuntimeException;
 use YusamHub\AppExt\Exceptions\HttpInternalServerErrorAppExtRuntimeException;
 use YusamHub\AppExt\Helpers\ExceptionHelper;
+use YusamHub\Project0001ClientAuthSdk\Servers\Models\UserTokenAuthorizeModel;
 use YusamHub\Validator\Validator;
 use YusamHub\Validator\ValidatorException;
 
@@ -98,7 +98,7 @@ class AdminAppControllerApi extends BaseUserApiHttpController
              */
             $appTariffUserConfigModel = AppTariffUserConfigModel::configModelFind(
                 $this->getPdoExtKernel(),
-                UserAuthorizeModel::Instance()->userId
+                UserTokenAuthorizeModel::Instance()->userId
             );
 
             $maxAllowApplications = 0;
@@ -117,7 +117,7 @@ class AdminAppControllerApi extends BaseUserApiHttpController
              */
             $currentApplication = AdminAppService::getAppCount(
                 $this->getPdoExtKernel(),
-                UserAuthorizeModel::Instance()->userId
+                UserTokenAuthorizeModel::Instance()->userId
             );
             /**
              * Проверяем ограничение
@@ -141,7 +141,7 @@ class AdminAppControllerApi extends BaseUserApiHttpController
 
         return AdminAppService::postAppAdd(
             $this->getPdoExtKernel(),
-            UserAuthorizeModel::Instance()->userId,
+            UserTokenAuthorizeModel::Instance()->userId,
             $validator->getAttribute('title')
         );
     }
@@ -183,7 +183,7 @@ class AdminAppControllerApi extends BaseUserApiHttpController
 
         return AdminAppService::getAppList(
             $this->getPdoExtKernel(),
-            UserAuthorizeModel::Instance()->userId
+            UserTokenAuthorizeModel::Instance()->userId
         );
     }
 
@@ -262,7 +262,7 @@ class AdminAppControllerApi extends BaseUserApiHttpController
 
         return AdminAppService::getAppId(
             $this->getPdoExtKernel(),
-            UserAuthorizeModel::Instance()->userId,
+            UserTokenAuthorizeModel::Instance()->userId,
             $validator->getAttribute('appId')
         );
     }
@@ -349,7 +349,7 @@ class AdminAppControllerApi extends BaseUserApiHttpController
 
         return AdminAppService::putAppIdChangeTitle(
             $this->getPdoExtKernel(),
-            UserAuthorizeModel::Instance()->userId,
+            UserTokenAuthorizeModel::Instance()->userId,
             $validator->getAttribute('appId'),
             $validator->getAttribute('title')
         );
@@ -430,7 +430,7 @@ class AdminAppControllerApi extends BaseUserApiHttpController
 
         return AdminAppService::putAppIdChangeKeys(
             $this->getPdoExtKernel(),
-            UserAuthorizeModel::Instance()->userId,
+            UserTokenAuthorizeModel::Instance()->userId,
             $validator->getAttribute('appId')
         );
     }

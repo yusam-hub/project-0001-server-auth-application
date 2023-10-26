@@ -2,35 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Model\Authorize\AppAuthorizeModel;
-use App\Model\Database\AppModel;
-use Firebase\JWT\JWT;
+use App\AuthorizeServers\AppTokenServer;
 use Symfony\Component\HttpFoundation\Request;
-use YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException;
 use YusamHub\AppExt\SymfonyExt\Http\Interfaces\ControllerMiddlewareInterface;
 use YusamHub\AppExt\SymfonyExt\Http\Traits\ControllerMiddlewareTrait;
-use YusamHub\Project0001ClientAuthSdk\Tokens\JwtAuthAppTokenHelper;
-
+use YusamHub\Project0001ClientAuthSdk\Servers\Models\AppTokenAuthorizeModel;
 
 abstract class BaseAppApiHttpController extends BaseApiHttpController implements ControllerMiddlewareInterface
 {
     use ControllerMiddlewareTrait;
-    const TOKEN_KEY_NAME = 'X-Token';
-    const SIGN_KEY_NAME = 'X-Sign';
-    const AUTH_ERROR_CODE_40101 = 40101;
-    const AUTH_ERROR_CODE_40102 = 40102;
-    const AUTH_ERROR_CODE_40103 = 40103;
-    const AUTH_ERROR_CODE_40104 = 40104;
-    const AUTH_ERROR_CODE_40105 = 40105;
-    const AUTH_ERROR_CODE_40106 = 40106;
-    const AUTH_ERROR_MESSAGES = [
-        self::AUTH_ERROR_CODE_40101 => 'Invalid identifier in head',
-        self::AUTH_ERROR_CODE_40102 => 'Fail load by identifier',
-        self::AUTH_ERROR_CODE_40103 => 'Fail load payload data',
-        self::AUTH_ERROR_CODE_40104 => 'Fail use payload data as identifier',
-        self::AUTH_ERROR_CODE_40105 => 'Token expired',
-        self::AUTH_ERROR_CODE_40106 => 'Invalid hash body',
-    ];
 
     protected function getContent(Request $request): string
     {
@@ -54,76 +34,26 @@ abstract class BaseAppApiHttpController extends BaseApiHttpController implements
             }
         }
 
-        $token = $request->headers->get(self::TOKEN_KEY_NAME,'');
-        $sign = $request->headers->get(self::SIGN_KEY_NAME,'');
+        $appTokenServer = new AppTokenServer(
+            $request->headers->get(AppTokenServer::TOKEN_KEY_NAME,''),
+            $request->headers->get(AppTokenServer::SIGN_KEY_NAME,''),
+            $this->getContent($request)
+        );
+
+        $appTokenServer->setBaseApiHttpController($this);
 
         try {
-            if (!empty($sign)) {
-                $appId = intval($token);
-                $serviceKey = $sign;
 
-                $appModel = AppModel::findModel($this->getPdoExtKernel(), $appId);
-
-                if (is_null($appModel)) {
-                    throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
-                        self::TOKEN_KEY_NAME => 'Invalid value',
-                        self::SIGN_KEY_NAME => 'Invalid value',
-                    ]);
-                }
-
-                if ($appModel->serviceKey !== $serviceKey) {
-                    throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
-                        self::TOKEN_KEY_NAME => 'Invalid value',
-                        self::SIGN_KEY_NAME => 'Invalid value',
-                    ]);
-                }
-
-                AppAuthorizeModel::Instance()->appId = $appId;
-                return;
-            }
-
-            $serverTime = curl_ext_time_utc();
-            JWT::$timestamp = $serverTime;
-
-            $appId = JwtAuthAppTokenHelper::getAppIdFromJwtHeads($token);
-
-            if (is_null($appId)) {
-                throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40101], self::AUTH_ERROR_CODE_40101);
-            }
-
-            $appModel = AppModel::findModel($this->getPdoExtKernel(), $appId);
-            if (is_null($appModel)) {
-                throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40102], self::AUTH_ERROR_CODE_40102);
-            }
-
-            $appTokenPayload = JwtAuthAppTokenHelper::fromJwtAsPayload($token, $appModel->publicKey);
-
-            if (is_null($appTokenPayload->aid) || is_null($appTokenPayload->iat) || is_null($appTokenPayload->exp) || is_null($appTokenPayload->hb)) {
-                throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40103], self::AUTH_ERROR_CODE_40103);
-            }
-
-            if ($appTokenPayload->aid != $appId) {
-                throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40104], self::AUTH_ERROR_CODE_40104);
-            }
-
-            if ($serverTime < $appTokenPayload->iat and $serverTime > $appTokenPayload->exp) {
-                throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40105], self::AUTH_ERROR_CODE_40105);
-            }
-
-            if (md5($this->getContent($request)) !== $appTokenPayload->hb) {
-                throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40106], self::AUTH_ERROR_CODE_40106);
-            }
-
-            AppAuthorizeModel::Instance()->appId = $appId;
+            AppTokenAuthorizeModel::Instance()->assign($appTokenServer->getAuthorizeModelOrFail());
 
         } catch (\Throwable $e) {
 
-            if ($e instanceof HttpUnauthorizedAppExtRuntimeException) {
-                throw $e;
+            if ($e instanceof \RuntimeException) {
+                throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException(json_decode($e->getMessage(), true));
             }
 
             throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
-                self::TOKEN_KEY_NAME => 'Invalid value',
+                AppTokenServer::TOKEN_KEY_NAME => 'Invalid value',
                 'detail' => $e->getMessage(),
                 'code' => $e->getCode(),
                 'class' => get_class($e)

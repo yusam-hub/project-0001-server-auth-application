@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\User;
 use App\Helpers\HttpHelper;
 use App\Http\Controllers\Api\ApiSwaggerController;
 use App\Http\Controllers\Api\BaseUserApiHttpController;
-use App\Model\Authorize\UserAuthorizeModel;
 use App\Model\Database\AppModel;
 use App\Services\UserAppService;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,6 +12,7 @@ use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use YusamHub\AppExt\Exceptions\HttpBadRequestAppExtRuntimeException;
 use YusamHub\AppExt\Exceptions\HttpInternalServerErrorAppExtRuntimeException;
 use YusamHub\AppExt\Helpers\ExceptionHelper;
+use YusamHub\Project0001ClientAuthSdk\Servers\Models\UserTokenAuthorizeModel;
 use YusamHub\Validator\Validator;
 use YusamHub\Validator\ValidatorException;
 
@@ -105,7 +105,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
 
         return UserAppService::getAppIdKeyList(
             $this->getPdoExtKernel(),
-            UserAuthorizeModel::Instance()->userId,
+            UserTokenAuthorizeModel::Instance()->userId,
             $validator->getAttribute('appId')
         );
     }
@@ -193,7 +193,7 @@ class UserAppControllerApi extends BaseUserApiHttpController
         return UserAppService::postAppIdRefresh(
             $this->getPdoExtKernel(),
             $validator->getAttribute('appId'),
-            UserAuthorizeModel::Instance()->userId,
+            UserTokenAuthorizeModel::Instance()->userId,
             $validator->getAttribute('deviceUuid')
         );
     }
