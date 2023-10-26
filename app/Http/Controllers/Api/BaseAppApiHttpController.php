@@ -32,6 +32,16 @@ abstract class BaseAppApiHttpController extends BaseApiHttpController implements
         self::AUTH_ERROR_CODE_40106 => 'Invalid hash body',
     ];
 
+    protected function getContent(Request $request): string
+    {
+        if (strtoupper($request->getMethod()) === 'GET') {
+            $content = http_build_query($request->query->all());
+        } else {
+            $content = $request->getContent();
+        }
+        return $content;
+    }
+
     /**
      * @param Request $request
      * @return void
@@ -100,12 +110,7 @@ abstract class BaseAppApiHttpController extends BaseApiHttpController implements
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40105], self::AUTH_ERROR_CODE_40105);
             }
 
-            if (strtoupper($request->getMethod()) === 'GET') {
-                $content = http_build_query($request->query->all());
-            } else {
-                $content = $request->getContent();
-            }
-            if (md5($content) !== $appTokenPayload->hb) {
+            if (md5($this->getContent($request)) !== $appTokenPayload->hb) {
                 throw new \Exception(self::AUTH_ERROR_MESSAGES[self::AUTH_ERROR_CODE_40106], self::AUTH_ERROR_CODE_40106);
             }
 
