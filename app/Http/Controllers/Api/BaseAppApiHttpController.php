@@ -6,6 +6,7 @@ use App\AuthorizeServers\AppTokenServer;
 use Symfony\Component\HttpFoundation\Request;
 use YusamHub\AppExt\SymfonyExt\Http\Interfaces\ControllerMiddlewareInterface;
 use YusamHub\AppExt\SymfonyExt\Http\Traits\ControllerMiddlewareTrait;
+use YusamHub\Project0001ClientAuthSdk\Exceptions\JsonAuthRuntimeException;
 use YusamHub\Project0001ClientAuthSdk\Servers\Models\AppTokenAuthorizeModel;
 
 abstract class BaseAppApiHttpController extends BaseApiHttpController implements ControllerMiddlewareInterface
@@ -48,7 +49,7 @@ abstract class BaseAppApiHttpController extends BaseApiHttpController implements
 
         } catch (\Throwable $e) {
 
-            if ($e instanceof \RuntimeException) {
+            if ($e instanceof JsonAuthRuntimeException) {
                 throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException(json_decode($e->getMessage(), true));
             }
 
