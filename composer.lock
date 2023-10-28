@@ -4381,7 +4381,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yusam-hub/project-0001-client-auth-sdk.git",
-                "reference": "3d5d54f6d07bc176f3d66479c56143877e2b97c9"
+                "reference": "3f44dbb3d7671346a8c737b910a8c707fbbdbd6a"
             },
             "require": {
                 "firebase/php-jwt": "^6.0",
@@ -4406,7 +4406,7 @@
                 "files": []
             },
             "description": "yusam-hub/project-0001-client-auth-sdk",
-            "time": "2023-10-28T21:19:22+00:00"
+            "time": "2023-10-28T21:41:02+00:00"
         },
         {
             "name": "yusam-hub/redis-ext",

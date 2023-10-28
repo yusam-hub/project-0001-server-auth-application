@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 use YusamHub\AppExt\SymfonyExt\Http\Interfaces\ControllerMiddlewareInterface;
 use YusamHub\AppExt\SymfonyExt\Http\Traits\ControllerMiddlewareTrait;
 use YusamHub\Project0001ClientAuthSdk\Exceptions\JsonAuthRuntimeException;
+use YusamHub\Project0001ClientAuthSdk\Servers\BaseTokeServerInterface;
 use YusamHub\Project0001ClientAuthSdk\Servers\Models\UserTokenAuthorizeModel;
 
 abstract class BaseUserApiHttpController extends BaseApiHttpController implements ControllerMiddlewareInterface
@@ -36,8 +37,8 @@ abstract class BaseUserApiHttpController extends BaseApiHttpController implement
         }
 
         $userTokenServer = new UserTokenServer(
-            $request->headers->get(UserTokenServer::TOKEN_KEY_NAME,''),
-            $request->headers->get(UserTokenServer::SIGN_KEY_NAME,''),
+            $request->headers->get(BaseTokeServerInterface::TOKEN_KEY_NAME,''),
+            $request->headers->get(BaseTokeServerInterface::SIGN_KEY_NAME,''),
             $this->getContent($request)
         );
 
@@ -54,7 +55,7 @@ abstract class BaseUserApiHttpController extends BaseApiHttpController implement
             }
 
             throw new \YusamHub\AppExt\Exceptions\HttpUnauthorizedAppExtRuntimeException([
-                UserTokenServer::TOKEN_KEY_NAME => 'Invalid value',
+                BaseTokeServerInterface::TOKEN_KEY_NAME => 'Invalid value',
                 'detail' => $e->getMessage(),
                 'code' => $e->getCode(),
                 'class' => get_class($e)
